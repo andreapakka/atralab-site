@@ -1,0 +1,349 @@
+.roadtoschool-page {
+  max-width: 760px;
+}
+
+.rts-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.rts-heading .internal-lead {
+  margin-bottom: 0;
+}
+
+.rts-status {
+  flex: 0 0 auto;
+  margin-top: 4px;
+  padding: 7px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  background: rgba(255,255,255,0.035);
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.rts-status.is-existing {
+  color: var(--cream);
+  border-color: rgba(231, 111, 81, 0.45);
+  background: rgba(231, 111, 81, 0.10);
+}
+
+.rts-form {
+  display: grid;
+  gap: 12px;
+}
+
+.rts-card {
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.055), rgba(255,255,255,0.025));
+  box-shadow: 0 16px 45px rgba(0,0,0,0.14), inset 0 1px 0 rgba(255,255,255,0.035);
+}
+
+.rts-section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 13px;
+}
+
+.rts-section-title h2 {
+  margin: 0;
+  font-size: 1rem;
+  letter-spacing: -0.025em;
+}
+
+.rts-step {
+  color: var(--accent);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.rts-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.rts-grid-3 {
+  grid-template-columns: 1.3fr 1fr 1fr;
+}
+
+.rts-field {
+  display: grid;
+  gap: 6px;
+}
+
+.rts-field > span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.rts-field input,
+.rts-field select,
+.rts-field textarea {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  outline: none;
+  color: var(--cream);
+  background: rgba(0,0,0,0.20);
+  font: inherit;
+  transition: border-color 0.16s ease, background 0.16s ease, box-shadow 0.16s ease;
+}
+
+.rts-field input,
+.rts-field select {
+  height: 43px;
+  padding: 0 11px;
+}
+
+.rts-field textarea {
+  min-height: 88px;
+  padding: 10px 11px;
+  resize: vertical;
+}
+
+.rts-field input:focus,
+.rts-field select:focus,
+.rts-field textarea:focus {
+  border-color: var(--accent);
+  background: rgba(231, 111, 81, 0.055);
+  box-shadow: 0 0 0 3px rgba(231, 111, 81, 0.08);
+}
+
+.rts-field select option {
+  color: #111;
+  background: #fff;
+}
+
+.rts-duration {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 18px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.rts-duration strong {
+  color: var(--cream);
+  font-size: 0.95rem;
+}
+
+.rts-choice-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.rts-transport-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.rts-choice {
+  min-height: 92px;
+  display: grid;
+  place-items: center;
+  gap: 4px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  color: var(--cream);
+  background: rgba(255,255,255,0.025);
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease, box-shadow 0.16s ease;
+}
+
+.rts-choice:hover {
+  transform: translateY(-2px);
+  border-color: rgba(231,111,81,0.40);
+}
+
+.rts-choice.is-selected {
+  border-color: var(--accent);
+  background: rgba(231,111,81,0.12);
+  box-shadow: 0 0 0 3px rgba(231,111,81,0.07);
+}
+
+.rts-choice-icon {
+  font-size: 2.35rem;
+  line-height: 1;
+}
+
+.rts-rating {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.rts-face {
+  min-height: 100px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 5px;
+  padding: 8px 4px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: rgba(255,255,255,0.025);
+  color: var(--cream);
+  font: inherit;
+  cursor: pointer;
+  transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease, box-shadow 0.16s ease;
+}
+
+.rts-face span {
+  font-size: clamp(2.1rem, 6vw, 3.2rem);
+  line-height: 1;
+}
+
+.rts-face small {
+  color: var(--muted);
+  font-size: 0.64rem;
+  font-weight: 600;
+}
+
+.rts-face:hover {
+  transform: translateY(-3px) scale(1.02);
+}
+
+.rts-face.is-selected {
+  border-color: var(--accent);
+  background: rgba(231,111,81,0.11);
+  box-shadow: 0 0 0 3px rgba(231,111,81,0.07);
+  transform: translateY(-2px);
+}
+
+.rts-face.is-selected small {
+  color: var(--cream);
+}
+
+.rts-notes {
+  margin-top: 10px;
+}
+
+.rts-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-top: 2px;
+}
+
+.rts-save {
+  min-height: 44px;
+  padding: 0 18px;
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  color: var(--black);
+  background: var(--accent);
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.16s ease, filter 0.16s ease;
+}
+
+.rts-save:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.06);
+}
+
+.rts-save:disabled {
+  opacity: 0.55;
+  cursor: wait;
+  transform: none;
+}
+
+.rts-message {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.rts-message.is-success {
+  color: #8fe3a8;
+}
+
+.rts-message.is-error {
+  color: #ff8d83;
+}
+
+@media (max-width: 720px) {
+  .rts-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .rts-status {
+    margin-top: 0;
+  }
+
+  .rts-grid-3 {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .rts-grid-3 .rts-field:first-child {
+    grid-column: 1 / -1;
+  }
+
+  .rts-rating {
+    gap: 6px;
+  }
+
+  .rts-face {
+    min-height: 88px;
+  }
+
+  .rts-face span {
+    font-size: 2.35rem;
+  }
+
+  .rts-face small {
+    font-size: 0.58rem;
+  }
+}
+
+@media (max-width: 470px) {
+  .rts-card {
+    padding: 13px;
+  }
+
+  .rts-face {
+    min-height: 78px;
+    border-radius: 11px;
+  }
+
+  .rts-face span {
+    font-size: 1.9rem;
+  }
+
+  .rts-face small {
+    display: none;
+  }
+
+  .rts-choice {
+    min-height: 82px;
+  }
+
+  .rts-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .rts-save {
+    width: 100%;
+  }
+}

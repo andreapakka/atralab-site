@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Road to School · Atralab</title>
+
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/internal.css">
+  <link rel="stylesheet" href="/css/roadtoschool.css">
+</head>
+<body>
+
+  <div data-include="/components/header.html"></div>
+
+  <main class="internal-shell">
+    <div class="container internal-layout">
+
+      <aside class="internal-sidebar">
+        <div data-include="/components/sidebar.html"></div>
+      </aside>
+
+      <section class="internal-content roadtoschool-page">
+        <p class="internal-kicker">ATRALAB / ROAD TO SCHOOL</p>
+
+        <div class="rts-heading">
+          <div>
+            <h1>Road to School</h1>
+            <p class="internal-lead">Un piccolo diario del viaggio verso scuola.</p>
+          </div>
+
+          <div class="rts-status" id="recordStatus" aria-live="polite">Nuovo giorno</div>
+        </div>
+
+        <form id="roadToSchoolForm" class="rts-form">
+
+          <section class="rts-card">
+            <div class="rts-section-title">
+              <span class="rts-step">01</span>
+              <h2>Quando?</h2>
+            </div>
+
+            <div class="rts-grid rts-grid-3">
+              <label class="rts-field">
+                <span>Data</span>
+                <input type="date" id="date" required>
+              </label>
+
+              <label class="rts-field">
+                <span>Partenza</span>
+                <input type="time" id="departureTime" required>
+              </label>
+
+              <label class="rts-field">
+                <span>Arrivo</span>
+                <input type="time" id="arrivalTime" required>
+              </label>
+            </div>
+
+            <div class="rts-duration">
+              <span>Tempo impiegato</span>
+              <strong id="durationValue">—</strong>
+            </div>
+          </section>
+
+          <section class="rts-card">
+            <div class="rts-section-title">
+              <span class="rts-step">02</span>
+              <h2>Come sei andata?</h2>
+            </div>
+
+            <div class="rts-choice-grid rts-transport-grid" role="group" aria-label="Mezzo di trasporto">
+              <button type="button" class="rts-choice rts-transport" data-transport="Macchina">
+                <span class="rts-choice-icon">🚗</span>
+                <span>Macchina</span>
+              </button>
+
+              <button type="button" class="rts-choice rts-transport" data-transport="Treno">
+                <span class="rts-choice-icon">🚆</span>
+                <span>Treno</span>
+              </button>
+            </div>
+          </section>
+
+          <section class="rts-card">
+            <div class="rts-section-title">
+              <span class="rts-step">03</span>
+              <h2>Com'è andata?</h2>
+            </div>
+
+            <div class="rts-rating" role="group" aria-label="Valutazione del viaggio">
+              <button type="button" class="rts-face face-1" data-rating="1" aria-label="Pessimo">
+                <span>😡</span>
+                <small>Pessimo</small>
+              </button>
+
+              <button type="button" class="rts-face face-2" data-rating="2" aria-label="Male">
+                <span>🙁</span>
+                <small>Male</small>
+              </button>
+
+              <button type="button" class="rts-face face-3" data-rating="3" aria-label="Così così">
+                <span>😐</span>
+                <small>Così così</small>
+              </button>
+
+              <button type="button" class="rts-face face-4" data-rating="4" aria-label="Bene">
+                <span>🙂</span>
+                <small>Bene</small>
+              </button>
+
+              <button type="button" class="rts-face face-5" data-rating="5" aria-label="Ottimo">
+                <span>😄</span>
+                <small>Ottimo</small>
+              </button>
+            </div>
+          </section>
+
+          <section class="rts-card">
+            <div class="rts-section-title">
+              <span class="rts-step">04</span>
+              <h2>È successo qualcosa?</h2>
+            </div>
+
+            <label class="rts-field">
+              <span>Evento</span>
+              <select id="event">
+                <option value="">Nessuno</option>
+                <option value="Ritardo">Ritardo</option>
+                <option value="Sciopero">Sciopero</option>
+                <option value="Incidente">Incidente</option>
+                <option value="Altro">Altro</option>
+              </select>
+            </label>
+
+            <label class="rts-field rts-notes">
+              <span>Note</span>
+              <textarea id="notes" rows="4" placeholder="Qualcosa da ricordare?"></textarea>
+            </label>
+          </section>
+
+          <div class="rts-actions">
+            <button type="submit" class="rts-save" id="saveButton">Salva giornata</button>
+            <span class="rts-message" id="saveMessage" aria-live="polite"></span>
+          </div>
+
+        </form>
+      </section>
+
+    </div>
+  </main>
+
+  <div data-include="/components/footer.html"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/js/include.js"></script>
+  <script src="/js/roadtoschool.js"></script>
+</body>
+</html>
