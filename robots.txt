@@ -1,0 +1,7 @@
+User-agent: *
+Disallow: /internal/
+Disallow: /components/
+
+Allow: /
+
+Sitemap: https://atralab.it/sitemap.xml
