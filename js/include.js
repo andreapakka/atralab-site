@@ -1,3 +1,25 @@
+function loadCommonHead() {
+  const head = document.head;
+
+  // Favicon SVG
+  if (!document.querySelector('link[rel="icon"][href="/assets/icons/favicon.svg"]')) {
+    const faviconSvg = document.createElement("link");
+    faviconSvg.rel = "icon";
+    faviconSvg.href = "/assets/icons/favicon.svg";
+    faviconSvg.type = "image/svg+xml";
+    head.appendChild(faviconSvg);
+  }
+
+  // Favicon ICO fallback
+  if (!document.querySelector('link[rel="icon"][href="/assets/icons/favicon.ico"]')) {
+    const faviconIco = document.createElement("link");
+    faviconIco.rel = "icon";
+    faviconIco.href = "/assets/icons/favicon.ico";
+    faviconIco.sizes = "any";
+    head.appendChild(faviconIco);
+  }
+}
+
 async function loadIncludes() {
   const elements = document.querySelectorAll("[data-include]");
 
@@ -18,4 +40,5 @@ async function loadIncludes() {
   }
 }
 
+loadCommonHead();
 loadIncludes();
