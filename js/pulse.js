@@ -86,16 +86,20 @@ const NEWS_CATEGORIES = [
 /*
   Impostazioni generali
 */
-const REQUEST_DELAY_MS = 6200;
-const CACHE_DURATION_MS = 30 * 60 * 1000;
-const CACHE_PREFIX = "atrapulse-cache-v1-";
+const MIN_REQUEST_INTERVAL_MS = 6500;
+const RETRY_DELAY_MS = 7000;
+const CACHE_DURATION_MS = 60 * 60 * 1000;
+const CACHE_PREFIX = "atrapulse-cache-v2-";
 const MAX_GDELT_RESULTS = 100;
 
 const tabsEl = document.getElementById("pulseTabs");
 const sectionsEl = document.getElementById("pulseSections");
 const updatedEl = document.getElementById("pulseUpdated");
 
-let loadingQueue = false;
+let activeCategoryId = NEWS_CATEGORIES[0]?.id ?? null;
+let lastRequestAt = 0;
+let requestQueue = Promise.resolve();
+const inFlight = new Map();
 
 /* -------------------------------------------------------
    UTILITA
@@ -369,11 +373,6 @@ function jsonpRequest(url, timeoutMs = 20000) {
 }
 
 async function fetchCategory(category) {
-  /*
-    Usiamo JSONP invece di fetch.
-    In questo modo non dipendiamo dagli header CORS
-    restituiti in quel momento da GDELT.
-  */
   const data = await jsonpRequest(
     buildGdeltUrl(category)
   );
@@ -430,6 +429,47 @@ async function fetchCategory(category) {
   return news;
 }
 
+async function performRequestWithRetry(category) {
+  /*
+    Manteniamo almeno 6,5 secondi tra due richieste reali
+    anche se l'utente cambia categoria molto velocemente.
+  */
+  const elapsed = Date.now() - lastRequestAt;
+
+  if (elapsed < MIN_REQUEST_INTERVAL_MS) {
+    await sleep(
+      MIN_REQUEST_INTERVAL_MS - elapsed
+    );
+  }
+
+  lastRequestAt = Date.now();
+
+  try {
+    return await fetchCategory(category);
+  } catch (firstError) {
+    /*
+      Un solo retry automatico.
+      Se GDELT sta limitando temporaneamente,
+      aspettiamo 7 secondi e riproviamo una volta.
+    */
+    await sleep(RETRY_DELAY_MS);
+
+    lastRequestAt = Date.now();
+
+    return await fetchCategory(category);
+  }
+}
+
+function queueCategoryRequest(category) {
+  const task = requestQueue.then(
+    () => performRequestWithRetry(category)
+  );
+
+  requestQueue = task.catch(() => {});
+
+  return task;
+}
+
 /* -------------------------------------------------------
    HTML
 ------------------------------------------------------- */
@@ -458,12 +498,13 @@ function renderSkeletons(category) {
     .join("");
 }
 
-function createCategoryShell(category) {
+function createCategoryShell(category, index) {
   return `
     <section
       id="pulse-${category.id}"
-      class="pulse-section is-waiting"
+      class="pulse-section ${index === 0 ? "" : "is-waiting"}"
       data-category="${category.id}"
+      ${index === 0 ? "" : "hidden"}
     >
       <div class="pulse-section-head">
         <div class="pulse-section-title">
@@ -481,7 +522,7 @@ function createCategoryShell(category) {
           class="pulse-section-meta"
           data-section-meta
         >
-          In attesa
+          ${index === 0 ? "Caricamento…" : "Apri la categoria"}
         </div>
       </div>
 
@@ -502,7 +543,7 @@ function createTabs() {
         <button
           class="pulse-tab ${index === 0 ? "is-active" : ""}"
           type="button"
-          data-target="pulse-${category.id}"
+          data-category-id="${category.id}"
         >
           ${category.icon} ${category.label}
         </button>
@@ -515,22 +556,39 @@ function createTabs() {
     .forEach((button) => {
       button.addEventListener(
         "click",
-        () => {
-          const id = button.dataset.target;
-          const target = document.getElementById(id);
+        async () => {
+          const categoryId =
+            button.dataset.categoryId;
+
+          const category =
+            NEWS_CATEGORIES.find(
+              (item) => item.id === categoryId
+            );
+
+          if (!category) {
+            return;
+          }
+
+          activeCategoryId = category.id;
 
           tabsEl
             .querySelectorAll(".pulse-tab")
             .forEach((tab) =>
-              tab.classList.remove("is-active")
+              tab.classList.toggle(
+                "is-active",
+                tab === button
+              )
             );
 
-          button.classList.add("is-active");
+          document
+            .querySelectorAll(".pulse-section")
+            .forEach((section) => {
+              section.hidden =
+                section.dataset.category !==
+                category.id;
+            });
 
-          target?.scrollIntoView({
-            behavior: "smooth",
-            block: "start"
-          });
+          await loadCategory(category);
         }
       );
     });
@@ -642,7 +700,7 @@ function createNewsCard(article, category) {
   `;
 }
 
-function renderNews(category, news, fromCache = false) {
+function renderNews(category, news, fromCache = false, savedAt = null) {
   const section = document.querySelector(
     `[data-category="${category.id}"]`
   );
@@ -668,11 +726,12 @@ function renderNews(category, news, fromCache = false) {
     grid.innerHTML = `
       <div class="pulse-empty">
         <strong>Nessuna notizia interessante trovata</strong>
-        Proveremo di nuovo al prossimo aggiornamento
+        Prova più tardi oppure amplia le keyword della categoria
       </div>
     `;
 
-    meta.textContent = `ultimi ${category.days} giorni`;
+    meta.textContent =
+      `ultimi ${category.days} giorni`;
 
     return;
   }
@@ -686,9 +745,18 @@ function renderNews(category, news, fromCache = false) {
   meta.textContent = fromCache
     ? `${news.length} · cache`
     : `${news.length} · aggiornate`;
+
+  if (category.id === activeCategoryId) {
+    const date = savedAt
+      ? new Date(savedAt)
+      : new Date();
+
+    updatedEl.textContent =
+      `Aggiornato alle ${formatUpdatedTime(date)}`;
+  }
 }
 
-function renderError(category, error) {
+function renderError(category) {
   const section = document.querySelector(
     `[data-category="${category.id}"]`
   );
@@ -716,6 +784,7 @@ function renderError(category, error) {
         Questa sezione non si è caricata
       </strong>
 
+      GDELT può limitare temporaneamente le richieste
       Aspetta qualche secondo e riprova
 
       <br>
@@ -732,6 +801,11 @@ function renderError(category, error) {
 
   meta.textContent = "non disponibile";
 
+  if (category.id === activeCategoryId) {
+    updatedEl.textContent =
+      "Aggiornamento non riuscito";
+  }
+
   const retryButton = grid.querySelector(
     "[data-retry]"
   );
@@ -740,7 +814,7 @@ function renderError(category, error) {
     "click",
     async () => {
       retryButton.disabled = true;
-      await loadSingleCategory(category, true);
+      await loadCategory(category, true);
     }
   );
 }
@@ -767,13 +841,18 @@ function setSectionLoading(category) {
 
   meta.textContent = "Caricamento…";
   grid.innerHTML = renderSkeletons(category);
+
+  if (category.id === activeCategoryId) {
+    updatedEl.textContent =
+      `Caricamento ${category.label.toLowerCase()}…`;
+  }
 }
 
 /* -------------------------------------------------------
-   CARICAMENTO
+   CARICAMENTO ON DEMAND
 ------------------------------------------------------- */
 
-async function loadSingleCategory(
+async function loadCategory(
   category,
   force = false
 ) {
@@ -784,90 +863,48 @@ async function loadSingleCategory(
       renderNews(
         category,
         cached.news,
-        true
+        true,
+        cached.savedAt
       );
 
-      return true;
+      return;
     }
+  }
+
+  if (inFlight.has(category.id)) {
+    return inFlight.get(category.id);
   }
 
   setSectionLoading(category);
 
-  try {
-    const news = await fetchCategory(category);
+  const promise = (async () => {
+    try {
+      const news =
+        await queueCategoryRequest(category);
 
-    setCachedCategory(category, news);
-    renderNews(category, news, false);
+      setCachedCategory(category, news);
 
-    return true;
-  } catch (error) {
-    console.error(
-      `AtraPulse ${category.id}:`,
-      error
-    );
-
-    renderError(category, error);
-
-    return false;
-  }
-}
-
-async function loadAllCategories() {
-  if (loadingQueue) {
-    return;
-  }
-
-  loadingQueue = true;
-
-  updatedEl.textContent =
-    "Aggiornamento in corso";
-
-  for (
-    let index = 0;
-    index < NEWS_CATEGORIES.length;
-    index++
-  ) {
-    const category =
-      NEWS_CATEGORIES[index];
-
-    const cached =
-      getCachedCategory(category);
-
-    if (cached) {
       renderNews(
         category,
-        cached.news,
-        true
+        news,
+        false,
+        Date.now()
+      );
+    } catch (error) {
+      console.error(
+        `AtraPulse ${category.id}:`,
+        error
       );
 
-      continue;
+      renderError(category);
+    } finally {
+      inFlight.delete(category.id);
     }
+  })();
 
-    await loadSingleCategory(category);
+  inFlight.set(category.id, promise);
 
-    /*
-      GDELT chiede di non superare una
-      richiesta ogni 5 secondi.
-      Aspettiamo 6,2 secondi prima
-      della prossima richiesta reale.
-    */
-    const hasAnotherCategory =
-      NEWS_CATEGORIES
-        .slice(index + 1)
-        .some(
-          (nextCategory) =>
-            !getCachedCategory(nextCategory)
-        );
-
-    if (hasAnotherCategory) {
-      await sleep(REQUEST_DELAY_MS);
-    }
-  }
-
-  updatedEl.textContent =
-    `Aggiornato alle ${formatUpdatedTime()}`;
-
-  loadingQueue = false;
+  return promise;
 }
 
 /* -------------------------------------------------------
@@ -876,4 +913,7 @@ async function loadAllCategories() {
 
 createTabs();
 createSections();
-loadAllCategories();
+
+if (NEWS_CATEGORIES.length > 0) {
+  loadCategory(NEWS_CATEGORIES[0]);
+}
