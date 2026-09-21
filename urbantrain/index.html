@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>UrbanTrain — Atralab</title>
+  <meta
+    name="description"
+    content="Posizione stimata dei treni urbani Roma Nord tra Montebello e Flaminio."
+  >
+
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/internal.css">
+  <link rel="stylesheet" href="/css/urbantrain.css">
+</head>
+
+<body class="urbantrain-page">
+  <div data-include="/components/header.html"></div>
+
+  <main>
+    <div class="urbantrain-shell">
+      <aside class="urbantrain-sidebar">
+        <div data-include="/components/sidebar.html"></div>
+      </aside>
+
+      <section class="urbantrain-main">
+        <header class="urbantrain-hero">
+          <div>
+            <p class="urbantrain-eyebrow">URBANTRAIN</p>
+            <h1>Roma Nord, adesso.</h1>
+            <p class="urbantrain-intro">
+              Posizione stimata dei treni urbani tra Montebello e Flaminio.
+            </p>
+          </div>
+
+          <div class="urbantrain-status">
+            <span class="urbantrain-status-dot" aria-hidden="true"></span>
+            <span id="urbantrainUpdated">Aggiornamento in corso</span>
+          </div>
+        </header>
+
+        <div id="urbantrainError" class="urbantrain-error" hidden></div>
+
+        <div class="urbantrain-directions">
+          <section class="urbantrain-direction">
+            <div class="urbantrain-direction-head">
+              <div>
+                <span class="urbantrain-direction-kicker">Direzione</span>
+                <h2>Montebello → Flaminio</h2>
+              </div>
+
+              <span class="urbantrain-route-code">RN_MONRM</span>
+            </div>
+
+            <div
+              id="direction-monrm"
+              class="urbantrain-trains"
+              aria-live="polite"
+            >
+              <div class="urbantrain-loading">Caricamento…</div>
+            </div>
+          </section>
+
+          <section class="urbantrain-direction">
+            <div class="urbantrain-direction-head">
+              <div>
+                <span class="urbantrain-direction-kicker">Direzione</span>
+                <h2>Flaminio → Montebello</h2>
+              </div>
+
+              <span class="urbantrain-route-code">RN_RMMON</span>
+            </div>
+
+            <div
+              id="direction-rmmon"
+              class="urbantrain-trains"
+              aria-live="polite"
+            >
+              <div class="urbantrain-loading">Caricamento…</div>
+            </div>
+          </section>
+        </div>
+
+        <p class="urbantrain-note">
+          La posizione è stimata usando orari, tempi di percorrenza e ritardi
+          pubblicati da ASTRAL. Non è una posizione GPS del convoglio.
+        </p>
+      </section>
+    </div>
+  </main>
+
+  <div data-include="/components/footer.html"></div>
+
+  <script src="/js/include.js"></script>
+  <script src="/js/urbantrain.js"></script>
+</body>
+</html>
