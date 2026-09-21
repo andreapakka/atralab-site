@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Frase Misteriosa — un piccolo gioco quotidiano di Atralab.">
+  <meta name="theme-color" content="#0E0E0E">
+  <title>Frase Misteriosa — Atralab</title>
+
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/internal.css">
+  <link rel="stylesheet" href="/css/mysteryphrase.css">
+</head>
+<body class="mysteryphrase-page">
+  <div data-include="/components/header.html"></div>
+
+  <main class="mp-shell">
+    <aside class="mp-sidebar" aria-label="Navigazione Labs">
+      <div data-include="/components/sidebar.html"></div>
+    </aside>
+
+    <section class="mp-main" aria-labelledby="mp-title">
+      <div class="mp-heading-row">
+        <div>
+          <p class="mp-eyebrow">ATRALAB GAME</p>
+          <h1 id="mp-title">Frase Misteriosa</h1>
+          <p class="mp-subtitle">Scopri tutte le lettere e porta con te una frase positiva per la giornata.</p>
+        </div>
+
+        <button class="mp-sound-toggle" id="soundToggle" type="button" aria-pressed="true" title="Attiva o disattiva i suoni">
+          <span aria-hidden="true">🔊</span>
+          <span class="mp-sound-label">Suoni</span>
+        </button>
+      </div>
+
+      <section class="mp-game-card" id="gameCard" aria-label="Gioco Frase Misteriosa">
+        <div class="mp-game-topline">
+          <div class="mp-game-stat">
+            <span class="mp-game-stat-label">Frase</span>
+            <strong id="phraseCounter">—</strong>
+          </div>
+
+          <div class="mp-game-stat mp-game-stat-time">
+            <span class="mp-game-stat-label">Tempo</span>
+            <strong id="timer">00:00</strong>
+          </div>
+        </div>
+
+        <div class="mp-board-wrap">
+          <div class="mp-board" id="board" aria-live="polite" aria-label="Tabellone della frase misteriosa"></div>
+
+          <div class="mp-start-panel" id="startPanel">
+            <div class="mp-start-icon" aria-hidden="true">?</div>
+            <h2>Pronta per una nuova frase?</h2>
+            <p id="startMessage">Ogni giorno hai nuove frasi da scoprire.</p>
+            <button class="mp-primary-button" id="newPhraseButton" type="button">NUOVA FRASE</button>
+          </div>
+        </div>
+
+        <div class="mp-play-panel" id="playPanel" hidden>
+          <form class="mp-guess-form" id="guessForm" novalidate>
+            <label for="letterInput">Prova una lettera</label>
+            <div class="mp-guess-row">
+              <input
+                id="letterInput"
+                class="mp-letter-input"
+                type="text"
+                maxlength="1"
+                inputmode="text"
+                autocomplete="off"
+                autocapitalize="characters"
+                spellcheck="false"
+                pattern="[A-Za-zÀ-ÖØ-öø-ÿ]"
+                aria-describedby="gameMessage"
+                required
+              >
+              <button class="mp-primary-button mp-try-button" id="tryButton" type="submit">PROVA</button>
+            </div>
+          </form>
+
+          <div class="mp-message" id="gameMessage" aria-live="polite">Indovina tutte le lettere</div>
+
+          <div class="mp-tried" id="triedWrap" hidden>
+            <span class="mp-tried-label">Già provate</span>
+            <div class="mp-tried-list" id="triedLetters"></div>
+          </div>
+        </div>
+
+        <div class="mp-win-panel" id="winPanel" hidden>
+          <div class="mp-win-badge" aria-hidden="true">✓</div>
+          <p class="mp-win-kicker">FRASE COMPLETATA</p>
+          <h2>Grandissima</h2>
+          <p class="mp-win-copy">Hai acceso tutto il tabellone.</p>
+          <div class="mp-final-time">
+            <span>Tempo</span>
+            <strong id="finalTime">00:00</strong>
+          </div>
+          <button class="mp-primary-button" id="nextPhraseButton" type="button">NUOVA FRASE</button>
+          <p class="mp-save-status" id="saveStatus" aria-live="polite"></p>
+        </div>
+      </section>
+
+      <p class="mp-footnote">Niente soluzione completa da inserire: si vince una lettera alla volta.</p>
+    </section>
+  </main>
+
+  <div data-include="/components/footer.html"></div>
+
+  <script src="/js/include.js"></script>
+  <script src="/js/mysteryphrase.js"></script>
+</body>
+</html>
