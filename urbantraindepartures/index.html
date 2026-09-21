@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>UrbanTrain Departures — Atralab</title>
+  <meta
+    name="description"
+    content="Partenze di oggi della Roma Nord dai capolinea Montebello e Flaminio."
+  >
+
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/internal.css">
+  <link rel="stylesheet" href="/css/urbantraindepartures.css">
+</head>
+
+<body class="utd-page">
+  <div data-include="/components/header.html"></div>
+
+  <main>
+    <div class="utd-shell">
+      <aside class="utd-sidebar">
+        <div data-include="/components/sidebar.html"></div>
+      </aside>
+
+      <section class="utd-main">
+        <header class="utd-hero">
+          <div>
+            <p class="utd-eyebrow">URBANTRAIN DEPARTURES</p>
+            <h1>Partenze di oggi</h1>
+            <p class="utd-intro">
+              Orari di partenza dai due capolinea della tratta urbana Roma Nord.
+            </p>
+          </div>
+
+          <div class="utd-status">
+            <span class="utd-status-dot" aria-hidden="true"></span>
+            <span id="utdUpdated">Aggiornamento in corso</span>
+          </div>
+        </header>
+
+        <div id="utdError" class="utd-error" hidden></div>
+
+        <div class="utd-grid">
+          <section class="utd-panel">
+            <div class="utd-panel-head">
+              <div>
+                <span class="utd-kicker">Da Montebello</span>
+                <h2>Direzione Flaminio</h2>
+              </div>
+            </div>
+
+            <div
+              id="departures-montebello"
+              class="utd-content"
+              aria-live="polite"
+            >
+              <div class="utd-loading">Caricamento…</div>
+            </div>
+          </section>
+
+          <section class="utd-panel">
+            <div class="utd-panel-head">
+              <div>
+                <span class="utd-kicker">Da Flaminio</span>
+                <h2>Direzione Montebello</h2>
+              </div>
+            </div>
+
+            <div
+              id="departures-flaminio"
+              class="utd-content"
+              aria-live="polite"
+            >
+              <div class="utd-loading">Caricamento…</div>
+            </div>
+          </section>
+        </div>
+
+        <p class="utd-note">
+          Dati del giorno corrente forniti da ASTRAL. Gli orari possono variare
+          in caso di ritardi, soppressioni o bus sostitutivi.
+        </p>
+      </section>
+    </div>
+  </main>
+
+  <div data-include="/components/footer.html"></div>
+
+  <script src="/js/include.js"></script>
+  <script src="/js/urbantraindepartures.js"></script>
+</body>
+</html>
