@@ -294,7 +294,7 @@ function buildGdeltUrl(category) {
   const params = new URLSearchParams({
     query,
     mode: "artlist",
-    format: "json",
+    format: "jsonp",
     maxrecords: String(requested),
     timespan: `${Math.min(
       Math.max(Number(category.days) || 1, 1),
@@ -309,33 +309,76 @@ function buildGdeltUrl(category) {
   );
 }
 
-async function fetchCategory(category) {
-  const response = await fetch(
-    buildGdeltUrl(category),
-    {
-      method: "GET",
-      headers: {
-        Accept: "application/json"
+function jsonpRequest(url, timeoutMs = 20000) {
+  return new Promise((resolve, reject) => {
+    const callbackName =
+      "__atrapulse_" +
+      Date.now() +
+      "_" +
+      Math.random().toString(36).slice(2);
+
+    const script = document.createElement("script");
+    let finished = false;
+
+    function cleanup() {
+      if (finished) {
+        return;
       }
+
+      finished = true;
+      clearTimeout(timer);
+
+      try {
+        delete window[callbackName];
+      } catch {
+        window[callbackName] = undefined;
+      }
+
+      script.remove();
     }
+
+    window[callbackName] = (data) => {
+      cleanup();
+      resolve(data);
+    };
+
+    script.onerror = () => {
+      cleanup();
+      reject(
+        new Error("Impossibile caricare GDELT")
+      );
+    };
+
+    const timer = setTimeout(() => {
+      cleanup();
+      reject(
+        new Error("GDELT non ha risposto in tempo")
+      );
+    }, timeoutMs);
+
+    const separator =
+      url.includes("?") ? "&" : "?";
+
+    script.src =
+      `${url}${separator}` +
+      `callback=${encodeURIComponent(callbackName)}`;
+
+    script.async = true;
+    document.head.appendChild(script);
+  });
+}
+
+async function fetchCategory(category) {
+  /*
+    Usiamo JSONP invece di fetch.
+    In questo modo non dipendiamo dagli header CORS
+    restituiti in quel momento da GDELT.
+  */
+  const data = await jsonpRequest(
+    buildGdeltUrl(category)
   );
 
-  if (!response.ok) {
-    const details = await response.text();
-
-    const error = new Error(
-      `GDELT ${response.status}`
-    );
-
-    error.status = response.status;
-    error.details = details;
-
-    throw error;
-  }
-
-  const data = await response.json();
-
-  const articles = Array.isArray(data.articles)
+  const articles = Array.isArray(data?.articles)
     ? data.articles
     : [];
 
@@ -667,24 +710,13 @@ function renderError(category, error) {
     "is-loading"
   );
 
-  const isRateLimit =
-    Number(error?.status) === 429;
-
   grid.innerHTML = `
     <div class="pulse-empty">
       <strong>
-        ${
-          isRateLimit
-            ? "AtraPulse sta andando troppo veloce"
-            : "Questa sezione non si è caricata"
-        }
+        Questa sezione non si è caricata
       </strong>
 
-      ${
-        isRateLimit
-          ? "Aspetta qualche secondo e riprova"
-          : "Puoi riprovare senza ricaricare tutta la pagina"
-      }
+      Aspetta qualche secondo e riprova
 
       <br>
 
