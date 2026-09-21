@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>AtraPulse — Atralab</title>
+  <meta
+    name="description"
+    content="AtraPulse raccoglie poche notizie interessanti e aggiornate su scienza, spazio e sport."
+  >
+
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/internal.css">
+  <link rel="stylesheet" href="/css/pulse.css">
+</head>
+
+<body class="pulse-page">
+  <div data-include="/components/header.html"></div>
+
+  <main>
+    <div class="pulse-shell">
+      <aside class="pulse-sidebar">
+        <div data-include="/components/sidebar.html"></div>
+      </aside>
+
+      <section class="pulse-main">
+        <header class="pulse-hero">
+          <div>
+            <p class="pulse-eyebrow">ATRAPULSE</p>
+            <h1>Cose interessanti che stanno succedendo</h1>
+            <p class="pulse-intro">
+              Poche notizie selezionate per argomento
+              aggiornate e facili da esplorare
+            </p>
+          </div>
+
+          <div class="pulse-status">
+            <span class="pulse-status-dot" aria-hidden="true"></span>
+            <span id="pulseUpdated">Aggiornamento in corso</span>
+          </div>
+        </header>
+
+        <nav
+          id="pulseTabs"
+          class="pulse-tabs"
+          aria-label="Categorie AtraPulse"
+        ></nav>
+
+        <div id="pulseSections" class="pulse-sections"></div>
+
+        <div class="pulse-footer-note">
+          <span>Le notizie arrivano da fonti esterne selezionate</span>
+          <span class="pulse-dot">•</span>
+          <span>AtraPulse non copia gli articoli completi</span>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <div data-include="/components/footer.html"></div>
+
+  <script src="/js/include.js"></script>
+  <script src="/js/pulse.js"></script>
+</body>
+</html>
