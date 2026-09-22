@@ -298,3 +298,49 @@ main {
     grid-template-columns: 1fr;
   }
 }
+
+.back-to-top {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(244, 241, 234, 0.18);
+  border-radius: 50%;
+  background: #0E0E0E;
+  color: #E76F51;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease,
+    visibility 0.2s ease,
+    background 0.2s ease;
+
+  z-index: 999;
+}
+
+.back-to-top:hover {
+  background: #E76F51;
+  color: #0E0E0E;
+}
+
+.back-to-top.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+@media (max-width: 768px) {
+  .back-to-top {
+    right: 14px;
+    bottom: 14px;
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+  }
+}
