@@ -81,7 +81,8 @@
     originMarker: null,
     resultMarker: null,
     selectedResult: null,
-    abortController: null
+    abortController: null,
+    isBusy: false
   };
 
   const els = {
@@ -118,9 +119,22 @@
   }
 
   function setBusy(isBusy, text = "") {
-    els.searchButton.disabled = isBusy;
-    els.locateButton.disabled = isBusy;
+    state.isBusy = isBusy;
+
+    document.querySelectorAll(".aroundme-main button").forEach((button) => {
+      button.disabled = isBusy;
+    });
+
+    els.searchInput.disabled = isBusy;
     els.searchButton.textContent = isBusy ? "Attendi…" : "Cerca";
+
+    if (!isBusy) {
+      document.querySelectorAll(".aroundme-main button").forEach((button) => {
+        button.disabled = false;
+      });
+
+      enableControls(Boolean(state.location));
+    }
 
     if (text) {
       showMessage(text, false);
@@ -223,7 +237,7 @@
       }
 
       if (places.length === 1) {
-        choosePlace(places[0]);
+        await choosePlace(places[0]);
         return;
       }
 
@@ -281,15 +295,15 @@
     setBusy(true, "Cerco la tua posizione…");
 
     navigator.geolocation.getCurrentPosition(
-      (position) => {
+      async (position) => {
         hideMessage();
         setLocation({
           label: "La tua posizione",
           lat: position.coords.latitude,
           lon: position.coords.longitude
         });
-        setBusy(false);
-        fetchAroundMe();
+
+        await fetchAroundMe();
       },
       (error) => {
         console.warn("AroundMe: geolocalizzazione non disponibile", error);
@@ -355,31 +369,33 @@
   async function fetchAroundMe() {
     if (!state.location) return;
 
-    if (!navigator.onLine) {
-      const cached = loadStoredState();
-      if (cached && cached.results?.length && isSameSearch(cached)) {
-        state.results = cached.results;
-        state.savedAt = cached.savedAt;
-        renderResults(true);
-      } else {
-        state.results = [];
-        state.savedAt = cached?.savedAt || state.savedAt;
-        renderResults(true);
-        showMessage("Offline: è disponibile solo l'ultima categoria e il raggio salvati.", true);
-      }
-      return;
-    }
-
-    if (state.abortController) state.abortController.abort();
-    state.abortController = new AbortController();
-
-    els.resultsSection.hidden = false;
-    els.results.innerHTML = '<div class="aroundme-loading">Cerco nei dintorni…</div>';
-    els.resultsCount.textContent = "";
-    updateResultsHeading();
-    closeMap();
+    setBusy(true);
 
     try {
+      if (!navigator.onLine) {
+        const cached = loadStoredState();
+        if (cached && cached.results?.length && isSameSearch(cached)) {
+          state.results = cached.results;
+          state.savedAt = cached.savedAt;
+          renderResults(true);
+        } else {
+          state.results = [];
+          state.savedAt = cached?.savedAt || state.savedAt;
+          renderResults(true);
+          showMessage("Offline: è disponibile solo l'ultima categoria e il raggio salvati.", true);
+        }
+        return;
+      }
+
+      if (state.abortController) state.abortController.abort();
+      state.abortController = new AbortController();
+
+      els.resultsSection.hidden = false;
+      els.results.innerHTML = '<div class="aroundme-loading">Cerco nei dintorni…</div>';
+      els.resultsCount.textContent = "";
+      updateResultsHeading();
+      closeMap();
+
       const data = await queryOverpass(buildOverpassQuery(state.category));
       const elements = Array.isArray(data?.elements) ? data.elements : [];
 
@@ -404,7 +420,10 @@
       } else {
         els.results.innerHTML = '<div class="aroundme-empty">Non riesco a recuperare i luoghi in questo momento. Riprova tra poco.</div>';
         els.resultsCount.textContent = "";
+        showMessage("Il servizio dati non ha risposto. Puoi riprovare tra poco.", true);
       }
+    } finally {
+      setBusy(false);
     }
   }
 
@@ -941,6 +960,8 @@
 
   els.searchForm.addEventListener("submit", (event) => {
     event.preventDefault();
+    if (state.isBusy) return;
+
     const query = els.searchInput.value.trim();
     if (query.length < 3) {
       showMessage("Scrivi almeno 3 caratteri, meglio se con città o provincia.", true);
@@ -949,18 +970,21 @@
     searchPlace(query);
   });
 
-  els.locateButton.addEventListener("click", useCurrentLocation);
+  els.locateButton.addEventListener("click", () => {
+    if (state.isBusy) return;
+    useCurrentLocation();
+  });
 
   els.categories.addEventListener("click", (event) => {
     const button = event.target.closest("[data-category]");
-    if (!button || button.disabled || !state.location) return;
+    if (state.isBusy || !button || button.disabled || !state.location) return;
     selectCategory(button.dataset.category);
     fetchAroundMe();
   });
 
   els.radii.addEventListener("click", (event) => {
     const button = event.target.closest("[data-radius]");
-    if (!button || button.disabled || !state.location) return;
+    if (state.isBusy || !button || button.disabled || !state.location) return;
     selectRadius(button.dataset.radius);
     fetchAroundMe();
   });
