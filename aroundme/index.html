@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>AroundMe — Atralab</title>
+  <meta
+    name="description"
+    content="Trova rapidamente servizi e luoghi utili vicino a te o a un indirizzo: cibo, acqua, bagni, farmacie, ATM e altro."
+  >
+  <meta name="theme-color" content="#0E0E0E">
+
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/internal.css">
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIINfQ3ynQnvWJ+IFqVq+PZ6j7f5MZbM6rI="
+    crossorigin=""
+  >
+  <link rel="stylesheet" href="/css/aroundme.css">
+</head>
+<body class="aroundme-page">
+  <div data-include="/components/header.html"></div>
+
+  <main>
+    <div class="aroundme-shell">
+      <aside class="aroundme-sidebar">
+        <div data-include="/components/sidebar.html"></div>
+      </aside>
+
+      <section class="aroundme-main">
+        <header class="aroundme-hero">
+          <div>
+            <p class="aroundme-eyebrow">AROUNDME</p>
+            <h1>Cosa c'è qui intorno?</h1>
+            <p class="aroundme-intro">
+              Cerca servizi utili vicino a te o intorno a un luogo. Senza perderti nella mappa.
+            </p>
+          </div>
+
+          <div class="aroundme-network" id="aroundmeNetwork" aria-live="polite">
+            <span class="aroundme-network-dot" aria-hidden="true"></span>
+            <span id="aroundmeNetworkText">Online</span>
+          </div>
+        </header>
+
+        <section class="aroundme-search-card" aria-labelledby="aroundmeSearchTitle">
+          <h2 id="aroundmeSearchTitle" class="sr-only">Scegli il punto di ricerca</h2>
+
+          <form id="aroundmeSearchForm" class="aroundme-search-form">
+            <label for="aroundmePlace" class="sr-only">Indirizzo o luogo</label>
+            <input
+              id="aroundmePlace"
+              name="place"
+              type="search"
+              inputmode="search"
+              autocomplete="street-address"
+              placeholder="Cerca un indirizzo o un luogo"
+              maxlength="180"
+            >
+            <button type="submit" class="aroundme-btn aroundme-btn-primary" id="aroundmeSearchButton">
+              Cerca
+            </button>
+          </form>
+
+          <div class="aroundme-search-secondary">
+            <button type="button" class="aroundme-btn aroundme-btn-ghost" id="aroundmeLocateButton">
+              Usa la mia posizione
+            </button>
+            <p class="aroundme-examples">
+              Esempi: Piazza Bologna, Roma · Stazione Termini, Roma · Via del Corso 18, Roma
+            </p>
+          </div>
+
+          <div id="aroundmePlaceChoices" class="aroundme-place-choices" hidden></div>
+          <div id="aroundmeSearchMessage" class="aroundme-message" aria-live="polite" hidden></div>
+        </section>
+
+        <section class="aroundme-controls" aria-label="Filtri AroundMe">
+          <div class="aroundme-location-row">
+            <div>
+              <span class="aroundme-control-label">Punto di ricerca</span>
+              <strong id="aroundmeLocationLabel">Scegli una posizione per iniziare</strong>
+            </div>
+            <span id="aroundmeSavedAt" class="aroundme-saved-at"></span>
+          </div>
+
+          <div class="aroundme-control-group">
+            <span class="aroundme-control-label">Cosa cerchi</span>
+            <div class="aroundme-categories" id="aroundmeCategories">
+              <button type="button" class="aroundme-chip is-active" data-category="food" disabled>Cibo</button>
+              <button type="button" class="aroundme-chip" data-category="water" disabled>Acqua</button>
+              <button type="button" class="aroundme-chip" data-category="toilets" disabled>Bagni</button>
+              <button type="button" class="aroundme-chip" data-category="pharmacy" disabled>Farmacie</button>
+              <button type="button" class="aroundme-chip" data-category="atm" disabled>ATM</button>
+              <button type="button" class="aroundme-chip" data-category="pause" disabled>Pausa</button>
+              <button type="button" class="aroundme-chip" data-category="defib" disabled>Defibrillatori</button>
+              <button type="button" class="aroundme-chip" data-category="mobility" disabled>Mobilità</button>
+              <button type="button" class="aroundme-chip aroundme-chip-all" data-category="all" disabled>Mostra tutto</button>
+            </div>
+          </div>
+
+          <div class="aroundme-control-group aroundme-radius-group">
+            <span class="aroundme-control-label">Raggio</span>
+            <div class="aroundme-radii" id="aroundmeRadii">
+              <button type="button" class="aroundme-radius" data-radius="250" disabled>250 m</button>
+              <button type="button" class="aroundme-radius is-active" data-radius="500" disabled>500 m</button>
+              <button type="button" class="aroundme-radius" data-radius="1000" disabled>1 km</button>
+              <button type="button" class="aroundme-radius" data-radius="2000" disabled>2 km</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="aroundme-results-section" id="aroundmeResultsSection" hidden>
+          <div class="aroundme-results-head">
+            <div>
+              <span class="aroundme-control-label" id="aroundmeResultsKicker">RISULTATI</span>
+              <h2 id="aroundmeResultsTitle">Vicino a te</h2>
+            </div>
+            <span id="aroundmeResultsCount" class="aroundme-results-count"></span>
+          </div>
+
+          <div class="aroundme-results-layout" id="aroundmeResultsLayout">
+            <div>
+              <div id="aroundmeResults" class="aroundme-results" aria-live="polite"></div>
+            </div>
+
+            <aside class="aroundme-map-panel" id="aroundmeMapPanel" hidden aria-label="Mappa del luogo selezionato">
+              <div class="aroundme-map-head">
+                <div>
+                  <span class="aroundme-control-label">MAPPA</span>
+                  <strong id="aroundmeMapTitle">Luogo selezionato</strong>
+                </div>
+                <button type="button" class="aroundme-map-close" id="aroundmeMapClose" aria-label="Chiudi mappa">×</button>
+              </div>
+              <div id="aroundmeMap" class="aroundme-map"></div>
+              <div class="aroundme-map-meta">
+                <p id="aroundmeMapAddress"></p>
+                <div class="aroundme-map-actions">
+                  <a id="aroundmeNavigate" class="aroundme-btn aroundme-btn-primary" href="#" target="_blank" rel="noopener">
+                    Naviga
+                  </a>
+                </div>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <p class="aroundme-note">
+          Dati da OpenStreetMap tramite Overpass e Nominatim. Le informazioni possono essere incomplete o non aggiornate.
+        </p>
+      </section>
+    </div>
+  </main>
+
+  <div data-include="/components/footer.html"></div>
+
+  <script src="/js/include.js"></script>
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+  ></script>
+  <script src="/js/aroundme.js"></script>
+</body>
+</html>
