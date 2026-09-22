@@ -70,6 +70,8 @@
   };
 
   let lastNominatimRequestAt = 0;
+  let nominatimQueue = Promise.resolve();
+  const reverseAddressCache = new Map();
 
   const state = {
     location: null,
@@ -204,13 +206,19 @@
     return `${NOMINATIM_SEARCH_URL}?${params.toString()}`;
   }
 
-  async function fetchNominatim(url) {
-    const waitMs = Math.max(0, 1100 - (Date.now() - lastNominatimRequestAt));
-    if (waitMs) {
-      await new Promise((resolve) => setTimeout(resolve, waitMs));
-    }
-    lastNominatimRequestAt = Date.now();
-    return fetch(url, { headers: { Accept: "application/json" } });
+  function fetchNominatim(url) {
+    const runRequest = async () => {
+      const waitMs = Math.max(0, 1100 - (Date.now() - lastNominatimRequestAt));
+      if (waitMs) {
+        await new Promise((resolve) => setTimeout(resolve, waitMs));
+      }
+      lastNominatimRequestAt = Date.now();
+      return fetch(url, { headers: { Accept: "application/json" } });
+    };
+
+    const request = nominatimQueue.then(runRequest, runRequest);
+    nominatimQueue = request.then(() => undefined, () => undefined);
+    return request;
   }
 
   async function searchPlace(query) {
@@ -407,6 +415,7 @@
       saveLastSearch();
       renderResults(false);
       hideMessage();
+      enrichMissingAddresses();
     } catch (error) {
       if (error.name === "AbortError") return;
       console.error("AroundMe: errore Overpass", error);
@@ -629,6 +638,7 @@
     state.results.forEach((result) => {
       const card = document.createElement("article");
       card.className = "aroundme-result";
+      card.dataset.resultId = result.id;
 
       const main = document.createElement("div");
       main.className = "aroundme-result-main";
@@ -648,7 +658,8 @@
 
       const address = document.createElement("p");
       address.className = "aroundme-result-address";
-      address.textContent = result.address || "Indirizzo non presente nei dati OpenStreetMap";
+      address.dataset.resultAddress = result.id;
+      address.textContent = result.address || (navigator.onLine ? "Cerco l'indirizzo…" : "Indirizzo non presente nei dati salvati");
       main.appendChild(address);
 
       if (result.details?.length) {
@@ -702,12 +713,27 @@
   function navigationUrl(lat, lon) {
     const ua = navigator.userAgent || "";
     const destination = `${Number(lat).toFixed(6)},${Number(lon).toFixed(6)}`;
+    const hasOrigin = state.location && Number.isFinite(Number(state.location.lat)) && Number.isFinite(Number(state.location.lon));
+    const origin = hasOrigin
+      ? `${Number(state.location.lat).toFixed(6)},${Number(state.location.lon).toFixed(6)}`
+      : "";
 
     if (/iPad|iPhone|iPod/.test(ua)) {
-      return `https://maps.apple.com/?daddr=${encodeURIComponent(destination)}&dirflg=w`;
+      const params = new URLSearchParams({
+        daddr: destination,
+        dirflg: "w"
+      });
+      if (origin) params.set("saddr", origin);
+      return `https://maps.apple.com/?${params.toString()}`;
     }
 
-    return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination)}&travelmode=walking`;
+    const params = new URLSearchParams({
+      api: "1",
+      destination,
+      travelmode: "walking"
+    });
+    if (origin) params.set("origin", origin);
+    return `https://www.google.com/maps/dir/?${params.toString()}`;
   }
 
   async function openMap(result) {
@@ -773,11 +799,14 @@
 
     if (!result.address && navigator.onLine) {
       const address = await reverseAddress(result.lat, result.lon);
-      if (state.selectedResult?.id === result.id && address) {
+      if (address) {
         result.address = address;
-        els.mapAddress.textContent = address;
-      } else if (state.selectedResult?.id === result.id) {
-        els.mapAddress.textContent = "Indirizzo non disponibile";
+        updateResultAddress(result.id, address);
+        saveLastSearch();
+      }
+
+      if (state.selectedResult?.id === result.id) {
+        els.mapAddress.textContent = address || "Indirizzo non disponibile";
       }
     }
 
@@ -793,6 +822,9 @@
   }
 
   async function reverseAddress(lat, lon) {
+    const key = `${Number(lat).toFixed(6)},${Number(lon).toFixed(6)}`;
+    if (reverseAddressCache.has(key)) return reverseAddressCache.get(key);
+
     try {
       const params = new URLSearchParams({
         format: "jsonv2",
@@ -805,10 +837,72 @@
       const response = await fetchNominatim(`${NOMINATIM_REVERSE_URL}?${params.toString()}`);
       if (!response.ok) return "";
       const data = await response.json();
-      return data.display_name || "";
+      const address = formatReverseAddress(data);
+      reverseAddressCache.set(key, address);
+      return address;
     } catch (error) {
       console.warn("AroundMe: reverse geocoding non disponibile", error);
       return "";
+    }
+  }
+
+  function formatReverseAddress(data) {
+    const address = data?.address || {};
+    const road =
+      address.road ||
+      address.pedestrian ||
+      address.footway ||
+      address.path ||
+      address.cycleway ||
+      address.square ||
+      address.place ||
+      "";
+    const number = address.house_number || "";
+    const city =
+      address.city ||
+      address.town ||
+      address.village ||
+      address.municipality ||
+      address.city_district ||
+      "";
+
+    const streetLine = [road, number].filter(Boolean).join(" ");
+    const concise = [streetLine, city].filter(Boolean).join(", ");
+    return concise || data?.display_name || "";
+  }
+
+  function updateResultAddress(resultId, address) {
+    const node = els.results.querySelector(`[data-result-address="${CSS.escape(resultId)}"]`);
+    if (node) node.textContent = address || "Indirizzo non disponibile";
+  }
+
+  async function enrichMissingAddresses() {
+    if (!navigator.onLine || !state.results.length) return;
+
+    const snapshot = state.results;
+    const missing = snapshot.filter((result) => !result.address).slice(0, 6);
+
+    for (const result of missing) {
+      if (state.results !== snapshot || !navigator.onLine) return;
+
+      const address = await reverseAddress(result.lat, result.lon);
+      if (state.results !== snapshot) return;
+
+      if (address) {
+        result.address = address;
+        updateResultAddress(result.id, address);
+        saveLastSearch();
+      } else {
+        updateResultAddress(result.id, "Indirizzo non disponibile");
+      }
+    }
+
+    if (state.results === snapshot) {
+      snapshot
+        .filter((result) => !result.address && !missing.includes(result))
+        .forEach((result) => {
+          updateResultAddress(result.id, "Indirizzo non presente · apri Mappa per cercarlo");
+        });
     }
   }
 
