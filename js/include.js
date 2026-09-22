@@ -43,29 +43,37 @@ async function loadIncludes() {
 loadCommonHead();
 loadIncludes();
 
-function initBackToTop() {
+function updateBackToTop() {
   const button = document.getElementById("backToTop");
 
   if (!button) return;
 
-  const toggleButton = () => {
-    if (window.scrollY > 300) {
-      button.classList.add("show");
-    } else {
-      button.classList.remove("show");
-    }
-  };
-
-  window.addEventListener("scroll", toggleButton);
-
-  button.addEventListener("click", () => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth"
-    });
-  });
-
-  toggleButton();
+  button.classList.toggle("show", window.scrollY > 300);
 }
 
-window.addEventListener("load", initBackToTop);
+window.addEventListener("scroll", updateBackToTop, { passive: true });
+
+document.addEventListener("click", function (event) {
+  const button = event.target.closest("#backToTop");
+
+  if (!button) return;
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+});
+
+/* Il footer viene caricato dinamicamente */
+const backToTopObserver = new MutationObserver(() => {
+  if (document.getElementById("backToTop")) {
+    updateBackToTop();
+  }
+});
+
+backToTopObserver.observe(document.body, {
+  childList: true,
+  subtree: true
+});
+
+
