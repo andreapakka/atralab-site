@@ -13,6 +13,8 @@
     "https://overpass-api.de/api/interpreter",
     "https://overpass.kumi.systems/api/interpreter"
   ];
+  const OVERPASS_TOTAL_TIMEOUT_MS = 10000;
+  const OVERPASS_ENDPOINT_SLICE_MS = 5000;
 
   const CATEGORIES = {
     food: {
@@ -343,13 +345,39 @@
       });
     });
 
-    return `[out:json][timeout:25];\n(\n${statements.join("\n")}\n);\nout center tags qt;`;
+    return `[out:json][timeout:10];\n(\n${statements.join("\n")}\n);\nout center tags qt;`;
   }
 
   async function queryOverpass(query) {
     let lastError = null;
+    const startedAt = Date.now();
 
-    for (const endpoint of OVERPASS_ENDPOINTS) {
+    for (let index = 0; index < OVERPASS_ENDPOINTS.length; index += 1) {
+      const endpoint = OVERPASS_ENDPOINTS[index];
+      const elapsed = Date.now() - startedAt;
+      const remainingTotal = OVERPASS_TOTAL_TIMEOUT_MS - elapsed;
+
+      if (remainingTotal <= 0) {
+        throw new Error("Overpass timeout");
+      }
+
+      const timeoutMs = Math.min(OVERPASS_ENDPOINT_SLICE_MS, remainingTotal);
+      const controller = new AbortController();
+      let timedOut = false;
+
+      const parentSignal = state.abortController?.signal;
+      const abortFromParent = () => controller.abort();
+
+      if (parentSignal) {
+        if (parentSignal.aborted) throw new DOMException("Aborted", "AbortError");
+        parentSignal.addEventListener("abort", abortFromParent, { once: true });
+      }
+
+      const timeoutId = window.setTimeout(() => {
+        timedOut = true;
+        controller.abort();
+      }, timeoutMs);
+
       try {
         const body = new URLSearchParams({ data: query });
         const response = await fetch(endpoint, {
@@ -359,15 +387,26 @@
             Accept: "application/json"
           },
           body: body.toString(),
-          signal: state.abortController?.signal
+          signal: controller.signal
         });
 
         if (!response.ok) throw new Error(`Overpass ${response.status}`);
         return await response.json();
       } catch (error) {
-        if (error.name === "AbortError") throw error;
-        lastError = error;
-        console.warn(`AroundMe: endpoint Overpass non disponibile (${endpoint})`, error);
+        if (parentSignal?.aborted) throw new DOMException("Aborted", "AbortError");
+
+        if (error.name === "AbortError" && timedOut) {
+          lastError = new Error(`Overpass timeout dopo ${Math.ceil(timeoutMs / 1000)}s`);
+        } else if (error.name === "AbortError") {
+          throw error;
+        } else {
+          lastError = error;
+        }
+
+        console.warn(`AroundMe: endpoint Overpass non disponibile (${endpoint})`, lastError);
+      } finally {
+        window.clearTimeout(timeoutId);
+        parentSignal?.removeEventListener("abort", abortFromParent);
       }
     }
 
