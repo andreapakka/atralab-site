@@ -335,19 +335,21 @@
   }
 
   function buildOverpassQuery() {
-    const statements = [];
+    const r = String(state.radius);
+    const lat = String(state.location.lat);
+    const lon = String(state.location.lon);
 
-    Object.keys(CATEGORIES).forEach((key) => {
-      const config = CATEGORIES[key];
-      config.query.forEach((template) => {
-        statements.push(
-          template
-            .replaceAll("{r}", String(state.radius))
-            .replaceAll("{lat}", String(state.location.lat))
-            .replaceAll("{lon}", String(state.location.lon)) + ";"
-        );
-      });
-    });
+    const statements = [
+      `nwr(around:${r},${lat},${lon})["amenity"~"^(restaurant|cafe|bar|fast_food|pub|drinking_water|fountain|toilets|pharmacy|atm|bank|bench|parking|bicycle_parking|charging_station|bicycle_repair_station)$"];`,
+      `nwr(around:${r},${lat},${lon})["man_made"="water_tap"];`,
+      `nwr(around:${r},${lat},${lon})["shop"="chemist"];`,
+      `nwr(around:${r},${lat},${lon})["leisure"~"^(park|picnic_table)$"];`,
+      `nwr(around:${r},${lat},${lon})["tourism"="picnic_site"];`,
+      `nwr(around:${r},${lat},${lon})["emergency"="defibrillator"];`,
+      `nwr(around:${r},${lat},${lon})["highway"="bus_stop"];`,
+      `nwr(around:${r},${lat},${lon})["public_transport"~"^(platform|station)$"];`,
+      `nwr(around:${r},${lat},${lon})["railway"~"^(station|tram_stop|subway_entrance)$"];`
+    ];
 
     return `[out:json][timeout:15];\n(\n${statements.join("\n")}\n);\nout center tags qt;`;
   }
