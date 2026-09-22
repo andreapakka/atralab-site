@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const STORAGE_KEY = "atralab-aroundme-last-search-v1";
+  const STORAGE_KEY = "atralab-aroundme-last-search-v2";
   const MAX_RESULTS = 15;
   const DEFAULT_RADIUS = 500;
   const MAX_RADIUS = 2000;
@@ -13,7 +13,7 @@
     "https://overpass-api.de/api/interpreter",
     "https://overpass.kumi.systems/api/interpreter"
   ];
-  const OVERPASS_REQUEST_TIMEOUT_MS = 10000;
+  const OVERPASS_REQUEST_TIMEOUT_MS = 15000;
   const OVERPASS_CACHE_TTL_MS = 5 * 60 * 1000;
   const OVERPASS_MIN_INTERVAL_MS = 1200;
 
@@ -84,6 +84,7 @@
     location: null,
     radius: DEFAULT_RADIUS,
     category: DEFAULT_CATEGORY,
+    allResults: [],
     results: [],
     savedAt: null,
     map: null,
@@ -333,13 +334,11 @@
     );
   }
 
-  function buildOverpassQuery(category) {
-    const keys = category === "all" ? Object.keys(CATEGORIES) : [category];
+  function buildOverpassQuery() {
     const statements = [];
 
-    keys.forEach((key) => {
+    Object.keys(CATEGORIES).forEach((key) => {
       const config = CATEGORIES[key];
-      if (!config) return;
       config.query.forEach((template) => {
         statements.push(
           template
@@ -350,7 +349,7 @@
       });
     });
 
-    return `[out:json][timeout:10];\n(\n${statements.join("\n")}\n);\nout center tags qt;`;
+    return `[out:json][timeout:15];\n(\n${statements.join("\n")}\n);\nout center tags qt;`;
   }
 
   async function queryOverpass(query) {
@@ -397,7 +396,7 @@
       overpassEndpointIndex = (overpassEndpointIndex + 1) % OVERPASS_ENDPOINTS.length;
 
       if (error.name === "AbortError" && timedOut) {
-        const timeoutError = new Error("Overpass timeout dopo 10s");
+        const timeoutError = new Error("Overpass timeout dopo 15s");
         console.warn(`AroundMe: endpoint Overpass non disponibile (${endpoint})`, timeoutError);
         throw timeoutError;
       }
@@ -412,18 +411,17 @@
     }
   }
 
-  function getOverpassCacheKey() {
+  function getAreaCacheKey() {
     if (!state.location) return "";
     return [
       Number(state.location.lat).toFixed(5),
       Number(state.location.lon).toFixed(5),
-      state.radius,
-      state.category
+      state.radius
     ].join("|");
   }
 
   function readOverpassMemoryCache() {
-    const key = getOverpassCacheKey();
+    const key = getAreaCacheKey();
     if (!key) return null;
 
     const cached = overpassMemoryCache.get(key);
@@ -437,14 +435,29 @@
     return cached;
   }
 
-  function writeOverpassMemoryCache(results) {
-    const key = getOverpassCacheKey();
+  function writeOverpassMemoryCache(allResults) {
+    const key = getAreaCacheKey();
     if (!key) return;
 
     overpassMemoryCache.set(key, {
-      results: results.map((result) => ({ ...result })),
+      allResults,
       savedAt: Date.now()
     });
+  }
+
+  function applyCategoryFilter() {
+    const source = Array.isArray(state.allResults) ? state.allResults : [];
+
+    state.results = source
+      .filter((result) => state.category === "all" || result.category === state.category)
+      .sort((a, b) => a.distance - b.distance)
+      .slice(0, MAX_RESULTS);
+  }
+
+  function renderActiveCategory(fromCache = false) {
+    applyCategoryFilter();
+    renderResults(fromCache);
+    enrichMissingAddresses();
   }
 
   async function fetchAroundMe() {
@@ -455,26 +468,27 @@
     try {
       if (!navigator.onLine) {
         const cached = loadStoredState();
-        if (cached && cached.results?.length && isSameSearch(cached)) {
-          state.results = cached.results;
+
+        if (cached && Array.isArray(cached.allResults) && isSameArea(cached)) {
+          state.allResults = cached.allResults;
           state.savedAt = cached.savedAt;
-          renderResults(true);
+          renderActiveCategory(true);
         } else {
+          state.allResults = [];
           state.results = [];
           state.savedAt = cached?.savedAt || state.savedAt;
           renderResults(true);
-          showMessage("Offline: è disponibile solo l'ultima categoria e il raggio salvati.", true);
+          showMessage("Offline: non ci sono dati salvati per questo luogo e raggio.", true);
         }
         return;
       }
 
       const memoryCached = readOverpassMemoryCache();
       if (memoryCached) {
-        state.results = memoryCached.results.map((result) => ({ ...result }));
+        state.allResults = memoryCached.allResults;
         state.savedAt = memoryCached.savedAt;
-        renderResults(false);
+        renderActiveCategory(false);
         hideMessage();
-        enrichMissingAddresses();
         return;
       }
 
@@ -487,30 +501,32 @@
       updateResultsHeading();
       closeMap();
 
-      const data = await queryOverpass(buildOverpassQuery(state.category));
+      const data = await queryOverpass(buildOverpassQuery());
       const elements = Array.isArray(data?.elements) ? data.elements : [];
 
-      state.results = normalizeResults(elements)
-        .sort((a, b) => a.distance - b.distance)
-        .slice(0, MAX_RESULTS);
+      state.allResults = normalizeResults(elements)
+        .sort((a, b) => a.distance - b.distance);
+
       state.savedAt = Date.now();
 
-      writeOverpassMemoryCache(state.results);
+      writeOverpassMemoryCache(state.allResults);
       saveLastSearch();
-      renderResults(false);
+      renderActiveCategory(false);
       hideMessage();
-      enrichMissingAddresses();
     } catch (error) {
       if (error.name === "AbortError") return;
+
       console.error("AroundMe: errore Overpass", error);
 
       const cached = loadStoredState();
-      if (cached && cached.results?.length && isSameSearch(cached)) {
-        state.results = cached.results;
+      if (cached && Array.isArray(cached.allResults) && isSameArea(cached)) {
+        state.allResults = cached.allResults;
         state.savedAt = cached.savedAt;
-        renderResults(true);
-        showMessage("Le API non rispondono: sto mostrando gli ultimi dati salvati per questa ricerca.", true);
+        renderActiveCategory(true);
+        showMessage("Le API non rispondono: sto mostrando gli ultimi dati salvati per questo luogo e raggio.", true);
       } else {
+        state.allResults = [];
+        state.results = [];
         els.results.innerHTML = '<div class="aroundme-empty">Non riesco a recuperare i luoghi in questo momento. Riprova tra poco.</div>';
         els.resultsCount.textContent = "";
         showMessage("Il servizio dati non ha risposto. Puoi riprovare tra poco.", true);
@@ -549,7 +565,6 @@
       const tags = element.tags || {};
       const category = classifyElement(tags);
       if (!category) return;
-      if (state.category !== "all" && category !== state.category) return;
 
       const name = getDisplayName(tags, category);
       const dedupeKey = `${category}|${name.toLowerCase()}|${lat.toFixed(5)}|${lon.toFixed(5)}`;
@@ -1050,7 +1065,7 @@
           location: state.location,
           radius: state.radius,
           category: state.category,
-          results: state.results,
+          allResults: state.allResults,
           savedAt: state.savedAt
         })
       );
@@ -1064,7 +1079,7 @@
       const raw = localStorage.getItem(STORAGE_KEY);
       if (!raw) return null;
       const data = JSON.parse(raw);
-      if (!data?.location || !Array.isArray(data.results)) return null;
+      if (!data?.location || !Array.isArray(data.allResults)) return null;
       return data;
     } catch (error) {
       console.warn("AroundMe: dati salvati non leggibili", error);
@@ -1072,13 +1087,12 @@
     }
   }
 
-  function isSameSearch(cached) {
+  function isSameArea(cached) {
     return (
       cached?.location &&
       Math.abs(Number(cached.location.lat) - Number(state.location.lat)) < 0.00001 &&
       Math.abs(Number(cached.location.lon) - Number(state.location.lon)) < 0.00001 &&
-      Number(cached.radius) === Number(state.radius) &&
-      cached.category === state.category
+      Number(cached.radius) === Number(state.radius)
     );
   }
 
@@ -1089,9 +1103,9 @@
     setLocation(cached.location);
     selectRadius(cached.radius);
     selectCategory(cached.category);
-    state.results = cached.results;
+    state.allResults = cached.allResults;
     state.savedAt = cached.savedAt;
-    renderResults(true);
+    renderActiveCategory(true);
 
     return true;
   }
@@ -1152,8 +1166,10 @@
   els.categories.addEventListener("click", (event) => {
     const button = event.target.closest("[data-category]");
     if (state.isBusy || !button || button.disabled || !state.location) return;
+
     selectCategory(button.dataset.category);
-    fetchAroundMe();
+    renderActiveCategory(!navigator.onLine);
+    saveLastSearch();
   });
 
   els.radii.addEventListener("click", (event) => {
@@ -1167,7 +1183,6 @@
 
   window.addEventListener("online", () => {
     updateNetworkStatus();
-    if (state.location) fetchAroundMe();
   });
 
   window.addEventListener("offline", () => {
