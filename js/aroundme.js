@@ -13,8 +13,13 @@
     "https://overpass-api.de/api/interpreter",
     "https://overpass.kumi.systems/api/interpreter"
   ];
-  const OVERPASS_TOTAL_TIMEOUT_MS = 10000;
-  const OVERPASS_ENDPOINT_SLICE_MS = 5000;
+  const OVERPASS_REQUEST_TIMEOUT_MS = 10000;
+  const OVERPASS_CACHE_TTL_MS = 5 * 60 * 1000;
+  const OVERPASS_MIN_INTERVAL_MS = 1200;
+
+  let overpassEndpointIndex = 0;
+  let lastOverpassRequestAt = 0;
+  const overpassMemoryCache = new Map();
 
   const CATEGORIES = {
     food: {
@@ -349,68 +354,97 @@
   }
 
   async function queryOverpass(query) {
-    let lastError = null;
-    const startedAt = Date.now();
+    const endpoint = OVERPASS_ENDPOINTS[overpassEndpointIndex % OVERPASS_ENDPOINTS.length];
+    const controller = new AbortController();
+    let timedOut = false;
 
-    for (let index = 0; index < OVERPASS_ENDPOINTS.length; index += 1) {
-      const endpoint = OVERPASS_ENDPOINTS[index];
-      const elapsed = Date.now() - startedAt;
-      const remainingTotal = OVERPASS_TOTAL_TIMEOUT_MS - elapsed;
+    const parentSignal = state.abortController?.signal;
+    const abortFromParent = () => controller.abort();
 
-      if (remainingTotal <= 0) {
-        throw new Error("Overpass timeout");
-      }
-
-      const timeoutMs = Math.min(OVERPASS_ENDPOINT_SLICE_MS, remainingTotal);
-      const controller = new AbortController();
-      let timedOut = false;
-
-      const parentSignal = state.abortController?.signal;
-      const abortFromParent = () => controller.abort();
-
-      if (parentSignal) {
-        if (parentSignal.aborted) throw new DOMException("Aborted", "AbortError");
-        parentSignal.addEventListener("abort", abortFromParent, { once: true });
-      }
-
-      const timeoutId = window.setTimeout(() => {
-        timedOut = true;
-        controller.abort();
-      }, timeoutMs);
-
-      try {
-        const body = new URLSearchParams({ data: query });
-        const response = await fetch(endpoint, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
-            Accept: "application/json"
-          },
-          body: body.toString(),
-          signal: controller.signal
-        });
-
-        if (!response.ok) throw new Error(`Overpass ${response.status}`);
-        return await response.json();
-      } catch (error) {
-        if (parentSignal?.aborted) throw new DOMException("Aborted", "AbortError");
-
-        if (error.name === "AbortError" && timedOut) {
-          lastError = new Error(`Overpass timeout dopo ${Math.ceil(timeoutMs / 1000)}s`);
-        } else if (error.name === "AbortError") {
-          throw error;
-        } else {
-          lastError = error;
-        }
-
-        console.warn(`AroundMe: endpoint Overpass non disponibile (${endpoint})`, lastError);
-      } finally {
-        window.clearTimeout(timeoutId);
-        parentSignal?.removeEventListener("abort", abortFromParent);
-      }
+    if (parentSignal) {
+      if (parentSignal.aborted) throw new DOMException("Aborted", "AbortError");
+      parentSignal.addEventListener("abort", abortFromParent, { once: true });
     }
 
-    throw lastError || new Error("Overpass non disponibile");
+    const waitMs = Math.max(0, OVERPASS_MIN_INTERVAL_MS - (Date.now() - lastOverpassRequestAt));
+    if (waitMs) {
+      await new Promise((resolve) => setTimeout(resolve, waitMs));
+    }
+    lastOverpassRequestAt = Date.now();
+
+    const timeoutId = window.setTimeout(() => {
+      timedOut = true;
+      controller.abort();
+    }, OVERPASS_REQUEST_TIMEOUT_MS);
+
+    try {
+      const body = new URLSearchParams({ data: query });
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+          Accept: "application/json"
+        },
+        body: body.toString(),
+        signal: controller.signal
+      });
+
+      if (!response.ok) throw new Error(`Overpass ${response.status}`);
+      return await response.json();
+    } catch (error) {
+      if (parentSignal?.aborted) throw new DOMException("Aborted", "AbortError");
+
+      overpassEndpointIndex = (overpassEndpointIndex + 1) % OVERPASS_ENDPOINTS.length;
+
+      if (error.name === "AbortError" && timedOut) {
+        const timeoutError = new Error("Overpass timeout dopo 10s");
+        console.warn(`AroundMe: endpoint Overpass non disponibile (${endpoint})`, timeoutError);
+        throw timeoutError;
+      }
+
+      if (error.name === "AbortError") throw error;
+
+      console.warn(`AroundMe: endpoint Overpass non disponibile (${endpoint})`, error);
+      throw error;
+    } finally {
+      window.clearTimeout(timeoutId);
+      parentSignal?.removeEventListener("abort", abortFromParent);
+    }
+  }
+
+  function getOverpassCacheKey() {
+    if (!state.location) return "";
+    return [
+      Number(state.location.lat).toFixed(5),
+      Number(state.location.lon).toFixed(5),
+      state.radius,
+      state.category
+    ].join("|");
+  }
+
+  function readOverpassMemoryCache() {
+    const key = getOverpassCacheKey();
+    if (!key) return null;
+
+    const cached = overpassMemoryCache.get(key);
+    if (!cached) return null;
+
+    if (Date.now() - cached.savedAt > OVERPASS_CACHE_TTL_MS) {
+      overpassMemoryCache.delete(key);
+      return null;
+    }
+
+    return cached;
+  }
+
+  function writeOverpassMemoryCache(results) {
+    const key = getOverpassCacheKey();
+    if (!key) return;
+
+    overpassMemoryCache.set(key, {
+      results: results.map((result) => ({ ...result })),
+      savedAt: Date.now()
+    });
   }
 
   async function fetchAroundMe() {
@@ -434,6 +468,16 @@
         return;
       }
 
+      const memoryCached = readOverpassMemoryCache();
+      if (memoryCached) {
+        state.results = memoryCached.results.map((result) => ({ ...result }));
+        state.savedAt = memoryCached.savedAt;
+        renderResults(false);
+        hideMessage();
+        enrichMissingAddresses();
+        return;
+      }
+
       if (state.abortController) state.abortController.abort();
       state.abortController = new AbortController();
 
@@ -451,6 +495,7 @@
         .slice(0, MAX_RESULTS);
       state.savedAt = Date.now();
 
+      writeOverpassMemoryCache(state.results);
       saveLastSearch();
       renderResults(false);
       hideMessage();
@@ -1047,10 +1092,6 @@
     state.results = cached.results;
     state.savedAt = cached.savedAt;
     renderResults(true);
-
-    if (navigator.onLine) {
-      fetchAroundMe();
-    }
 
     return true;
   }
