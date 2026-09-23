@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>SelfCall — ATRALAB</title>
+
+  <meta
+    name="description"
+    content="SelfCall — fai squillare il telefono dopo pochi secondi con un semplice tap."
+  >
+
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/internal.css">
+  <link rel="stylesheet" href="/css/selfcall.css">
+</head>
+
+<body class="selfcall-page">
+
+  <div data-include="/components/header.html"></div>
+
+  <main class="internal-shell">
+    <div class="container internal-layout selfcall-layout">
+
+      <aside class="internal-sidebar" aria-label="Navigazione Labs">
+        <div data-include="/components/sidebar.html"></div>
+      </aside>
+
+      <section class="internal-content selfcall-content" aria-labelledby="selfcall-title">
+        <h1 id="selfcall-title" class="selfcall-visually-hidden">SelfCall</h1>
+
+        <div class="selfcall-stage">
+          <button
+            class="selfcall-button"
+            id="selfcall-button"
+            type="button"
+            aria-describedby="selfcall-status"
+          >
+            <span class="selfcall-button-label" id="selfcall-button-label">
+              Fammi squillare
+            </span>
+          </button>
+
+          <p class="selfcall-status" id="selfcall-status" aria-live="polite">
+            Lo squillo partirà dopo 5 secondi.
+          </p>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <div data-include="/components/footer.html"></div>
+
+  <script src="/js/include.js"></script>
+  <script src="/js/selfcall.js"></script>
+
+</body>
+</html>

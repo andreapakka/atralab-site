@@ -1,0 +1,181 @@
+.selfcall-page {
+  min-width: 0;
+}
+
+.selfcall-layout {
+  min-width: 0;
+}
+
+.selfcall-content {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+}
+
+.selfcall-stage {
+  min-height: 58vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 28px 0 36px;
+  text-align: center;
+}
+
+.selfcall-button {
+  width: min(360px, 76vw);
+  aspect-ratio: 1;
+
+  display: grid;
+  place-items: center;
+
+  padding: 28px;
+
+  border: 1px solid rgba(244, 241, 234, 0.18);
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle at 34% 28%,
+      rgba(255, 255, 255, 0.13),
+      transparent 34%
+    ),
+    var(--accent);
+
+  color: var(--bg);
+
+  font: inherit;
+  font-size: clamp(1.45rem, 4vw, 2.35rem);
+  line-height: 1.05;
+  font-weight: 700;
+  letter-spacing: -0.045em;
+  text-align: center;
+
+  cursor: pointer;
+  touch-action: manipulation;
+
+  box-shadow:
+    0 26px 70px rgba(0, 0, 0, 0.28),
+    0 0 0 0 rgba(231, 111, 81, 0.28);
+
+  transition:
+    transform 0.16s ease,
+    background 0.18s ease,
+    color 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.selfcall-button:hover {
+  transform: translateY(-2px);
+}
+
+.selfcall-button:active {
+  transform: scale(0.985);
+}
+
+.selfcall-button:focus-visible {
+  outline: 3px solid var(--cream);
+  outline-offset: 5px;
+}
+
+.selfcall-button.is-waiting {
+  background:
+    radial-gradient(
+      circle at 34% 28%,
+      rgba(255, 255, 255, 0.11),
+      transparent 34%
+    ),
+    rgba(244, 241, 234, 0.11);
+
+  color: var(--cream);
+  border-color: rgba(244, 241, 234, 0.28);
+}
+
+.selfcall-button.is-ringing {
+  color: var(--cream);
+  background:
+    radial-gradient(
+      circle at 34% 28%,
+      rgba(255, 255, 255, 0.13),
+      transparent 34%
+    ),
+    rgba(231, 111, 81, 0.82);
+
+  box-shadow:
+    0 26px 70px rgba(0, 0, 0, 0.30),
+    0 0 0 18px rgba(231, 111, 81, 0.06),
+    0 0 0 36px rgba(231, 111, 81, 0.035);
+
+  animation: selfcall-ring-pulse 1.15s ease-in-out infinite;
+}
+
+.selfcall-button-label {
+  max-width: 9ch;
+}
+
+.selfcall-status {
+  min-height: 1.5em;
+  margin: 0;
+
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.selfcall-visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+@keyframes selfcall-ring-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.018);
+  }
+}
+
+@media (max-width: 720px) {
+  .selfcall-stage {
+    min-height: 52vh;
+    gap: 16px;
+    padding: 18px 0 28px;
+  }
+
+  .selfcall-button {
+    width: min(290px, 72vw);
+    padding: 24px;
+    font-size: clamp(1.35rem, 7vw, 1.85rem);
+  }
+
+  .selfcall-status {
+    font-size: 0.88rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .selfcall-button {
+    width: min(260px, 70vw);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .selfcall-button {
+    transition: none;
+  }
+
+  .selfcall-button.is-ringing {
+    animation: none;
+  }
+}
