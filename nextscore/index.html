@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0E0E0E">
+  <meta name="description" content="NextScore: tre micro-sfide per reazione, memoria visiva e percezione del tempo.">
+  <title>NextScore · ATRALAB</title>
+
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/internal.css">
+  <link rel="stylesheet" href="/css/nextscore.css">
+</head>
+<body class="nextscore-page">
+  <div data-include="/components/header.html"></div>
+
+  <main class="internal-shell">
+    <div class="container internal-layout">
+      <aside class="internal-sidebar" aria-label="Navigazione Labs">
+        <div data-include="/components/sidebar.html"></div>
+      </aside>
+
+      <section class="internal-content nextscore-content" aria-labelledby="nextscore-title">
+        <div class="nextscore-hero">
+          <p class="internal-kicker">CHALLENGE</p>
+          <h1 id="nextscore-title">NextScore</h1>
+          <p class="internal-lead">
+            Tre prove rapide. Reazione, memoria e percezione del tempo. Il vero avversario è il tuo punteggio precedente.
+          </p>
+        </div>
+
+        <div id="nextscore-app" class="nextscore-app">
+          <section id="ns-home" class="ns-view is-active" aria-labelledby="ns-home-title">
+            <div class="ns-section-heading">
+              <div>
+                <p class="ns-overline">SCEGLI LA SFIDA</p>
+                <h2 id="ns-home-title">Da dove vuoi partire?</h2>
+              </div>
+              <div class="ns-device-pill" id="ns-device-pill">Dispositivo</div>
+            </div>
+
+            <div class="ns-test-grid">
+              <button class="ns-test-card" type="button" data-start-test="reaction">
+                <span class="ns-test-number">01</span>
+                <span class="ns-test-name">Reazione</span>
+                <span class="ns-test-copy">5 round. Tocca appena compare il segnale.</span>
+                <span class="ns-test-meta" id="ns-best-reaction">Record —</span>
+              </button>
+
+              <button class="ns-test-card" type="button" data-start-test="memory">
+                <span class="ns-test-number">02</span>
+                <span class="ns-test-name">Memoria visiva</span>
+                <span class="ns-test-copy">3 livelli. Ricorda le celle illuminate.</span>
+                <span class="ns-test-meta" id="ns-best-memory">Record —</span>
+              </button>
+
+              <button class="ns-test-card" type="button" data-start-test="timing">
+                <span class="ns-test-number">03</span>
+                <span class="ns-test-name">Stima del tempo</span>
+                <span class="ns-test-copy">3 tentativi. Ferma il tempo a 10 secondi.</span>
+                <span class="ns-test-meta" id="ns-best-timing">Record —</span>
+              </button>
+
+              <button class="ns-test-card ns-test-card-featured" type="button" data-start-test="challenge">
+                <span class="ns-test-number">ALL</span>
+                <span class="ns-test-name">Sfida completa</span>
+                <span class="ns-test-copy">I tre test in sequenza. NextScore massimo: 300.</span>
+                <span class="ns-test-meta" id="ns-best-challenge">Personal Best —</span>
+              </button>
+            </div>
+
+            <section class="ns-dashboard" aria-labelledby="ns-dashboard-title">
+              <div class="ns-section-heading ns-section-heading-compact">
+                <div>
+                  <p class="ns-overline">STORICO LOCALE</p>
+                  <h2 id="ns-dashboard-title">I tuoi ultimi risultati</h2>
+                </div>
+                <button class="ns-text-button" id="ns-clear-data" type="button">Azzera risultati</button>
+              </div>
+
+              <div class="ns-history" id="ns-history">
+                <p class="ns-empty">Ancora nessun risultato su questo dispositivo.</p>
+              </div>
+            </section>
+          </section>
+
+          <section id="ns-reaction" class="ns-view" aria-labelledby="ns-reaction-title">
+            <div class="ns-test-head">
+              <div>
+                <p class="ns-overline">TEST 01</p>
+                <h2 id="ns-reaction-title">Reazione</h2>
+              </div>
+              <span class="ns-progress-label" id="ns-reaction-progress">Round 1 / 5</span>
+            </div>
+
+            <p class="ns-instructions">
+              Premi Avvia, aspetta il segnale e poi tocca il pannello il più velocemente possibile. Se tocchi prima, il round non conta.
+            </p>
+
+            <div class="ns-stage">
+              <button class="ns-reaction-zone" id="ns-reaction-zone" type="button" disabled>
+                <span class="ns-reaction-status" id="ns-reaction-status">Pronto?</span>
+                <span class="ns-reaction-sub" id="ns-reaction-sub">L'attesa sarà casuale tra 1,5 e 8 secondi.</span>
+              </button>
+            </div>
+
+            <div class="ns-round-results" id="ns-reaction-rounds" aria-live="polite"></div>
+
+            <div class="ns-actions">
+              <button class="ns-primary" id="ns-reaction-start" type="button">Avvia test</button>
+              <button class="ns-secondary" data-back-home type="button">Torna ai test</button>
+            </div>
+          </section>
+
+          <section id="ns-memory" class="ns-view" aria-labelledby="ns-memory-title">
+            <div class="ns-test-head">
+              <div>
+                <p class="ns-overline">TEST 02</p>
+                <h2 id="ns-memory-title">Memoria visiva</h2>
+              </div>
+              <span class="ns-progress-label" id="ns-memory-progress">Livello 1 / 3</span>
+            </div>
+
+            <p class="ns-instructions">
+              Memorizza le celle arancioni. Dopo 1,2 secondi spariranno: seleziona le stesse celle e conferma.
+            </p>
+
+            <div class="ns-memory-wrap">
+              <div class="ns-memory-grid" id="ns-memory-grid" role="group" aria-label="Griglia memoria visiva"></div>
+            </div>
+
+            <div class="ns-memory-status" id="ns-memory-status" aria-live="polite">
+              Premi Avvia test per iniziare.
+            </div>
+
+            <div class="ns-actions">
+              <button class="ns-primary" id="ns-memory-start" type="button">Avvia test</button>
+              <button class="ns-primary" id="ns-memory-confirm" type="button" hidden>Conferma</button>
+              <button class="ns-secondary" data-back-home type="button">Torna ai test</button>
+            </div>
+          </section>
+
+          <section id="ns-timing" class="ns-view" aria-labelledby="ns-timing-title">
+            <div class="ns-test-head">
+              <div>
+                <p class="ns-overline">TEST 03</p>
+                <h2 id="ns-timing-title">Stima del tempo</h2>
+              </div>
+              <span class="ns-progress-label" id="ns-timing-progress">Tentativo 1 / 3</span>
+            </div>
+
+            <p class="ns-instructions">
+              Premi Start e poi Stop quando pensi siano passati esattamente 10 secondi. Nessun cronometro visibile.
+            </p>
+
+            <div class="ns-timing-stage" id="ns-timing-stage">
+              <div class="ns-time-orbit" id="ns-time-orbit" aria-hidden="true">
+                <span></span><span></span><span></span>
+              </div>
+              <p class="ns-timing-message" id="ns-timing-message">Pronto?</p>
+              <button class="ns-stop-button" id="ns-timing-stop" type="button" disabled>STOP</button>
+            </div>
+
+            <div class="ns-round-results" id="ns-timing-rounds" aria-live="polite"></div>
+
+            <div class="ns-actions">
+              <button class="ns-primary" id="ns-timing-start" type="button">Start</button>
+              <button class="ns-secondary" data-back-home type="button">Torna ai test</button>
+            </div>
+          </section>
+
+          <section id="ns-result" class="ns-view" aria-labelledby="ns-result-title">
+            <div class="ns-result-panel">
+              <p class="ns-overline" id="ns-result-overline">RISULTATO</p>
+              <h2 id="ns-result-title">Test completato</h2>
+
+              <div class="ns-score" id="ns-result-score">0</div>
+              <div class="ns-score-label" id="ns-result-score-label">punti su 100</div>
+
+              <div class="ns-result-details" id="ns-result-details"></div>
+
+              <div class="ns-actions ns-actions-centered">
+                <button class="ns-primary" id="ns-result-primary" type="button">Riprova</button>
+                <button class="ns-secondary" id="ns-result-home" type="button">Torna ai test</button>
+              </div>
+            </div>
+          </section>
+
+          <section id="ns-challenge-result" class="ns-view" aria-labelledby="ns-challenge-title">
+            <div class="ns-result-panel ns-result-panel-challenge">
+              <p class="ns-overline">SFIDA COMPLETA</p>
+              <h2 id="ns-challenge-title">Il tuo NextScore</h2>
+
+              <div class="ns-score ns-score-total" id="ns-challenge-total">0</div>
+              <div class="ns-score-label">punti su 300</div>
+
+              <div class="ns-challenge-breakdown" id="ns-challenge-breakdown"></div>
+
+              <div class="ns-actions ns-actions-centered">
+                <button class="ns-primary" id="ns-challenge-again" type="button">Rifai la sfida</button>
+                <button class="ns-secondary" id="ns-challenge-home" type="button">Torna ai test</button>
+              </div>
+            </div>
+          </section>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <div data-include="/components/footer.html"></div>
+
+  <script src="/js/include.js"></script>
+  <script src="/js/nextscore.js"></script>
+</body>
+</html>
