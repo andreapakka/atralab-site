@@ -201,7 +201,7 @@
     state.reaction.phase = "idle";
     state.reaction.signalAt = 0;
 
-    reactionProgress.textContent = "Round 1 / 5";
+    reactionProgress.textContent = "Round 1 / 3";
     reactionRounds.innerHTML = "";
     reactionStatus.textContent = "Pronto?";
     reactionSub.textContent = "L'attesa sarà casuale tra 1,5 e 8 secondi.";
@@ -212,7 +212,7 @@
   }
 
   function beginReactionTest() {
-    if (state.reaction.results.length >= 5) return;
+    if (state.reaction.results.length >= 3) return;
     reactionStart.hidden = true;
     startReactionRound();
   }
@@ -223,7 +223,7 @@
     reactionZone.className = "ns-reaction-zone is-waiting";
     reactionStatus.textContent = "Aspetta…";
     reactionSub.textContent = "Non toccare finché non compare ORA!";
-    reactionProgress.textContent = `Round ${state.reaction.results.length + 1} / 5`;
+    reactionProgress.textContent = `Round ${state.reaction.results.length + 1} / 3`;
 
     const delay = 1500 + Math.random() * 6500;
 
@@ -268,7 +268,7 @@
 
     renderRoundChips(reactionRounds, state.reaction.results.map((value) => `${Math.round(value)} ms`));
 
-    if (state.reaction.results.length >= 5) {
+    if (state.reaction.results.length >= 3) {
       setTimeout(finishReaction, 700);
     } else {
       setTimeout(startReactionRound, 900);
