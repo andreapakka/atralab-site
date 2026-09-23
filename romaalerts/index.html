@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0E0E0E">
+  <title>Roma Alerts · ATRALAB</title>
+  <meta name="description" content="Eventi e criticità che possono influenzare gli spostamenti a Roma.">
+
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/internal.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="/css/romaalerts.css">
+</head>
+<body class="romaalerts-page">
+  <div data-include="/components/header.html"></div>
+
+  <main>
+    <div class="romaalerts-shell">
+      <aside class="romaalerts-sidebar" aria-label="Navigazione ATRALAB">
+        <div data-include="/components/sidebar.html"></div>
+      </aside>
+
+      <section class="romaalerts-main" id="main-content">
+      <section class="romaalerts-hero" aria-labelledby="romaalerts-title">
+        <div class="romaalerts-kicker">ROMA · MOBILITÀ</div>
+        <div class="romaalerts-hero-row">
+          <div>
+            <h1 id="romaalerts-title">Roma Alerts</h1>
+            <p class="romaalerts-lead">
+              Eventi e criticità che possono influenzare gli spostamenti in città.
+            </p>
+          </div>
+
+          <button class="romaalerts-refresh" id="romaalerts-refresh" type="button">
+            Aggiorna
+          </button>
+        </div>
+      </section>
+
+      <section class="romaalerts-summary" aria-label="Riepilogo alert">
+        <div class="romaalerts-summary-item">
+          <span class="romaalerts-summary-value" id="summary-now">—</span>
+          <span class="romaalerts-summary-label">adesso</span>
+        </div>
+        <div class="romaalerts-summary-item">
+          <span class="romaalerts-summary-value" id="summary-today">—</span>
+          <span class="romaalerts-summary-label">oggi</span>
+        </div>
+        <div class="romaalerts-summary-item">
+          <span class="romaalerts-summary-value" id="summary-tomorrow">—</span>
+          <span class="romaalerts-summary-label">domani</span>
+        </div>
+        <div class="romaalerts-summary-item">
+          <span class="romaalerts-summary-value" id="summary-week">—</span>
+          <span class="romaalerts-summary-label">prossimi giorni</span>
+        </div>
+      </section>
+
+      <section class="romaalerts-map-panel" aria-labelledby="romaalerts-map-title">
+        <div class="romaalerts-section-head">
+          <div>
+            <div class="romaalerts-section-kicker">MAPPA INDICATIVA</div>
+            <h2 id="romaalerts-map-title">Dove succede</h2>
+          </div>
+          <div class="romaalerts-map-status" id="romaalerts-map-status">In attesa dei dati…</div>
+        </div>
+
+        <div id="romaalerts-map" class="romaalerts-map" role="region" aria-label="Mappa degli alert localizzabili"></div>
+        <p class="romaalerts-map-note">
+          I punti sono ricavati automaticamente dal testo degli avvisi e possono essere approssimativi.
+        </p>
+      </section>
+
+      <section class="romaalerts-feed" aria-live="polite" aria-busy="true">
+        <div class="romaalerts-loading" id="romaalerts-loading">
+          <span class="romaalerts-loading-dot" aria-hidden="true"></span>
+          Caricamento degli avvisi…
+        </div>
+
+        <div class="romaalerts-error" id="romaalerts-error" hidden>
+          <strong>Dati non disponibili.</strong>
+          <span id="romaalerts-error-text">Riprova tra poco.</span>
+        </div>
+
+        <div id="romaalerts-sections"></div>
+      </section>
+
+      <section class="romaalerts-meta" aria-label="Informazioni sui dati">
+        <div>
+          <span class="romaalerts-meta-label">Ultimo aggiornamento</span>
+          <strong id="romaalerts-updated">—</strong>
+        </div>
+        <div>
+          <span class="romaalerts-meta-label">Fonti</span>
+          <strong id="romaalerts-sources">GTFS + Infomobilità Roma Mobilità</strong>
+        </div>
+        <div>
+          <span class="romaalerts-meta-label">Stato</span>
+          <strong id="romaalerts-source-status">—</strong>
+        </div>
+      </section>
+      </section>
+    </div>
+  </main>
+
+  <div data-include="/components/footer.html"></div>
+
+  <script src="/js/include.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="/js/romaalerts.js"></script>
+</body>
+</html>
