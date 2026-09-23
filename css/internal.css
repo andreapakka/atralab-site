@@ -155,24 +155,24 @@
     overflow: hidden;
   }
 
-  .sidebar-nav {
-    flex-direction: row;
-    align-items: center;
-    gap: 10px;
+.sidebar-nav {
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
 
-    width: 100%;
-    min-width: 0;
-    max-width: 100%;
+  width: calc(100vw - 16px);
+  max-width: calc(100vw - 16px);
+  min-width: 0;
 
-    overflow-x: auto;
-    overflow-y: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
 
-    padding-bottom: 4px;
-    box-sizing: border-box;
+  padding-bottom: 4px;
+  box-sizing: border-box;
 
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior-x: contain;
-  }
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+}
 
   .sidebar-title {
     display: none;
