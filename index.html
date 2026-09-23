@@ -3,122 +3,332 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>Atralab</title>
-  <meta name="description" content="Atralab — uno spazio per prove, idee ed esperimenti.">
+
+  <meta
+    name="description"
+    content="Atralab — uno spazio per prove, idee ed esperimenti."
+  >
+
   <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
 
   <div data-include="components/header.html"></div>
 
   <main>
+
     <section class="hero">
       <div class="container">
+
         <p class="eyebrow">ATRALAB</p>
+
         <h1>Uno spazio per provare cose.</h1>
+
         <p class="intro">
           Idee, esperimenti e piccoli progetti. Senza troppe regole.
         </p>
+
       </div>
     </section>
+
 
     <section class="content">
       <div class="container">
 
-        <!--<div class="card">
-          <span class="card-label">Primo spazio</span>
-          <h2>Da qui si comincia.</h2>
-          <p>
-            Questa è solo una base semplice. Struttura, stile e contenuti
-            potranno cambiare man mano che Atralab prende forma.
-          </p>
-        </div>-->
 
-        <div class="card">
-          <span class="card-label">Utility</span>
-          <h2>Road to School</h2>
-          <p>
-            Un piccolo diario per registrare ogni giorno il viaggio verso scuola.
-          </p>
-          <p>
-            <a href="/roadtoschool/">Apri Road to School →</a>
-          </p>
-        </div>
+        <!-- ROAD TO SCHOOL -->
 
-<div class="card">
-  <span class="card-label">Gioco</span>
-  <h2>Frase Misteriosa</h2>
-  <p>
-    Scopri una frase motivazionale una lettera alla volta.
-    Un piccolo gioco per affrontare ogni sfida col piede giusto.
-  </p>
-  <p>
-    <a href="/mysteryphrase/">Gioca ora →</a>
-  </p>
-</div>        
+        <article class="card">
 
-<div class="card">
-  <span class="card-label">News</span>
-  <h2>Pulse News</h2>
-  <p>
-    Poche notizie selezionate su scienza, spazio,
-    ambiente, tecnologia e sport.
-  </p>
-  <p>
-    <a href="/pulse/">Leggi ora →</a>
-  </p>
-</div>      
+          <div class="card-media">
+            <img
+              src="/assets/home/roadtoschool-atralab.webp"
+              alt=""
+              class="card-image"
+              loading="lazy"
+            >
 
-<div class="card">
-  <span class="card-label">Trasporti</span>
+            <div class="card-media-gradient"></div>
 
-  <h2>UrbanTrain</h2>
+            <h2 class="card-title">
+              Road to School
+            </h2>
+          </div>
 
-  <p>
-    Treni urbani Roma Nord tra Montebello e Flaminio:
-    posizione stimata e partenze di oggi.
-  </p>
+          <div class="card-body">
 
-  <p>
-    <a href="/urbantrain/">Posizione treni →</a>
-    <br>
-    <a href="/urbantraindepartures/">Partenze di oggi →</a>
-  </p>
-</div>       
+            <span class="card-label">
+              Utility
+            </span>
 
-<div class="card">
-  <span class="card-label">Utility</span>
-  <h2>AroundMe</h2>
-  <p>
-    Trova servizi e luoghi utili intorno a te o vicino a un indirizzo:
-    cibo, acqua, bagni, farmacie, ATM e altro.
-  </p>
-  <p>
-    <a href="/aroundme/">Esplora i dintorni →</a>
-  </p>
-</div>  
+            <p class="card-description">
+              Un piccolo diario per registrare ogni giorno
+              il viaggio verso scuola.
+            </p>
 
-<div class="card">
-  <span class="card-label">Utility</span>
+            <div class="card-actions">
+              <a
+                class="card-button"
+                href="/roadtoschool/"
+              >
+                Apri Road to School
+                <span aria-hidden="true">→</span>
+              </a>
+            </div>
 
-  <h2>Roma Alerts</h2>
+          </div>
 
-  <p>
-    Manifestazioni, interruzioni, deviazioni ed eventi
-    che possono influenzare gli spostamenti a Roma.
-  </p>
+        </article>
 
-  <p>
-    <a href="/romaalerts/">Apri Roma Alerts →</a>
-  </p>
-</div>        
+
+        <!-- FRASE MISTERIOSA -->
+
+        <article class="card">
+
+          <div class="card-media">
+            <img
+              src="/assets/home/frase-misteriosa-atralab.webp"
+              alt=""
+              class="card-image"
+              loading="lazy"
+            >
+
+            <div class="card-media-gradient"></div>
+
+            <h2 class="card-title">
+              Frase Misteriosa
+            </h2>
+          </div>
+
+          <div class="card-body">
+
+            <span class="card-label">
+              Gioco
+            </span>
+
+            <p class="card-description">
+              Scopri una frase motivazionale una lettera alla volta.
+              Un piccolo gioco per affrontare ogni sfida col piede giusto.
+            </p>
+
+            <div class="card-actions">
+              <a
+                class="card-button"
+                href="/mysteryphrase/"
+              >
+                Gioca ora
+                <span aria-hidden="true">→</span>
+              </a>
+            </div>
+
+          </div>
+
+        </article>
+
+
+        <!-- PULSE NEWS -->
+
+        <article class="card">
+
+          <div class="card-media">
+            <img
+              src="/assets/home/pulse-news-atralab.webp"
+              alt=""
+              class="card-image"
+              loading="lazy"
+            >
+
+            <div class="card-media-gradient"></div>
+
+            <h2 class="card-title">
+              Pulse News
+            </h2>
+          </div>
+
+          <div class="card-body">
+
+            <span class="card-label">
+              News
+            </span>
+
+            <p class="card-description">
+              Poche notizie selezionate su scienza, spazio,
+              ambiente, tecnologia e sport.
+            </p>
+
+            <div class="card-actions">
+              <a
+                class="card-button"
+                href="/pulse/"
+              >
+                Leggi ora
+                <span aria-hidden="true">→</span>
+              </a>
+            </div>
+
+          </div>
+
+        </article>
+
+
+        <!-- URBAN TRAIN -->
+
+        <article class="card">
+
+          <div class="card-media">
+            <img
+              src="/assets/home/urbantrain-atralab.webp"
+              alt=""
+              class="card-image"
+              loading="lazy"
+            >
+
+            <div class="card-media-gradient"></div>
+
+            <h2 class="card-title">
+              UrbanTrain
+            </h2>
+          </div>
+
+          <div class="card-body">
+
+            <span class="card-label">
+              Trasporti
+            </span>
+
+            <p class="card-description">
+              Treni urbani Roma Nord tra Montebello e Flaminio:
+              posizione stimata e partenze di oggi.
+            </p>
+
+            <div class="card-actions card-actions-double">
+
+              <a
+                class="card-button"
+                href="/urbantrain/"
+              >
+                Posizione treni
+                <span aria-hidden="true">→</span>
+              </a>
+
+              <a
+                class="card-button"
+                href="/urbantraindepartures/"
+              >
+                Partenze
+                <span aria-hidden="true">→</span>
+              </a>
+
+            </div>
+
+          </div>
+
+        </article>
+
+
+        <!-- AROUND ME -->
+
+        <article class="card">
+
+          <div class="card-media">
+            <img
+              src="/assets/home/aroundme-atralab.webp"
+              alt=""
+              class="card-image"
+              loading="lazy"
+            >
+
+            <div class="card-media-gradient"></div>
+
+            <h2 class="card-title">
+              AroundMe
+            </h2>
+          </div>
+
+          <div class="card-body">
+
+            <span class="card-label">
+              Utility
+            </span>
+
+            <p class="card-description">
+              Trova servizi e luoghi utili intorno a te o vicino
+              a un indirizzo: cibo, acqua, bagni, farmacie,
+              ATM e altro.
+            </p>
+
+            <div class="card-actions">
+              <a
+                class="card-button"
+                href="/aroundme/"
+              >
+                Esplora i dintorni
+                <span aria-hidden="true">→</span>
+              </a>
+            </div>
+
+          </div>
+
+        </article>
+
+
+        <!-- ROMA ALERTS -->
+
+        <article class="card">
+
+          <div class="card-media">
+            <img
+              src="/assets/home/romaalerts-atralab.webp"
+              alt=""
+              class="card-image"
+              loading="lazy"
+            >
+
+            <div class="card-media-gradient"></div>
+
+            <h2 class="card-title">
+              Roma Alerts
+            </h2>
+          </div>
+
+          <div class="card-body">
+
+            <span class="card-label">
+              Mobilità
+            </span>
+
+            <p class="card-description">
+              Manifestazioni, interruzioni, deviazioni ed eventi
+              che possono influenzare gli spostamenti a Roma.
+            </p>
+
+            <div class="card-actions">
+              <a
+                class="card-button"
+                href="/romaalerts/"
+              >
+                Apri Roma Alerts
+                <span aria-hidden="true">→</span>
+              </a>
+            </div>
+
+          </div>
+
+        </article>
+
 
       </div>
     </section>
+
   </main>
+
 
   <div data-include="components/footer.html"></div>
 
   <script src="js/include.js"></script>
+
 </body>
 </html>
