@@ -10,7 +10,8 @@
   --muted: rgba(244, 241, 234, 0.68);
   --line: rgba(244, 241, 234, 0.12);
   --panel: rgba(255, 255, 255, 0.04);
-  --max-width: 860px;
+
+  --max-width: 1180px;
   --radius: 14px;
 }
 
@@ -32,12 +33,29 @@ body {
   display: flex;
   flex-direction: column;
   overflow-x: hidden;
+
   background:
-    radial-gradient(circle at 82% 18%, rgba(231, 111, 81, 0.20), transparent 25%),
-    radial-gradient(circle at 16% 78%, rgba(231, 111, 81, 0.08), transparent 24%),
-    linear-gradient(rgba(255,255,255,0.028) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.028) 1px, transparent 1px),
+    radial-gradient(
+      circle at 82% 18%,
+      rgba(231, 111, 81, 0.20),
+      transparent 25%
+    ),
+    radial-gradient(
+      circle at 16% 78%,
+      rgba(231, 111, 81, 0.08),
+      transparent 24%
+    ),
+    linear-gradient(
+      rgba(255, 255, 255, 0.028) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.028) 1px,
+      transparent 1px
+    ),
     var(--bg);
+
   background-size:
     auto,
     auto,
@@ -51,8 +69,15 @@ body::before {
   position: fixed;
   inset: 0;
   pointer-events: none;
+
   background:
-    linear-gradient(115deg, transparent 0 42%, rgba(231,111,81,0.045) 42% 44%, transparent 44% 100%);
+    linear-gradient(
+      115deg,
+      transparent 0 42%,
+      rgba(231, 111, 81, 0.045) 42% 44%,
+      transparent 44% 100%
+    );
+
   mix-blend-mode: screen;
 }
 
@@ -65,16 +90,24 @@ a {
   margin: 0 auto;
 }
 
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
 .site-header {
   position: relative;
   z-index: 5;
+
   border-bottom: 1px solid var(--line);
+
   background: rgba(14, 14, 14, 0.72);
   backdrop-filter: blur(10px);
 }
 
 .header-inner {
   min-height: 50px;
+
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -82,6 +115,7 @@ a {
 
 .brand {
   position: relative;
+
   font-size: 1.05rem;
   font-weight: 700;
   letter-spacing: -0.04em;
@@ -90,14 +124,20 @@ a {
 
 .brand::after {
   content: "";
+
   position: absolute;
   right: -9px;
   top: 4px;
+
   width: 6px;
   height: 6px;
+
   border-radius: 50%;
+
   background: var(--accent);
-  box-shadow: 0 0 18px rgba(231, 111, 81, 0.9);
+
+  box-shadow:
+    0 0 18px rgba(231, 111, 81, 0.9);
 }
 
 .main-nav {
@@ -109,19 +149,33 @@ a {
   font-size: 0.86rem;
   font-weight: 600;
   text-decoration: none;
+
   color: var(--muted);
-  transition: color 0.18s ease;
+
+  transition:
+    color 0.18s ease;
 }
 
 .main-nav a:hover {
   color: var(--cream);
 }
 
+
+/* =========================================================
+   MAIN
+   ========================================================= */
+
 main {
   flex: 1;
+
   position: relative;
   z-index: 1;
 }
+
+
+/* =========================================================
+   HERO
+   ========================================================= */
 
 .hero {
   padding: 34px 0 22px;
@@ -129,8 +183,11 @@ main {
 
 .eyebrow {
   display: inline-block;
+
   margin: 0 0 8px;
+
   color: var(--accent);
+
   font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.18em;
@@ -139,23 +196,33 @@ main {
 
 .hero h1 {
   max-width: 760px;
+
   margin: 0;
+
   font-size: clamp(2.7rem, 7vw, 5.8rem);
   line-height: 0.88;
   letter-spacing: -0.07em;
   font-weight: 700;
+
   text-wrap: balance;
 }
 
 .hero h1::after {
   content: "";
+
   display: inline-block;
+
   width: 0.32em;
   height: 0.32em;
+
   margin-left: 0.12em;
+
   border-radius: 50%;
+
   background: var(--accent);
+
   vertical-align: 0.08em;
+
   box-shadow:
     0 0 20px rgba(231, 111, 81, 0.75),
     0 0 50px rgba(231, 111, 81, 0.25);
@@ -163,88 +230,334 @@ main {
 
 .intro {
   max-width: 560px;
+
   margin: 14px 0 0;
+
   color: var(--muted);
+
   font-size: 1rem;
   line-height: 1.45;
 }
 
+
+/* =========================================================
+   CONTENT / GRID
+   ========================================================= */
+
 .content {
-  padding: 0 0 26px;
+  padding: 0 0 32px;
 }
+
+.content .container {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 18px;
+}
+
+
+/* =========================================================
+   CARD
+   ========================================================= */
 
 .card {
   position: relative;
-  max-width: 620px;
-  padding: 17px 18px 18px;
+
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+
+  padding: 0;
+
+  overflow: hidden;
+
   border: 1px solid var(--line);
   border-radius: var(--radius);
+
   background:
-    linear-gradient(180deg, rgba(255,255,255,0.055), rgba(255,255,255,0.025));
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.055),
+      rgba(255, 255, 255, 0.025)
+    );
+
   box-shadow:
-    0 18px 55px rgba(0,0,0,0.22),
-    inset 0 1px 0 rgba(255,255,255,0.04);
-  overflow: hidden;
+    0 18px 55px rgba(0, 0, 0, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+
+  transition:
+    transform 0.22s ease,
+    border-color 0.22s ease,
+    box-shadow 0.22s ease;
 }
 
-.card::before {
-  content: "";
+.card:hover {
+  transform: translateY(-3px);
+
+  border-color:
+    rgba(244, 241, 234, 0.22);
+
+  box-shadow:
+    0 24px 65px rgba(0, 0, 0, 0.30),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+
+/* =========================================================
+   CARD IMAGE
+   ========================================================= */
+
+.card-media {
+  position: relative;
+
+  width: 100%;
+
+  aspect-ratio: 16 / 9;
+
+  overflow: hidden;
+
+  background: #151515;
+}
+
+.card-image {
+  display: block;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+
+  transition:
+    transform 0.45s ease;
+}
+
+.card:hover .card-image {
+  transform: scale(1.025);
+}
+
+.card-media-gradient {
   position: absolute;
-  width: 140px;
-  height: 140px;
-  top: -90px;
-  right: -60px;
-  border-radius: 50%;
-  background: rgba(231, 111, 81, 0.13);
-  filter: blur(8px);
+  inset: 0;
+
+  pointer-events: none;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(14, 14, 14, 0.02) 30%,
+      rgba(14, 14, 14, 0.18) 55%,
+      rgba(14, 14, 14, 0.92) 100%
+    );
+}
+
+
+/* =========================================================
+   CARD TITLE
+   ========================================================= */
+
+.card-title {
+  position: absolute;
+
+  left: 18px;
+  right: 18px;
+  bottom: 14px;
+
+  z-index: 2;
+
+  margin: 0;
+
+  color: var(--cream);
+
+  font-size: clamp(1.25rem, 2vw, 1.55rem);
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+  font-weight: 700;
+
+  text-shadow:
+    0 2px 16px rgba(0, 0, 0, 0.65);
+}
+
+
+/* =========================================================
+   CARD BODY
+   ========================================================= */
+
+.card-body {
+  flex: 1;
+
+  display: flex;
+  flex-direction: column;
+
+  padding: 16px 17px 17px;
 }
 
 .card-label {
   display: block;
-  margin-bottom: 6px;
+
+  margin-bottom: 8px;
+
   color: var(--accent);
+
   font-size: 0.66rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
 }
 
-.card h2 {
-  margin: 0 0 6px;
-  font-size: 1.22rem;
-  letter-spacing: -0.03em;
-}
-
-.card p {
+.card-description {
   margin: 0;
+
   color: var(--muted);
-  font-size: 0.92rem;
-  line-height: 1.45;
+
+  font-size: 0.90rem;
+  line-height: 1.5;
 }
+
+
+/* =========================================================
+   CARD ACTIONS
+   ========================================================= */
+
+.card-actions {
+  margin-top: auto;
+  padding-top: 18px;
+
+  display: grid;
+  grid-template-columns: 1fr;
+
+  gap: 8px;
+}
+
+.card-actions-double {
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+}
+
+
+/* =========================================================
+   BUTTONS
+   ========================================================= */
+
+.card-button {
+  min-height: 42px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 10px;
+
+  padding: 10px 12px;
+
+  border: 1px solid var(--accent);
+  border-radius: 9px;
+
+  background: var(--accent);
+
+  color: var(--bg);
+
+  text-decoration: none;
+
+  font-size: 0.82rem;
+  line-height: 1.15;
+  font-weight: 700;
+
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    border-color 0.18s ease,
+    transform 0.18s ease;
+}
+
+.card-button span {
+  flex: 0 0 auto;
+
+  font-size: 1.05rem;
+
+  transition:
+    transform 0.18s ease;
+}
+
+.card-button:hover {
+  background: var(--cream);
+  border-color: var(--cream);
+  color: var(--bg);
+}
+
+.card-button:hover span {
+  transform: translateX(3px);
+}
+
+.card-button:focus-visible {
+  outline: 2px solid var(--cream);
+  outline-offset: 3px;
+}
+
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
 
 .site-footer {
   position: relative;
   z-index: 2;
+
   border-top: 1px solid var(--line);
-  background: rgba(14,14,14,0.55);
+
+  background:
+    rgba(14, 14, 14, 0.55);
 }
 
 .footer-inner {
   min-height: 44px;
+
   display: flex;
   align-items: center;
   justify-content: space-between;
+
   gap: 12px;
-  color: rgba(244, 241, 234, 0.50);
+
+  color:
+    rgba(244, 241, 234, 0.50);
+
   font-size: 0.73rem;
 }
+
+
+/* =========================================================
+   SELECTION
+   ========================================================= */
 
 ::selection {
   color: var(--black);
   background: var(--accent);
 }
 
-@media (max-width: 640px) {
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 1000px) {
+
+  .content .container {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 700px) {
+
   .container {
     width: calc(100% - 22px);
   }
@@ -258,63 +571,106 @@ main {
   }
 
   .hero h1 {
-    font-size: clamp(2.5rem, 15vw, 4rem);
+    font-size:
+      clamp(2.5rem, 15vw, 4rem);
+
     line-height: 0.9;
   }
 
   .intro {
     margin-top: 12px;
+
     font-size: 0.94rem;
   }
 
   .content {
-    padding-bottom: 20px;
+    padding-bottom: 24px;
   }
 
-  .card {
+  .content .container {
+    grid-template-columns: 1fr;
+
+    gap: 16px;
+  }
+
+  .card-title {
+    left: 16px;
+    right: 16px;
+    bottom: 13px;
+
+    font-size: 1.45rem;
+  }
+
+  .card-body {
     padding: 15px 16px 16px;
+  }
+
+  .card-description {
+    font-size: 0.92rem;
+  }
+
+  .card-button {
+    min-height: 44px;
+
+    padding: 11px 13px;
+
+    font-size: 0.86rem;
   }
 
   .footer-inner {
     min-height: 46px;
+
     font-size: 0.7rem;
   }
+
 }
 
-.content .container {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
-}
 
-.card {
-  max-width: none;
-  width: 100%;
-  height: 100%;
-}
+/* =========================================================
+   MOBILE PICCOLO
+   ========================================================= */
 
-@media (max-width: 700px) {
-  .content .container {
+@media (max-width: 420px) {
+
+  .card-actions-double {
     grid-template-columns: 1fr;
   }
+
 }
+
+
+/* =========================================================
+   BACK TO TOP
+   ========================================================= */
 
 .back-to-top {
   position: fixed;
+
   right: 20px;
   bottom: 20px;
+
   width: 44px;
   height: 44px;
-  border: 1px solid rgba(244, 241, 234, 0.18);
+
+  border:
+    1px solid rgba(244, 241, 234, 0.18);
+
   border-radius: 50%;
+
   background: #0E0E0E;
+
   color: #E76F51;
+
   font-size: 22px;
   line-height: 1;
+
   cursor: pointer;
+
   opacity: 0;
   visibility: hidden;
+
   transform: translateY(10px);
+
   transition:
     opacity 0.2s ease,
     transform 0.2s ease,
@@ -332,15 +688,44 @@ main {
 .back-to-top.show {
   opacity: 1;
   visibility: visible;
+
   transform: translateY(0);
 }
 
 @media (max-width: 768px) {
+
   .back-to-top {
     right: 14px;
     bottom: 14px;
+
     width: 40px;
     height: 40px;
+
     font-size: 20px;
   }
+
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .card,
+  .card-image,
+  .card-button,
+  .card-button span {
+    transition: none;
+  }
+
+  .card:hover {
+    transform: none;
+  }
+
+  .card:hover .card-image {
+    transform: none;
+  }
+
 }
