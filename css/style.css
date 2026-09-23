@@ -106,7 +106,7 @@ a {
 }
 
 .header-inner {
-  min-height: 50px;
+  min-height: 54px;
 
   display: flex;
   align-items: center;
@@ -114,23 +114,37 @@ a {
 }
 
 .brand {
-  position: relative;
+  display: inline-flex;
+  align-items: center;
 
-  font-size: 1.05rem;
+  min-height: 44px;
+
+  margin-left: -8px;
+  padding: 0 8px;
+
+  font-size: 1.22rem;
+  line-height: 1;
   font-weight: 700;
   letter-spacing: -0.04em;
+
   text-decoration: none;
+
+  border-radius: 8px;
+
+  transition:
+    background 0.18s ease,
+    color 0.18s ease;
 }
 
 .brand::after {
   content: "";
 
-  position: absolute;
-  right: -9px;
-  top: 4px;
+  flex: 0 0 auto;
 
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
+
+  margin-left: 6px;
 
   border-radius: 50%;
 
@@ -138,6 +152,15 @@ a {
 
   box-shadow:
     0 0 18px rgba(231, 111, 81, 0.9);
+}
+
+.brand:hover {
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.brand:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .main-nav {
@@ -178,13 +201,21 @@ main {
    ========================================================= */
 
 .hero {
-  padding: 34px 0 22px;
+  padding: 30px 0 24px;
+
+  text-align: center;
+}
+
+.hero .container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .eyebrow {
   display: inline-block;
 
-  margin: 0 0 8px;
+  margin: 0 0 10px;
 
   color: var(--accent);
 
@@ -195,15 +226,16 @@ main {
 }
 
 .hero h1 {
-  max-width: 760px;
+  max-width: 900px;
 
-  margin: 0;
+  margin: 0 auto;
 
-  font-size: clamp(2.7rem, 7vw, 5.8rem);
-  line-height: 0.88;
-  letter-spacing: -0.07em;
+  font-size: clamp(2.8rem, 5.2vw, 4.45rem);
+  line-height: 0.95;
+  letter-spacing: -0.055em;
   font-weight: 700;
 
+  text-align: center;
   text-wrap: balance;
 }
 
@@ -212,8 +244,8 @@ main {
 
   display: inline-block;
 
-  width: 0.32em;
-  height: 0.32em;
+  width: 0.28em;
+  height: 0.28em;
 
   margin-left: 0.12em;
 
@@ -229,14 +261,16 @@ main {
 }
 
 .intro {
-  max-width: 560px;
+  max-width: 620px;
 
-  margin: 14px 0 0;
+  margin: 13px auto 0;
 
   color: var(--muted);
 
   font-size: 1rem;
   line-height: 1.45;
+
+  text-align: center;
 }
 
 
@@ -563,22 +597,32 @@ main {
   }
 
   .header-inner {
-    min-height: 46px;
+    min-height: 52px;
+  }
+
+  .brand {
+    min-height: 44px;
+
+    font-size: 1.18rem;
   }
 
   .hero {
-    padding: 26px 0 18px;
+    padding: 24px 0 20px;
   }
 
   .hero h1 {
-    font-size:
-      clamp(2.5rem, 15vw, 4rem);
+    max-width: 520px;
 
-    line-height: 0.9;
+    font-size:
+      clamp(2.35rem, 11vw, 3.45rem);
+
+    line-height: 0.94;
   }
 
   .intro {
-    margin-top: 12px;
+    max-width: 500px;
+
+    margin-top: 11px;
 
     font-size: 0.94rem;
   }
