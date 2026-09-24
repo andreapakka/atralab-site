@@ -287,6 +287,27 @@ body {
   }
 }
 
+@media (min-width: 801px) {
+  .callme-pad-card {
+    max-width: 430px;
+    padding: 18px 16px 16px;
+  }
+
+  .callme-keypad {
+    width: 280px;
+    gap: 10px;
+  }
+
+  .callme-keypad button {
+    min-height: 68px;
+    font-size: 1.8rem;
+  }
+
+  .callme-dots {
+    margin-bottom: 12px;
+  }
+}
+
 @media (max-width: 800px) {
   .callme-layout {
     width: min(100% - 24px, 720px);
