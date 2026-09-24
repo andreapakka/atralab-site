@@ -9,12 +9,15 @@
   const RING_DELAY_MS = 5000;
   const REARM_DELAY_MS = 30000;
 
-  const RING_VOLUME = 0.34;
-  const RING_BURST_MS = 720;
-  const RING_BURST_GAP_MS = 190;
-  const RING_SEQUENCE_GAP_MS = 1450;
-  const RING_TREMOLO_HZ = 24;
-  const RING_FREQUENCIES = [440, 480];
+  /* Suoneria: valori pensati per un "DRIIIIIN" più metallico. */
+  const RING_VOLUME = 0.42;
+  const RING_BURST_MS = 900;
+  const RING_BURST_GAP_MS = 220;
+  const RING_SEQUENCE_GAP_MS = 1500;
+  const RING_TREMOLO_HZ = 29;
+  const RING_VIBRATO_HZ = 17;
+  const RING_VIBRATO_DEPTH_HZ = 38;
+  const RING_FREQUENCIES = [1120, 1370, 1640];
 
   const button = document.getElementById("selfcall-button");
   const buttonLabel = document.getElementById("selfcall-button-label");
@@ -38,10 +41,6 @@
 
   function delaySeconds() {
     return Math.max(0, Math.ceil(RING_DELAY_MS / 1000));
-  }
-
-  function rearmSeconds() {
-    return Math.max(0, Math.ceil(REARM_DELAY_MS / 1000));
   }
 
   function setState(nextState) {
@@ -92,6 +91,11 @@
       await audioContext.resume();
     }
 
+    /*
+      Segnale praticamente silenzioso durante il tap iniziale.
+      Aiuta alcuni browser mobile a mantenere sbloccato l'audio
+      per lo squillo che parte dopo il ritardo configurato.
+    */
     const unlockOscillator = audioContext.createOscillator();
     const unlockGain = audioContext.createGain();
 
@@ -165,19 +169,39 @@
   function scheduleRingBurst(startTime, durationSeconds) {
     if (!audioContext || !masterGain) return;
 
+    /*
+      Un vecchio squillo telefonico non è un tono puro: è più vicino
+      a una campanella metallica che vibra rapidamente. Qui combiniamo
+      frequenze alte, tremolo e vibrato per ottenere il "DRIIIIIN".
+    */
     const burstGain = audioContext.createGain();
+    const highPass = audioContext.createBiquadFilter();
+
+    highPass.type = "highpass";
+    highPass.frequency.setValueAtTime(700, startTime);
+    highPass.Q.setValueAtTime(0.7, startTime);
+
     burstGain.gain.setValueAtTime(0.0001, startTime);
-    burstGain.gain.exponentialRampToValueAtTime(0.52, startTime + 0.018);
-    burstGain.gain.setValueAtTime(0.52, startTime + Math.max(0.04, durationSeconds - 0.035));
-    burstGain.gain.exponentialRampToValueAtTime(0.0001, startTime + durationSeconds);
+    burstGain.gain.exponentialRampToValueAtTime(0.42, startTime + 0.012);
+    burstGain.gain.setValueAtTime(
+      0.42,
+      startTime + Math.max(0.05, durationSeconds - 0.045)
+    );
+    burstGain.gain.exponentialRampToValueAtTime(
+      0.0001,
+      startTime + durationSeconds
+    );
+
+    highPass.connect(burstGain);
     burstGain.connect(masterGain);
 
+    /* Tremolo rapido: crea il caratteristico "drrrr" della campanella. */
     const tremolo = audioContext.createOscillator();
     const tremoloDepth = audioContext.createGain();
 
     tremolo.type = "sine";
     tremolo.frequency.setValueAtTime(RING_TREMOLO_HZ, startTime);
-    tremoloDepth.gain.setValueAtTime(0.43, startTime);
+    tremoloDepth.gain.setValueAtTime(0.20, startTime);
     tremolo.connect(tremoloDepth);
     tremoloDepth.connect(burstGain.gain);
 
@@ -185,31 +209,53 @@
     tremolo.stop(startTime + durationSeconds + 0.02);
     registerSource(tremolo);
 
+    /* Piccolo vibrato di frequenza per evitare l'effetto "truuuu". */
+    const vibrato = audioContext.createOscillator();
+    const vibratoDepth = audioContext.createGain();
+
+    vibrato.type = "sine";
+    vibrato.frequency.setValueAtTime(RING_VIBRATO_HZ, startTime);
+    vibratoDepth.gain.setValueAtTime(RING_VIBRATO_DEPTH_HZ, startTime);
+    vibrato.connect(vibratoDepth);
+
     RING_FREQUENCIES.forEach((frequency, index) => {
       const oscillator = audioContext.createOscillator();
       const toneGain = audioContext.createGain();
 
-      oscillator.type = index === 0 ? "sine" : "triangle";
-      oscillator.frequency.setValueAtTime(frequency, startTime);
-      toneGain.gain.setValueAtTime(index === 0 ? 0.78 : 0.52, startTime);
+      oscillator.type = index === 1 ? "sawtooth" : "triangle";
+      oscillator.frequency.setValueAtTime(frequency * 0.965, startTime);
+      oscillator.frequency.exponentialRampToValueAtTime(
+        frequency,
+        startTime + 0.055
+      );
+
+      vibratoDepth.connect(oscillator.frequency);
+
+      const levels = [0.58, 0.16, 0.11];
+      toneGain.gain.setValueAtTime(levels[index], startTime);
 
       oscillator.connect(toneGain);
-      toneGain.connect(burstGain);
+      toneGain.connect(highPass);
 
       oscillator.start(startTime);
       oscillator.stop(startTime + durationSeconds + 0.02);
       registerSource(oscillator);
     });
 
+    vibrato.start(startTime);
+    vibrato.stop(startTime + durationSeconds + 0.02);
+    registerSource(vibrato);
+
+    /* Armonica alta molto leggera: aggiunge il bordo metallico. */
     const shimmer = audioContext.createOscillator();
     const shimmerGain = audioContext.createGain();
 
-    shimmer.type = "sine";
-    shimmer.frequency.setValueAtTime(960, startTime);
-    shimmerGain.gain.setValueAtTime(0.10, startTime);
+    shimmer.type = "square";
+    shimmer.frequency.setValueAtTime(2280, startTime);
+    shimmerGain.gain.setValueAtTime(0.035, startTime);
 
     shimmer.connect(shimmerGain);
-    shimmerGain.connect(burstGain);
+    shimmerGain.connect(highPass);
 
     shimmer.start(startTime);
     shimmer.stop(startTime + durationSeconds + 0.02);
@@ -218,11 +264,13 @@
     setTimeout(() => {
       try {
         burstGain.disconnect();
+        highPass.disconnect();
         tremoloDepth.disconnect();
+        vibratoDepth.disconnect();
       } catch (_) {
         /* nodi già scollegati */
       }
-    }, Math.ceil(durationSeconds * 1000) + 150);
+    }, Math.ceil(durationSeconds * 1000) + 180);
   }
 
   function playRingSequence() {
@@ -347,6 +395,28 @@
       audioContext.close().catch(() => {});
     }
   });
+
+  /* =========================================================
+     OFFLINE
+     Dopo la prima apertura online, il Service Worker conserva
+     i file necessari per far funzionare SelfCall senza rete.
+     ========================================================= */
+
+  function registerOfflineSupport() {
+    if (!("serviceWorker" in navigator)) return;
+
+    navigator.serviceWorker
+      .register("/selfcall/sw.js", { scope: "/selfcall/" })
+      .catch((error) => {
+        console.warn("SelfCall: Service Worker non registrato", error);
+      });
+  }
+
+  if (document.readyState === "complete") {
+    registerOfflineSupport();
+  } else {
+    window.addEventListener("load", registerOfflineSupport, { once: true });
+  }
 
   setState("idle");
 })();
