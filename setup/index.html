@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="theme-color" content="#0E0E0E">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="ATRALAB Setup">
+
+  <title>Setup notifiche | ATRALAB</title>
+
+  <link rel="manifest" href="/setup/manifest.webmanifest">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/internal.css">
+  <link rel="stylesheet" href="/css/setup.css">
+</head>
+<body>
+  <div data-include="/components/header.html"></div>
+
+  <div class="setup-layout">
+    <aside class="setup-sidebar" data-include="/components/sidebar.html"></aside>
+
+    <main class="setup-main" id="mainContent">
+      <header class="setup-hero">
+        <p class="setup-kicker">ATRALAB</p>
+        <h1>Setup notifiche</h1>
+        <p>Registra i dispositivi che possono ricevere le notifiche delle utility ATRALAB.</p>
+      </header>
+
+      <section class="setup-card" id="loginPanel" aria-labelledby="loginTitle">
+        <h2 id="loginTitle">Accesso amministratore</h2>
+        <p>Inserisci il PIN configurato su Supabase.</p>
+
+        <form id="pinForm" class="setup-form" autocomplete="off">
+          <label for="adminPin">PIN</label>
+          <input
+            id="adminPin"
+            name="adminPin"
+            type="password"
+            inputmode="numeric"
+            pattern="[0-9]*"
+            autocomplete="off"
+            required
+          >
+          <button class="setup-button" type="submit">Entra</button>
+        </form>
+
+        <p class="setup-status" id="loginStatus" role="status" aria-live="polite"></p>
+      </section>
+
+      <section class="setup-panel" id="setupPanel" hidden>
+        <div class="setup-toolbar">
+          <div>
+            <p class="setup-kicker">NOTIFICHE PUSH</p>
+            <h2>Questo dispositivo</h2>
+          </div>
+          <button class="setup-button setup-button-secondary" id="lockButton" type="button">Blocca</button>
+        </div>
+
+        <div class="setup-notice" id="iosInstallNotice" hidden>
+          <strong>Su iPhone serve la web app in Home.</strong>
+          <span>Da Safari: Condividi → Aggiungi alla schermata Home. Poi riapri “ATRALAB Setup” dall’icona.</span>
+        </div>
+
+        <div class="setup-card">
+          <label for="deviceName">Nome dispositivo</label>
+          <input id="deviceName" type="text" maxlength="80" autocomplete="off">
+
+          <button class="setup-button setup-button-large" id="registerButton" type="button">
+            Registra questo telefono
+          </button>
+
+          <p class="setup-status" id="deviceStatus" role="status" aria-live="polite"></p>
+        </div>
+
+        <section class="setup-card" aria-labelledby="devicesTitle">
+          <div class="setup-section-head">
+            <div>
+              <p class="setup-kicker">DESTINATARI</p>
+              <h2 id="devicesTitle">Dispositivi registrati</h2>
+            </div>
+            <button class="setup-link-button" id="refreshDevices" type="button">Aggiorna</button>
+          </div>
+
+          <div id="devicesList" class="setup-devices">
+            <p class="setup-muted">Nessun dato caricato.</p>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <div data-include="/components/footer.html"></div>
+
+  <script src="/js/include.js" defer></script>
+  <script src="/js/setup.js" defer></script>
+</body>
+</html>

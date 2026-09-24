@@ -1,0 +1,277 @@
+:root {
+  --setup-bg: #0e0e0e;
+  --setup-panel: #151515;
+  --setup-panel-2: #1b1b1b;
+  --setup-text: #f4f1ea;
+  --setup-muted: #aaa69f;
+  --setup-border: rgba(244, 241, 234, 0.14);
+  --setup-accent: #e76f51;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  overflow-x: hidden;
+}
+
+.setup-layout {
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(190px, 240px) minmax(0, 1fr);
+  gap: 34px;
+  align-items: start;
+}
+
+.setup-sidebar {
+  min-width: 0;
+}
+
+.setup-main {
+  min-width: 0;
+  max-width: 760px;
+  padding: 38px 0 72px;
+  color: var(--setup-text);
+}
+
+.setup-hero {
+  margin-bottom: 28px;
+}
+
+.setup-hero h1,
+.setup-card h2,
+.setup-toolbar h2,
+.setup-section-head h2 {
+  margin: 0;
+}
+
+.setup-hero h1 {
+  font-size: clamp(2rem, 6vw, 3.35rem);
+  line-height: 1;
+  letter-spacing: -0.04em;
+  margin-bottom: 12px;
+}
+
+.setup-hero > p:last-child {
+  max-width: 650px;
+  margin: 0;
+  color: var(--setup-muted);
+}
+
+.setup-kicker {
+  margin: 0 0 8px;
+  color: var(--setup-accent);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
+
+.setup-panel {
+  display: grid;
+  gap: 18px;
+}
+
+.setup-card,
+.setup-notice {
+  border: 1px solid var(--setup-border);
+  background: var(--setup-panel);
+  border-radius: 16px;
+  padding: 20px;
+}
+
+.setup-card > p:first-of-type {
+  color: var(--setup-muted);
+}
+
+.setup-notice {
+  display: grid;
+  gap: 6px;
+  border-color: rgba(231, 111, 81, 0.45);
+  background: rgba(231, 111, 81, 0.08);
+}
+
+.setup-notice[hidden],
+.setup-panel[hidden],
+.setup-card[hidden] {
+  display: none !important;
+}
+
+.setup-form,
+.setup-card {
+  display: grid;
+  gap: 14px;
+}
+
+.setup-form label,
+.setup-card label {
+  font-weight: 700;
+}
+
+.setup-form input,
+.setup-card input {
+  width: 100%;
+  min-height: 50px;
+  border: 1px solid var(--setup-border);
+  border-radius: 12px;
+  background: var(--setup-bg);
+  color: var(--setup-text);
+  padding: 11px 14px;
+  font: inherit;
+  outline: none;
+}
+
+.setup-form input:focus,
+.setup-card input:focus {
+  border-color: var(--setup-accent);
+}
+
+.setup-button,
+.setup-link-button,
+.setup-remove-button {
+  appearance: none;
+  border: 0;
+  font: inherit;
+  cursor: pointer;
+}
+
+.setup-button {
+  min-height: 48px;
+  border-radius: 12px;
+  padding: 11px 18px;
+  background: var(--setup-accent);
+  color: #0e0e0e;
+  font-weight: 800;
+}
+
+.setup-button-large {
+  min-height: 56px;
+  font-size: 1.05rem;
+}
+
+.setup-button-secondary {
+  min-height: 42px;
+  background: transparent;
+  color: var(--setup-text);
+  border: 1px solid var(--setup-border);
+}
+
+.setup-button:disabled,
+.setup-link-button:disabled,
+.setup-remove-button:disabled {
+  cursor: wait;
+  opacity: 0.55;
+}
+
+.setup-toolbar,
+.setup-section-head,
+.setup-device {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.setup-link-button,
+.setup-remove-button {
+  background: transparent;
+  color: var(--setup-accent);
+  padding: 8px;
+  font-weight: 700;
+}
+
+.setup-devices {
+  display: grid;
+  gap: 10px;
+}
+
+.setup-device {
+  padding: 14px 0;
+  border-top: 1px solid var(--setup-border);
+}
+
+.setup-device:first-child {
+  border-top: 0;
+}
+
+.setup-device-info {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.setup-device-info strong {
+  overflow-wrap: anywhere;
+}
+
+.setup-device-info span,
+.setup-muted {
+  color: var(--setup-muted);
+}
+
+.setup-status {
+  min-height: 1.4em;
+  margin: 0;
+  color: var(--setup-muted);
+}
+
+.setup-status.is-error,
+.setup-error {
+  color: #ff9a80;
+}
+
+@media (hover: hover) {
+  .setup-button:hover {
+    background: var(--setup-text);
+  }
+
+  .setup-link-button:hover,
+  .setup-remove-button:hover {
+    color: var(--setup-text);
+  }
+}
+
+@media (max-width: 800px) {
+  .setup-layout {
+    width: min(100% - 24px, 720px);
+    display: block;
+  }
+
+  .setup-sidebar {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .setup-main {
+    width: 100%;
+    max-width: none;
+    padding-top: 24px;
+  }
+}
+
+@media (max-width: 520px) {
+  .setup-layout {
+    width: min(100% - 20px, 720px);
+  }
+
+  .setup-main {
+    font-size: 18px;
+  }
+
+  .setup-card,
+  .setup-notice {
+    border-radius: 14px;
+    padding: 17px;
+  }
+
+  .setup-toolbar,
+  .setup-section-head {
+    align-items: flex-start;
+  }
+
+  .setup-device {
+    align-items: flex-start;
+  }
+}

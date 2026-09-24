@@ -1,0 +1,12 @@
+{
+  "name": "ATRALAB Setup",
+  "short_name": "ATRALAB",
+  "id": "/setup/",
+  "start_url": "/setup/",
+  "scope": "/setup/",
+  "display": "standalone",
+  "background_color": "#0E0E0E",
+  "theme_color": "#0E0E0E",
+  "lang": "it",
+  "description": "Configurazione delle notifiche push ATRALAB"
+}
