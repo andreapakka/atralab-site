@@ -1,0 +1,12 @@
+{
+  "name": "ATRALAB CallMe",
+  "short_name": "CallMe",
+  "id": "/callme/",
+  "start_url": "/callme/",
+  "scope": "/callme/",
+  "display": "standalone",
+  "background_color": "#0E0E0E",
+  "theme_color": "#0E0E0E",
+  "lang": "it",
+  "description": "Richiesta rapida di richiamata ATRALAB"
+}

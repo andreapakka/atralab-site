@@ -1,0 +1,373 @@
+:root {
+  --callme-bg: #0e0e0e;
+  --callme-panel: #151515;
+  --callme-panel-2: #1b1b1b;
+  --callme-text: #f4f1ea;
+  --callme-muted: #aaa69f;
+  --callme-border: rgba(244, 241, 234, 0.14);
+  --callme-accent: #e76f51;
+  --callme-success: #a8d5ad;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  overflow-x: hidden;
+}
+
+.callme-layout {
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(190px, 240px) minmax(0, 1fr);
+  gap: 34px;
+  align-items: start;
+}
+
+.callme-sidebar {
+  min-width: 0;
+}
+
+.callme-main {
+  width: 100%;
+  max-width: 620px;
+  min-width: 0;
+  padding: 34px 0 72px;
+  color: var(--callme-text);
+}
+
+.callme-view[hidden],
+.callme-last[hidden],
+.callme-text-button[hidden],
+.callme-map-button[hidden],
+.callme-muted[hidden] {
+  display: none !important;
+}
+
+.callme-hero {
+  margin-bottom: 22px;
+}
+
+.callme-kicker {
+  margin: 0 0 7px;
+  color: var(--callme-accent);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+}
+
+.callme-hero h1 {
+  margin: 0 0 8px;
+  font-size: clamp(2.4rem, 10vw, 4.2rem);
+  line-height: 0.96;
+  letter-spacing: -0.045em;
+}
+
+.callme-hero p:last-child {
+  margin: 0;
+  color: var(--callme-muted);
+}
+
+.callme-location,
+.callme-last,
+.callme-request-card {
+  border: 1px solid var(--callme-border);
+  background: var(--callme-panel);
+  border-radius: 16px;
+}
+
+.callme-location {
+  min-height: 64px;
+  margin-bottom: 16px;
+  padding: 13px 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.callme-location > div {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.callme-location strong {
+  font-size: 0.88rem;
+}
+
+.callme-location span,
+.callme-muted {
+  color: var(--callme-muted);
+}
+
+.callme-text-button,
+.callme-small-button {
+  appearance: none;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  text-decoration: none;
+  font-weight: 800;
+}
+
+.callme-text-button {
+  background: transparent;
+  color: var(--callme-accent);
+  padding: 8px;
+}
+
+.callme-pad-card {
+  border: 1px solid var(--callme-border);
+  background: var(--callme-panel);
+  border-radius: 20px;
+  padding: 22px 18px 18px;
+}
+
+.callme-dots {
+  min-height: 26px;
+  margin-bottom: 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 13px;
+}
+
+.callme-dots span {
+  width: 13px;
+  height: 13px;
+  border: 2px solid var(--callme-muted);
+  border-radius: 50%;
+  transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
+}
+
+.callme-dots span.is-filled {
+  background: var(--callme-accent);
+  border-color: var(--callme-accent);
+  transform: scale(1.08);
+}
+
+.callme-keypad {
+  width: min(100%, 360px);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.callme-keypad button {
+  appearance: none;
+  width: 100%;
+  aspect-ratio: 1;
+  min-height: 76px;
+  border: 1px solid var(--callme-border);
+  border-radius: 50%;
+  background: var(--callme-panel-2);
+  color: var(--callme-text);
+  font: inherit;
+  font-size: clamp(1.55rem, 7vw, 2.2rem);
+  font-weight: 700;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.callme-keypad button:active {
+  transform: scale(0.94);
+  background: var(--callme-accent);
+  color: var(--callme-bg);
+}
+
+.callme-keypad.is-disabled button {
+  pointer-events: none;
+  opacity: 0.45;
+}
+
+.callme-status {
+  min-height: 1.45em;
+  margin: 16px 0 0;
+  text-align: center;
+  color: var(--callme-muted);
+}
+
+.callme-status.is-error {
+  color: #ff9a80;
+}
+
+.callme-status.is-success {
+  color: var(--callme-success);
+  font-weight: 800;
+}
+
+.callme-last {
+  margin-top: 16px;
+  padding: 14px 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.callme-last strong {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.callme-small-button {
+  flex: 0 0 auto;
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 10px;
+  padding: 8px 13px;
+  background: var(--callme-accent);
+  color: var(--callme-bg);
+}
+
+.callme-request-card {
+  padding: 22px;
+}
+
+.callme-request-label {
+  margin: 0 0 4px;
+  color: var(--callme-muted);
+}
+
+.callme-request-card h2 {
+  margin: 0;
+  font-size: clamp(2rem, 9vw, 3.4rem);
+  line-height: 1;
+  letter-spacing: -0.035em;
+  overflow-wrap: anywhere;
+}
+
+.callme-request-card time {
+  display: block;
+  margin-top: 10px;
+  color: var(--callme-muted);
+  font-weight: 700;
+}
+
+.callme-map-button {
+  min-height: 56px;
+  margin-top: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 13px;
+  padding: 12px 18px;
+  background: var(--callme-accent);
+  color: var(--callme-bg);
+  text-decoration: none;
+  font-weight: 900;
+}
+
+.callme-back-link {
+  display: inline-block;
+  margin-top: 18px;
+  color: var(--callme-muted);
+  text-decoration: none;
+}
+
+@media (hover: hover) {
+  .callme-keypad button:hover,
+  .callme-map-button:hover,
+  .callme-small-button:hover {
+    background: var(--callme-text);
+    color: var(--callme-bg);
+  }
+
+  .callme-text-button:hover,
+  .callme-back-link:hover {
+    color: var(--callme-text);
+  }
+}
+
+@media (max-width: 800px) {
+  .callme-layout {
+    width: min(100% - 24px, 720px);
+    display: block;
+  }
+
+  .callme-sidebar {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .callme-main {
+    max-width: none;
+    padding-top: 22px;
+  }
+}
+
+@media (max-width: 520px) {
+  .callme-layout {
+    width: min(100% - 20px, 720px);
+  }
+
+  .callme-main {
+    font-size: 18px;
+    padding-bottom: 54px;
+  }
+
+  .callme-pad-card {
+    padding: 18px 14px 16px;
+  }
+
+  .callme-keypad {
+    width: min(100%, 330px);
+    gap: 10px;
+  }
+
+  .callme-keypad button {
+    min-height: 72px;
+  }
+}
+
+@media (max-height: 720px) and (max-width: 520px) {
+  .callme-main {
+    padding-top: 14px;
+  }
+
+  .callme-hero {
+    margin-bottom: 14px;
+  }
+
+  .callme-hero h1 {
+    font-size: 2.7rem;
+  }
+
+  .callme-location {
+    min-height: 54px;
+    margin-bottom: 12px;
+    padding-top: 9px;
+    padding-bottom: 9px;
+  }
+
+  .callme-pad-card {
+    padding-top: 14px;
+  }
+
+  .callme-dots {
+    margin-bottom: 12px;
+  }
+
+  .callme-keypad {
+    width: min(100%, 280px);
+    gap: 8px;
+  }
+
+  .callme-keypad button {
+    min-height: 62px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .callme-dots span,
+  .callme-keypad button {
+    transition: none;
+  }
+}

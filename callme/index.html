@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0E0E0E">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="CallMe">
+
+  <title>CallMe | ATRALAB</title>
+
+  <link rel="manifest" href="/callme/manifest.webmanifest">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/internal.css">
+  <link rel="stylesheet" href="/css/callme.css">
+</head>
+<body>
+  <div data-include="/components/header.html"></div>
+
+  <div class="callme-layout">
+    <aside class="callme-sidebar" data-include="/components/sidebar.html"></aside>
+
+    <main class="callme-main" id="mainContent">
+      <section id="senderView" class="callme-view">
+        <header class="callme-hero">
+          <p class="callme-kicker">ATRALAB</p>
+          <h1>CallMe</h1>
+          <p>Digita il tuo codice.</p>
+        </header>
+
+        <section class="callme-location" id="locationPanel" aria-live="polite">
+          <div>
+            <strong id="locationTitle">Posizione</strong>
+            <span id="locationStatus">Controllo disponibilità…</span>
+          </div>
+          <button id="enableLocationButton" class="callme-text-button" type="button" hidden>
+            Attiva
+          </button>
+        </section>
+
+        <section class="callme-pad-card" aria-label="Inserimento codice">
+          <div class="callme-dots" id="codeDots" aria-label="0 cifre inserite">
+            <span></span><span></span><span></span>
+          </div>
+
+          <div class="callme-keypad" id="keypad">
+            <button type="button" data-digit="1">1</button>
+            <button type="button" data-digit="2">2</button>
+            <button type="button" data-digit="3">3</button>
+            <button type="button" data-digit="4">4</button>
+            <button type="button" data-digit="5">5</button>
+            <button type="button" data-digit="6">6</button>
+            <button type="button" data-digit="7">7</button>
+            <button type="button" data-digit="8">8</button>
+            <button type="button" data-digit="9">9</button>
+          </div>
+
+          <p class="callme-status" id="sendStatus" role="status" aria-live="assertive"></p>
+        </section>
+
+        <section class="callme-last" id="lastReceived" hidden>
+          <div>
+            <p class="callme-kicker">ULTIMA RICHIESTA RICEVUTA</p>
+            <strong id="lastReceivedText"></strong>
+          </div>
+          <a id="lastReceivedLink" class="callme-small-button" href="#">Apri</a>
+        </section>
+      </section>
+
+      <section id="requestView" class="callme-view" hidden>
+        <header class="callme-hero">
+          <p class="callme-kicker">CALLME</p>
+          <h1>Richiesta ricevuta</h1>
+        </header>
+
+        <section class="callme-request-card">
+          <p class="callme-request-label">Vuole essere richiamato</p>
+          <h2 id="requestSender">—</h2>
+          <time id="requestTime">—</time>
+
+          <a id="mapButton" class="callme-map-button" href="#" target="_blank" rel="noopener" hidden>
+            Apri posizione
+          </a>
+
+          <p id="requestLocationMissing" class="callme-muted" hidden>
+            Posizione non disponibile.
+          </p>
+
+          <p id="requestStatus" class="callme-status" role="status" aria-live="polite"></p>
+        </section>
+
+        <a class="callme-back-link" href="/callme/">Torna a CallMe</a>
+      </section>
+    </main>
+  </div>
+
+  <div data-include="/components/footer.html"></div>
+
+  <script src="/js/include.js" defer></script>
+  <script src="/js/callme.js" defer></script>
+</body>
+</html>
