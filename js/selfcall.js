@@ -7,18 +7,14 @@
      ========================================================= */
 
   const RING_DELAY_MS = 5000;
-  const RING_VOLUME = 0.32;
-  const RING_SEQUENCE_GAP_MS = 1350;
+  const REARM_DELAY_MS = 30000;
 
-  const RING_NOTES = [
-    { frequency: 659.25, duration: 0.17 },
-    { frequency: 783.99, duration: 0.17 },
-    { frequency: 987.77, duration: 0.20 },
-    { frequency: 783.99, duration: 0.17 },
-    { frequency: 659.25, duration: 0.20 }
-  ];
-
-  const NOTE_GAP_SECONDS = 0.045;
+  const RING_VOLUME = 0.34;
+  const RING_BURST_MS = 720;
+  const RING_BURST_GAP_MS = 190;
+  const RING_SEQUENCE_GAP_MS = 1450;
+  const RING_TREMOLO_HZ = 24;
+  const RING_FREQUENCIES = [440, 480];
 
   const button = document.getElementById("selfcall-button");
   const buttonLabel = document.getElementById("selfcall-button-label");
@@ -31,14 +27,21 @@
   let state = "idle";
   let audioContext = null;
   let masterGain = null;
+
   let delayTimer = null;
   let countdownTimer = null;
   let ringLoopTimer = null;
+  let rearmTimer = null;
+  let rearmCountdownTimer = null;
+
   let activeSources = [];
-  let ringStartedAt = 0;
 
   function delaySeconds() {
     return Math.max(0, Math.ceil(RING_DELAY_MS / 1000));
+  }
+
+  function rearmSeconds() {
+    return Math.max(0, Math.ceil(REARM_DELAY_MS / 1000));
   }
 
   function setState(nextState) {
@@ -46,6 +49,8 @@
 
     button.classList.toggle("is-waiting", state === "waiting");
     button.classList.toggle("is-ringing", state === "ringing");
+    button.classList.toggle("is-locked", state === "locked");
+    button.disabled = state === "locked";
 
     if (state === "idle") {
       buttonLabel.textContent = "Fammi squillare";
@@ -60,9 +65,15 @@
       return;
     }
 
-    buttonLabel.textContent = "Interrompi";
-    status.textContent = "Telefono in squillo.";
-    button.setAttribute("aria-label", "Interrompi lo squillo");
+    if (state === "ringing") {
+      buttonLabel.textContent = "Interrompi";
+      status.textContent = "Telefono in squillo.";
+      button.setAttribute("aria-label", "Interrompi lo squillo");
+      return;
+    }
+
+    buttonLabel.textContent = "In chiamata";
+    button.setAttribute("aria-label", "SelfCall temporaneamente disabilitato");
   }
 
   async function ensureAudio() {
@@ -81,11 +92,6 @@
       await audioContext.resume();
     }
 
-    /*
-      Brevissimo segnale silenzioso durante il tap iniziale:
-      aiuta alcuni browser mobile a mantenere sbloccato l'audio
-      per lo squillo che partirà dopo il ritardo configurato.
-    */
     const unlockOscillator = audioContext.createOscillator();
     const unlockGain = audioContext.createGain();
 
@@ -97,7 +103,7 @@
     unlockOscillator.stop(audioContext.currentTime + 0.03);
   }
 
-  function clearTimers() {
+  function clearRingTimers() {
     if (delayTimer) {
       clearTimeout(delayTimer);
       delayTimer = null;
@@ -114,6 +120,23 @@
     }
   }
 
+  function clearRearmTimers() {
+    if (rearmTimer) {
+      clearTimeout(rearmTimer);
+      rearmTimer = null;
+    }
+
+    if (rearmCountdownTimer) {
+      clearInterval(rearmCountdownTimer);
+      rearmCountdownTimer = null;
+    }
+  }
+
+  function clearAllTimers() {
+    clearRingTimers();
+    clearRearmTimers();
+  }
+
   function stopActiveSources() {
     for (const source of activeSources) {
       try {
@@ -126,49 +149,93 @@
     activeSources = [];
   }
 
-  function scheduleNote(frequency, startTime, duration) {
+  function registerSource(source) {
+    activeSources.push(source);
+
+    source.addEventListener("ended", () => {
+      activeSources = activeSources.filter((item) => item !== source);
+      try {
+        source.disconnect();
+      } catch (_) {
+        /* sorgente già scollegata */
+      }
+    }, { once: true });
+  }
+
+  function scheduleRingBurst(startTime, durationSeconds) {
     if (!audioContext || !masterGain) return;
 
-    const oscillator = audioContext.createOscillator();
-    const noteGain = audioContext.createGain();
+    const burstGain = audioContext.createGain();
+    burstGain.gain.setValueAtTime(0.0001, startTime);
+    burstGain.gain.exponentialRampToValueAtTime(0.52, startTime + 0.018);
+    burstGain.gain.setValueAtTime(0.52, startTime + Math.max(0.04, durationSeconds - 0.035));
+    burstGain.gain.exponentialRampToValueAtTime(0.0001, startTime + durationSeconds);
+    burstGain.connect(masterGain);
 
-    oscillator.type = "sine";
-    oscillator.frequency.setValueAtTime(frequency, startTime);
+    const tremolo = audioContext.createOscillator();
+    const tremoloDepth = audioContext.createGain();
 
-    noteGain.gain.setValueAtTime(0.0001, startTime);
-    noteGain.gain.exponentialRampToValueAtTime(0.9, startTime + 0.018);
-    noteGain.gain.setValueAtTime(0.9, startTime + Math.max(0.03, duration - 0.035));
-    noteGain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+    tremolo.type = "sine";
+    tremolo.frequency.setValueAtTime(RING_TREMOLO_HZ, startTime);
+    tremoloDepth.gain.setValueAtTime(0.43, startTime);
+    tremolo.connect(tremoloDepth);
+    tremoloDepth.connect(burstGain.gain);
 
-    oscillator.connect(noteGain);
-    noteGain.connect(masterGain);
+    tremolo.start(startTime);
+    tremolo.stop(startTime + durationSeconds + 0.02);
+    registerSource(tremolo);
 
-    oscillator.start(startTime);
-    oscillator.stop(startTime + duration + 0.02);
+    RING_FREQUENCIES.forEach((frequency, index) => {
+      const oscillator = audioContext.createOscillator();
+      const toneGain = audioContext.createGain();
 
-    activeSources.push(oscillator);
+      oscillator.type = index === 0 ? "sine" : "triangle";
+      oscillator.frequency.setValueAtTime(frequency, startTime);
+      toneGain.gain.setValueAtTime(index === 0 ? 0.78 : 0.52, startTime);
 
-    oscillator.addEventListener("ended", () => {
-      activeSources = activeSources.filter((item) => item !== oscillator);
-      oscillator.disconnect();
-      noteGain.disconnect();
-    }, { once: true });
+      oscillator.connect(toneGain);
+      toneGain.connect(burstGain);
+
+      oscillator.start(startTime);
+      oscillator.stop(startTime + durationSeconds + 0.02);
+      registerSource(oscillator);
+    });
+
+    const shimmer = audioContext.createOscillator();
+    const shimmerGain = audioContext.createGain();
+
+    shimmer.type = "sine";
+    shimmer.frequency.setValueAtTime(960, startTime);
+    shimmerGain.gain.setValueAtTime(0.10, startTime);
+
+    shimmer.connect(shimmerGain);
+    shimmerGain.connect(burstGain);
+
+    shimmer.start(startTime);
+    shimmer.stop(startTime + durationSeconds + 0.02);
+    registerSource(shimmer);
+
+    setTimeout(() => {
+      try {
+        burstGain.disconnect();
+        tremoloDepth.disconnect();
+      } catch (_) {
+        /* nodi già scollegati */
+      }
+    }, Math.ceil(durationSeconds * 1000) + 150);
   }
 
   function playRingSequence() {
     if (state !== "ringing" || !audioContext) return;
 
-    let cursor = audioContext.currentTime + 0.03;
+    const now = audioContext.currentTime + 0.03;
+    const burstSeconds = RING_BURST_MS / 1000;
+    const gapSeconds = RING_BURST_GAP_MS / 1000;
 
-    for (const note of RING_NOTES) {
-      scheduleNote(note.frequency, cursor, note.duration);
-      cursor += note.duration + NOTE_GAP_SECONDS;
-    }
+    scheduleRingBurst(now, burstSeconds);
+    scheduleRingBurst(now + burstSeconds + gapSeconds, burstSeconds);
 
-    const sequenceDurationMs = Math.max(
-      0,
-      Math.round((cursor - audioContext.currentTime) * 1000)
-    );
+    const sequenceDurationMs = (RING_BURST_MS * 2) + RING_BURST_GAP_MS;
 
     ringLoopTimer = setTimeout(() => {
       playRingSequence();
@@ -176,10 +243,7 @@
   }
 
   function startRinging() {
-    clearTimers();
-
-    state = "ringing";
-    ringStartedAt = performance.now();
+    clearRingTimers();
     setState("ringing");
     playRingSequence();
   }
@@ -192,6 +256,14 @@
     status.textContent = `Squillo tra ${remainingSeconds}…`;
   }
 
+  function updateRearmCountdown(startTime) {
+    const elapsed = performance.now() - startTime;
+    const remainingMs = Math.max(0, REARM_DELAY_MS - elapsed);
+    const remainingSeconds = Math.max(1, Math.ceil(remainingMs / 1000));
+
+    status.textContent = `Nuovo squillo disponibile tra ${remainingSeconds} s.`;
+  }
+
   async function armRing() {
     try {
       await ensureAudio();
@@ -201,7 +273,7 @@
       return;
     }
 
-    clearTimers();
+    clearAllTimers();
     stopActiveSources();
 
     const startTime = performance.now();
@@ -219,10 +291,28 @@
     }, RING_DELAY_MS);
   }
 
+  function startRearmLock() {
+    clearRearmTimers();
+
+    const startTime = performance.now();
+    setState("locked");
+    updateRearmCountdown(startTime);
+
+    rearmCountdownTimer = setInterval(() => {
+      if (state !== "locked") return;
+      updateRearmCountdown(startTime);
+    }, 250);
+
+    rearmTimer = setTimeout(() => {
+      clearRearmTimers();
+      setState("idle");
+    }, REARM_DELAY_MS);
+  }
+
   function stopRing() {
     const wasRinging = state === "ringing";
 
-    clearTimers();
+    clearRingTimers();
     stopActiveSources();
 
     if (masterGain && audioContext) {
@@ -230,11 +320,12 @@
       masterGain.gain.setValueAtTime(RING_VOLUME, audioContext.currentTime);
     }
 
-    setState("idle");
-
-    if (wasRinging && ringStartedAt) {
-      ringStartedAt = 0;
+    if (wasRinging) {
+      startRearmLock();
+      return;
     }
+
+    setState("idle");
   }
 
   button.addEventListener("click", () => {
@@ -243,11 +334,13 @@
       return;
     }
 
-    stopRing();
+    if (state === "waiting" || state === "ringing") {
+      stopRing();
+    }
   });
 
   window.addEventListener("pagehide", () => {
-    clearTimers();
+    clearAllTimers();
     stopActiveSources();
 
     if (audioContext && audioContext.state !== "closed") {

@@ -64,14 +64,15 @@
     background 0.18s ease,
     color 0.18s ease,
     border-color 0.18s ease,
-    box-shadow 0.18s ease;
+    box-shadow 0.18s ease,
+    opacity 0.18s ease;
 }
 
-.selfcall-button:hover {
+.selfcall-button:hover:not(:disabled) {
   transform: translateY(-2px);
 }
 
-.selfcall-button:active {
+.selfcall-button:active:not(:disabled) {
   transform: scale(0.985);
 }
 
@@ -109,6 +110,22 @@
     0 0 0 36px rgba(231, 111, 81, 0.035);
 
   animation: selfcall-ring-pulse 1.15s ease-in-out infinite;
+}
+
+.selfcall-button.is-locked,
+.selfcall-button:disabled {
+  cursor: default;
+  color: rgba(244, 241, 234, 0.72);
+  border-color: rgba(244, 241, 234, 0.12);
+  background:
+    radial-gradient(
+      circle at 34% 28%,
+      rgba(255, 255, 255, 0.07),
+      transparent 34%
+    ),
+    rgba(244, 241, 234, 0.06);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.18);
+  opacity: 0.82;
 }
 
 .selfcall-button-label {
