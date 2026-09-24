@@ -81,7 +81,8 @@ body {
 
 .callme-location {
   min-height: 64px;
-  margin-bottom: 16px;
+  margin-top: 16px;
+  margin-bottom: 0;
   padding: 13px 15px;
   display: flex;
   align-items: center;
@@ -310,58 +311,91 @@ body {
 
   .callme-main {
     font-size: 18px;
-    padding-bottom: 54px;
+    padding-top: 14px;
+    padding-bottom: 44px;
+  }
+
+  .callme-hero {
+    margin-bottom: 12px;
+  }
+
+  .callme-hero h1 {
+    margin-bottom: 5px;
+    font-size: 2.65rem;
   }
 
   .callme-pad-card {
-    padding: 18px 14px 16px;
+    padding: 13px 12px 12px;
+  }
+
+  .callme-dots {
+    min-height: 20px;
+    margin-bottom: 10px;
+    gap: 11px;
+  }
+
+  .callme-dots span {
+    width: 11px;
+    height: 11px;
   }
 
   .callme-keypad {
-    width: min(100%, 330px);
-    gap: 10px;
+    width: min(100%, 260px);
+    gap: 8px;
   }
 
   .callme-keypad button {
-    min-height: 72px;
+    min-height: 66px;
+    font-size: 1.7rem;
+  }
+
+  .callme-status {
+    margin-top: 10px;
+  }
+
+  .callme-status:empty {
+    display: none;
+  }
+
+  .callme-location {
+    min-height: 54px;
+    margin-top: 12px;
+    padding: 9px 12px;
   }
 }
 
 @media (max-height: 720px) and (max-width: 520px) {
   .callme-main {
-    padding-top: 14px;
+    padding-top: 10px;
   }
 
   .callme-hero {
-    margin-bottom: 14px;
+    margin-bottom: 9px;
   }
 
   .callme-hero h1 {
-    font-size: 2.7rem;
-  }
-
-  .callme-location {
-    min-height: 54px;
-    margin-bottom: 12px;
-    padding-top: 9px;
-    padding-bottom: 9px;
+    font-size: 2.4rem;
   }
 
   .callme-pad-card {
-    padding-top: 14px;
+    padding-top: 10px;
   }
 
   .callme-dots {
-    margin-bottom: 12px;
+    margin-bottom: 8px;
   }
 
   .callme-keypad {
-    width: min(100%, 280px);
-    gap: 8px;
+    width: min(100%, 238px);
+    gap: 7px;
   }
 
   .callme-keypad button {
-    min-height: 62px;
+    min-height: 60px;
+  }
+
+  .callme-location {
+    margin-top: 10px;
   }
 }
 

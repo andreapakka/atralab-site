@@ -29,16 +29,6 @@
           <p>Digita il tuo codice.</p>
         </header>
 
-        <section class="callme-location" id="locationPanel" aria-live="polite">
-          <div>
-            <strong id="locationTitle">Posizione</strong>
-            <span id="locationStatus">Controllo disponibilità…</span>
-          </div>
-          <button id="enableLocationButton" class="callme-text-button" type="button" hidden>
-            Attiva
-          </button>
-        </section>
-
         <section class="callme-pad-card" aria-label="Inserimento codice">
           <div class="callme-dots" id="codeDots" aria-label="0 cifre inserite">
             <span></span><span></span><span></span>
@@ -57,6 +47,16 @@
           </div>
 
           <p class="callme-status" id="sendStatus" role="status" aria-live="assertive"></p>
+        </section>
+
+        <section class="callme-location" id="locationPanel" aria-live="polite">
+          <div>
+            <strong id="locationTitle">Posizione</strong>
+            <span id="locationStatus">Controllo disponibilità…</span>
+          </div>
+          <button id="enableLocationButton" class="callme-text-button" type="button" hidden>
+            Attiva
+          </button>
         </section>
 
         <section class="callme-last" id="lastReceived" hidden>

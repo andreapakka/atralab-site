@@ -1,4 +1,4 @@
-const CACHE_NAME = "atralab-callme-v1";
+const CACHE_NAME = "atralab-callme-v2";
 
 const STATIC_ASSETS = [
   "/callme/",
