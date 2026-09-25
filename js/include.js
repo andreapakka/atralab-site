@@ -90,7 +90,7 @@ backToTopObserver.observe(document.body, {
    Google Analytics viene caricato solo dopo consenso.
 -------------------------------------------------- */
 
-const ATRALAB_GA_ID = "G-E2SWH3C0YM";
+const ATRALAB_GA_ID = "G-WKHLHR0YE3";
 const ATRALAB_CONSENT_KEY = "atralab-cookie-consent-v1";
 
 function getAtralabConsent() {
