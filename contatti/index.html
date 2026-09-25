@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Contatti — Atralab</title>
+  <meta name="description" content="Contatta Atralab per domande, segnalazioni o richieste generiche.">
+
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/internal.css">
+  <link rel="stylesheet" href="/css/cookie.css">
+  <link rel="stylesheet" href="/css/contatti.css">
+</head>
+
+<body>
+  <div data-include="/components/header.html"></div>
+
+  <main class="contact-page">
+    <section class="contact-shell" aria-labelledby="contact-title">
+      <div class="contact-intro">
+        <p class="contact-eyebrow">CONTATTI</p>
+        <h1 id="contact-title">Scrivimi</h1>
+        <p>
+          Per domande, segnalazioni o richieste generiche puoi usare questo modulo.
+        </p>
+      </div>
+
+      <form
+        id="contactForm"
+        class="contact-form"
+        action="https://formspree.io/f/mjykeayz"
+        method="POST"
+        autocomplete="on"
+      >
+        <div class="contact-field">
+          <label for="contactName">Nome</label>
+          <input
+            id="contactName"
+            name="name"
+            type="text"
+            autocomplete="name"
+            minlength="2"
+            maxlength="80"
+            required
+          >
+        </div>
+
+        <div class="contact-field">
+          <label for="contactEmail">Email</label>
+          <input
+            id="contactEmail"
+            name="email"
+            type="email"
+            inputmode="email"
+            autocomplete="email"
+            maxlength="254"
+            required
+          >
+        </div>
+
+        <div class="contact-field">
+          <label for="contactSubject">
+            Oggetto <span class="contact-optional">(facoltativo)</span>
+          </label>
+          <input
+            id="contactSubject"
+            name="subject"
+            type="text"
+            maxlength="120"
+          >
+        </div>
+
+        <div class="contact-field">
+          <div class="contact-label-row">
+            <label for="contactMessage">Messaggio</label>
+            <span id="messageCounter" class="contact-counter" aria-live="polite">0 / 3000</span>
+          </div>
+          <textarea
+            id="contactMessage"
+            name="message"
+            rows="7"
+            minlength="10"
+            maxlength="3000"
+            required
+          ></textarea>
+        </div>
+
+        <div class="contact-honeypot" aria-hidden="true">
+          <label for="contactWebsite">Lascia vuoto questo campo</label>
+          <input
+            id="contactWebsite"
+            name="_gotcha"
+            type="text"
+            tabindex="-1"
+            autocomplete="off"
+          >
+        </div>
+
+        <input type="hidden" name="_subject" value="Nuovo messaggio da ATRALAB">
+
+        <label class="contact-consent">
+          <input id="contactPrivacy" type="checkbox" required>
+          <span>
+            Ho letto l'<a href="/privacy/">informativa privacy</a>.
+          </span>
+        </label>
+
+        <p class="contact-note">
+          Il messaggio viene inoltrato tramite Formspree. Non inserire dati sensibili se non necessari.
+        </p>
+
+        <button id="contactSubmit" class="contact-submit" type="submit">
+          Invia messaggio
+        </button>
+
+        <p
+          id="contactStatus"
+          class="contact-status"
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+        ></p>
+      </form>
+    </section>
+  </main>
+
+  <div data-include="/components/footer.html"></div>
+
+  <script src="/js/include.js"></script>
+  <script src="/js/contatti.js"></script>
+</body>
+</html>
