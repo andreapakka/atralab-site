@@ -3,6 +3,10 @@ const ASTRAL_BASE =
 
 const REFRESH_MS = 60 * 1000;
 
+// Durata reale media provvisoria Montebello ↔ Flaminio.
+// ASTRAL pubblica un tempo teorico totale di 25 minuti.
+const REAL_TRAVEL_MINUTES = 30;
+
 const DIRECTIONS = [
   {
     id: "monrm",
@@ -173,7 +177,7 @@ function getEstimatedTrains(
   const now =
     minutesNowRome();
 
-  const finalOffset =
+  const astralFinalOffset =
     Math.max(
       ...stops.map(
         (stop) =>
@@ -183,6 +187,12 @@ function getEstimatedTrains(
       ),
       0
     );
+
+  const timeScale =
+    astralFinalOffset > 0
+      ? REAL_TRAVEL_MINUTES /
+        astralFinalOffset
+      : 1;
 
   return runs
     .filter(
@@ -214,7 +224,7 @@ function getEstimatedTrains(
 
       const estimatedEnd =
         estimatedStart +
-        finalOffset;
+        REAL_TRAVEL_MINUTES;
 
       if (
         now < estimatedStart ||
@@ -239,8 +249,11 @@ function getEstimatedTrains(
 
         const passTime =
           estimatedStart +
-          parseDurationMinutes(
-            stop.tToNext
+          (
+            parseDurationMinutes(
+              stop.tToNext
+            ) *
+            timeScale
           );
 
         if (passTime <= now) {
@@ -259,8 +272,11 @@ function getEstimatedTrains(
 
       const nextPass =
         estimatedStart +
-        parseDurationMinutes(
-          nextStop.tToNext
+        (
+          parseDurationMinutes(
+            nextStop.tToNext
+          ) *
+          timeScale
         );
 
       return {
@@ -274,7 +290,9 @@ function getEstimatedTrains(
         minutesToNext:
           Math.max(
             0,
-            nextPass - now
+            Math.ceil(
+              nextPass - now
+            )
           )
       };
     })
