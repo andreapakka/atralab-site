@@ -4,3 +4,5 @@ Disallow: /components/
 Disallow: /setup/
 
 Allow: /
+
+Sitemap: https://atralab.it/sitemap.xml
