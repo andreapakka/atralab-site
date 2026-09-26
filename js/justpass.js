@@ -264,6 +264,8 @@
     sendStatus.textContent = "In attesa del ritiro";
     sendStatus.classList.remove("is-delivered");
     cancelButton.disabled = false;
+    cancelButton.textContent = "Annulla";
+    cancelButton.dataset.action = "cancel";
     setMessage(resultMessage);
 
     startCountdown();
@@ -310,7 +312,9 @@
       if (result.status === "delivered") {
         sendStatus.textContent = "Consegnato";
         sendStatus.classList.add("is-delivered");
-        cancelButton.disabled = true;
+        cancelButton.disabled = false;
+        cancelButton.textContent = "Nuovo invio";
+        cancelButton.dataset.action = "new";
         stopSenderTimers();
         return;
       }
@@ -352,7 +356,42 @@
     }
   });
 
+  function resetSender() {
+    stopSenderTimers();
+
+    currentCode = null;
+    currentExpiresAt = null;
+
+    textContent.value = "";
+    textSize.textContent = formatBytes(0);
+    pdfFile.value = "";
+    pdfFileName.textContent = "Nessun file selezionato";
+
+    sendCode.textContent = "";
+    sendQr.innerHTML = "";
+    sendCountdown.textContent = "30:00";
+    sendStatus.textContent = "In attesa del ritiro";
+    sendStatus.classList.remove("is-delivered");
+
+    cancelButton.disabled = false;
+    cancelButton.textContent = "Annulla";
+    cancelButton.dataset.action = "cancel";
+
+    setMessage(sendMessage);
+    setMessage(resultMessage);
+
+    sendResult.hidden = true;
+    sendForm.hidden = false;
+    setSendMode("text");
+    textContent.focus();
+  }
+
   cancelButton.addEventListener("click", async () => {
+    if (cancelButton.dataset.action === "new") {
+      resetSender();
+      return;
+    }
+
     if (!currentCode) return;
 
     cancelButton.disabled = true;
@@ -366,6 +405,9 @@
 
       stopSenderTimers();
       sendStatus.textContent = "Annullato";
+      cancelButton.disabled = false;
+      cancelButton.textContent = "Nuovo invio";
+      cancelButton.dataset.action = "new";
       setMessage(resultMessage, "JustPass eliminato");
     } catch (error) {
       cancelButton.disabled = false;
