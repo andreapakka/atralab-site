@@ -1,0 +1,351 @@
+.justpass-page {
+  width: 100%;
+}
+
+.justpass-hero {
+  margin-bottom: 28px;
+}
+
+.justpass-kicker,
+.justpass-result-label {
+  margin: 0 0 8px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: #e76f51;
+}
+
+.justpass-hero h1 {
+  margin: 0;
+  font-size: clamp(2.2rem, 6vw, 4.5rem);
+  line-height: 0.98;
+}
+
+.justpass-intro {
+  max-width: 700px;
+  margin: 18px 0 0;
+  color: rgba(244, 241, 234, 0.72);
+  line-height: 1.6;
+}
+
+.justpass-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.justpass-panel {
+  min-width: 0;
+  padding: 24px;
+  border: 1px solid rgba(244, 241, 234, 0.14);
+  background: rgba(20, 20, 20, 0.88);
+}
+
+.justpass-panel-head {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+
+.justpass-step {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 38px;
+  height: 38px;
+  border: 1px solid #e76f51;
+  color: #e76f51;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.justpass-panel h2 {
+  margin: 0;
+  font-size: 1.45rem;
+}
+
+.justpass-panel-head p {
+  margin: 5px 0 0;
+  color: rgba(244, 241, 234, 0.6);
+  font-size: 0.92rem;
+}
+
+.justpass-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.justpass-tab,
+.justpass-primary,
+.justpass-secondary,
+.justpass-danger {
+  min-height: 46px;
+  border: 1px solid rgba(244, 241, 234, 0.2);
+  border-radius: 0;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.justpass-tab {
+  background: transparent;
+  color: rgba(244, 241, 234, 0.62);
+}
+
+.justpass-tab.is-active {
+  border-color: #e76f51;
+  background: #e76f51;
+  color: #0e0e0e;
+}
+
+.justpass-mode label,
+#receive-form > label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+#text-content,
+#received-text,
+.justpass-code-input {
+  box-sizing: border-box;
+  width: 100%;
+  border: 1px solid rgba(244, 241, 234, 0.18);
+  border-radius: 0;
+  background: #111;
+  color: #f4f1ea;
+  font: inherit;
+  outline: none;
+}
+
+#text-content,
+#received-text {
+  min-height: 190px;
+  padding: 14px;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+#text-content:focus,
+#received-text:focus,
+.justpass-code-input:focus {
+  border-color: #e76f51;
+}
+
+.justpass-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 8px 0 20px;
+  color: rgba(244, 241, 234, 0.5);
+  font-size: 0.76rem;
+}
+
+#pdf-file {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.justpass-file {
+  display: flex !important;
+  min-height: 150px;
+  padding: 18px;
+  border: 1px dashed rgba(244, 241, 234, 0.3);
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 8px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.justpass-file:hover {
+  border-color: #e76f51;
+}
+
+.justpass-file-title {
+  color: #e76f51;
+  font-weight: 700;
+}
+
+#pdf-file-name {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  color: rgba(244, 241, 234, 0.65);
+  font-size: 0.85rem;
+}
+
+.justpass-primary {
+  width: 100%;
+  padding: 0 18px;
+  border-color: #e76f51;
+  background: #e76f51;
+  color: #0e0e0e;
+}
+
+.justpass-secondary,
+.justpass-danger {
+  padding: 0 16px;
+  background: transparent;
+  color: #f4f1ea;
+}
+
+.justpass-danger {
+  border-color: rgba(231, 111, 81, 0.7);
+  color: #e76f51;
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.justpass-message {
+  min-height: 1.3em;
+  margin: 12px 0 0;
+  color: rgba(244, 241, 234, 0.68);
+  font-size: 0.84rem;
+}
+
+.justpass-message.is-error {
+  color: #e76f51;
+}
+
+.justpass-result,
+.justpass-received {
+  text-align: center;
+}
+
+.justpass-code {
+  margin: 4px 0 20px;
+  font-size: clamp(2.4rem, 8vw, 4.4rem);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  line-height: 1;
+}
+
+.justpass-qr-wrap {
+  display: flex;
+  justify-content: center;
+  margin: 0 auto 18px;
+}
+
+.justpass-qr {
+  display: inline-block;
+  padding: 12px;
+  background: #fff;
+}
+
+.justpass-qr img,
+.justpass-qr canvas {
+  display: block;
+  max-width: 100%;
+  height: auto !important;
+}
+
+.justpass-expiry {
+  margin: 0 0 12px;
+  color: rgba(244, 241, 234, 0.65);
+}
+
+.justpass-status {
+  display: inline-block;
+  margin: 0 0 20px;
+  padding: 7px 10px;
+  border: 1px solid rgba(244, 241, 234, 0.18);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.justpass-status.is-delivered {
+  border-color: #e76f51;
+  color: #e76f51;
+}
+
+.justpass-result-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.justpass-code-input {
+  height: 68px;
+  margin-bottom: 16px;
+  padding: 0 14px;
+  text-align: center;
+  text-transform: uppercase;
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+}
+
+.justpass-code-input::placeholder {
+  color: rgba(244, 241, 234, 0.2);
+}
+
+.justpass-pdf-name {
+  margin: 12px 0;
+  overflow-wrap: anywhere;
+  font-weight: 700;
+}
+
+.justpass-delivered-note {
+  margin-bottom: 20px;
+  color: rgba(244, 241, 234, 0.62);
+  line-height: 1.5;
+}
+
+#received-text-wrap .justpass-primary {
+  margin: 10px 0 12px;
+}
+
+#receive-another {
+  width: 100%;
+  margin-top: 8px;
+}
+
+.justpass-note {
+  margin-top: 20px;
+  padding: 18px 20px;
+  border-left: 3px solid #e76f51;
+  background: rgba(231, 111, 81, 0.07);
+  color: rgba(244, 241, 234, 0.7);
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+.justpass-note strong {
+  color: #f4f1ea;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+@media (max-width: 900px) {
+  .justpass-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .justpass-panel {
+    padding: 18px;
+  }
+
+  .justpass-code {
+    font-size: 2.6rem;
+  }
+
+  .justpass-result-actions {
+    grid-template-columns: 1fr;
+  }
+}
