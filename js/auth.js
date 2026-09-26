@@ -1,140 +1,112 @@
-const ATRALAB_AUTH_URL = "https://ukoaefhtvhqqdchjnzby.supabase.co";
-const ATRALAB_AUTH_KEY = "sb_publishable_hUhoYFMepUOJlJiy6RfBcg_LHf_V6cU";
-const ATRALAB_AUTH_STORAGE_KEY = "atralab-auth";
-const ATRALAB_RETURN_URL_KEY = "atralab-return-url";
+(() => {
+  "use strict";
 
-function normalizeUsername(value) {
-  return value.trim().toLowerCase();
-}
+  const AUTH_URL = "https://ukoaefhtvhqqdchjnzby.supabase.co";
+  const AUTH_KEY = "sb_publishable_hUhoYFMepUOJlJiy6RfBcg_LHf_V6cU";
+  const AUTH_STORAGE_KEY = "atralab-auth";
+  const RETURN_URL_KEY = "atralab-return-url";
 
-function setAuthMessage(message = "", isError = false) {
-  const element = document.getElementById("authMessage");
-  if (!element) return;
+  const form = document.querySelector("form");
+  const usernameInput = document.querySelector('input[name="username"]');
+  const passwordInput = document.querySelector('input[name="password"]');
+  const submitButton = form?.querySelector('button[type="submit"]');
+  const message = document.querySelector("[data-auth-message]");
 
-  element.textContent = message;
-  element.classList.toggle("is-error", isError);
-}
-
-async function loginAtralab(username, password) {
-  const response = await fetch(`${ATRALAB_AUTH_URL}/rest/v1/rpc/login_atralab_user`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "apikey": ATRALAB_AUTH_KEY,
-      "Authorization": `Bearer ${ATRALAB_AUTH_KEY}`
-    },
-    body: JSON.stringify({
-      p_username: username,
-      p_password: password
-    })
-  });
-
-  if (!response.ok) {
-    throw new Error(`Login non disponibile (${response.status})`);
+  function setMessage(text) {
+    if (message) message.textContent = text || "";
   }
 
-  return response.json();
-}
-
-function saveAuthToken(token) {
-  localStorage.setItem(ATRALAB_AUTH_STORAGE_KEY, JSON.stringify({
-    token,
-    savedAt: new Date().toISOString()
-  }));
-}
-
-function getReturnUrl() {
-  const saved = localStorage.getItem(ATRALAB_RETURN_URL_KEY);
-  localStorage.removeItem(ATRALAB_RETURN_URL_KEY);
-
-  if (!saved || !saved.startsWith("/") || saved.startsWith("//")) {
-    return "/";
+  function normalizeUsername() {
+    if (!usernameInput) return "";
+    const value = usernameInput.value.toLowerCase();
+    if (usernameInput.value !== value) usernameInput.value = value;
+    return value.trim();
   }
 
-  return saved;
-}
+  usernameInput?.addEventListener("input", normalizeUsername);
 
-function initPasswordToggle() {
-  const password = document.getElementById("authPassword");
-  const toggle = document.getElementById("togglePassword");
+  // Occhiolino password: supporta sia un elemento dedicato sia un bottone
+  // già presente nel markup della pagina.
+  const passwordToggle =
+    document.querySelector("[data-password-toggle]") ||
+    document.querySelector(".password-toggle") ||
+    document.querySelector('button[aria-label*="password" i]');
 
-  if (!password || !toggle) return;
+  if (passwordToggle && passwordInput) {
+    passwordToggle.type = "button";
+    passwordToggle.addEventListener("click", () => {
+      const show = passwordInput.type === "password";
+      passwordInput.type = show ? "text" : "password";
+      passwordToggle.setAttribute("aria-pressed", String(show));
+      passwordToggle.setAttribute(
+        "aria-label",
+        show ? "Nascondi password" : "Mostra password"
+      );
+    });
+  }
 
-  toggle.addEventListener("click", () => {
-    const show = password.type === "password";
-    password.type = show ? "text" : "password";
-    toggle.setAttribute("aria-pressed", String(show));
-    toggle.setAttribute("aria-label", show ? "Nascondi password" : "Mostra password");
-    toggle.title = show ? "Nascondi password" : "Mostra password";
-  });
-}
-
-function initUsernameNormalization() {
-  const username = document.getElementById("authUsername");
-  if (!username) return;
-
-  username.addEventListener("input", () => {
-    const start = username.selectionStart;
-    const end = username.selectionEnd;
-    username.value = username.value.toLowerCase();
-
-    if (start !== null && end !== null) {
-      username.setSelectionRange(start, end);
-    }
-  });
-}
-
-function initAuthForm() {
-  const form = document.getElementById("authForm");
-  const username = document.getElementById("authUsername");
-  const password = document.getElementById("authPassword");
-  const submit = document.getElementById("authSubmit");
-
-  if (!form || !username || !password || !submit) return;
-
-  form.addEventListener("submit", async (event) => {
+  form?.addEventListener("submit", async (event) => {
     event.preventDefault();
-    setAuthMessage();
 
-    const normalizedUsername = normalizeUsername(username.value);
-    username.value = normalizedUsername;
+    const username = normalizeUsername();
+    const password = passwordInput?.value ?? "";
 
-    if (!normalizedUsername || !password.value) {
-      setAuthMessage("Inserisci username e password.", true);
+    if (!username || !password) {
+      setMessage("Inserisci username e password.");
       return;
     }
 
-    submit.disabled = true;
-    submit.textContent = "Accesso...";
+    if (submitButton) submitButton.disabled = true;
+    setMessage("");
 
     try {
-      const token = await loginAtralab(normalizedUsername, password.value);
+      const response = await fetch(
+        `${AUTH_URL}/rest/v1/rpc/login_atralab_user`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "apikey": AUTH_KEY
+          },
+          body: JSON.stringify({
+            p_username: username,
+            p_password: password
+          })
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Login fallito (${response.status})`);
+      }
+
+      const token = await response.json();
 
       if (!token || typeof token !== "string") {
-        setAuthMessage("Username o password non corretti.", true);
+        setMessage("Username o password non corretti.");
         return;
       }
 
-      saveAuthToken(token);
-      window.location.replace(getReturnUrl());
+      localStorage.setItem(AUTH_STORAGE_KEY, token);
+
+      let returnUrl = "/";
+      const savedReturnUrl = localStorage.getItem(RETURN_URL_KEY);
+
+      if (
+        savedReturnUrl &&
+        savedReturnUrl.startsWith("/") &&
+        !savedReturnUrl.startsWith("//") &&
+        !savedReturnUrl.startsWith("/auth")
+      ) {
+        returnUrl = savedReturnUrl;
+      }
+
+      localStorage.removeItem(RETURN_URL_KEY);
+      window.location.replace(returnUrl);
     } catch (error) {
-      console.error("ATRALAB auth:", error);
-      setAuthMessage("Impossibile effettuare l'accesso. Riprova.", true);
+      console.error("ATRALAB login:", error);
+      setMessage("Accesso non disponibile. Riprova.");
     } finally {
-      submit.disabled = false;
-      submit.textContent = "Accedi";
+      if (submitButton) submitButton.disabled = false;
     }
   });
-}
-
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", () => {
-    initUsernameNormalization();
-    initPasswordToggle();
-    initAuthForm();
-  }, { once: true });
-} else {
-  initUsernameNormalization();
-  initPasswordToggle();
-  initAuthForm();
-}
+})();

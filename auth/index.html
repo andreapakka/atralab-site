@@ -22,7 +22,7 @@
       <h1 id="authTitle">Accesso</h1>
       <p class="auth-intro">Inserisci le credenziali per accedere ai Labs.</p>
 
-      <form id="authForm" class="auth-form" novalidate>
+      <form method="post" id="authForm" class="auth-form" novalidate>
         <label class="auth-field" for="authUsername">
           <span>Username</span>
           <input
@@ -46,7 +46,7 @@
               autocomplete="current-password"
               required
             >
-            <button
+            <button type="button" data-password-toggle
               id="togglePassword"
               class="auth-password-toggle"
               type="button"
