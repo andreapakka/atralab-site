@@ -254,8 +254,8 @@
     if (typeof QRCode !== "undefined") {
       new QRCode(sendQr, {
         text: buildClaimUrl(code),
-        width: 190,
-        height: 190,
+        width: 160,
+        height: 160,
         correctLevel: QRCode.CorrectLevel.M,
       });
     } else {
