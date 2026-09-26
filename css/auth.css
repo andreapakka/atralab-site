@@ -124,3 +124,49 @@
     padding: 26px 20px;
   }
 }
+
+/* --------------------------------------------------
+   ATRALAB Auth - layout compatto
+-------------------------------------------------- */
+.auth-shell {
+  min-height: calc(100vh - 150px);
+  padding-top: 44px;
+  padding-bottom: 44px;
+}
+
+.auth-card {
+  width: min(100%, 620px);
+  padding: 42px 46px;
+}
+
+.auth-card h1 {
+  margin-bottom: 14px;
+}
+
+.auth-intro {
+  margin-bottom: 30px;
+}
+
+.auth-field {
+  margin-bottom: 20px;
+}
+
+.auth-field input {
+  min-height: 54px;
+}
+
+.auth-submit {
+  margin-top: 8px;
+  min-height: 52px;
+}
+
+@media (max-width: 700px) {
+  .auth-shell {
+    padding-top: 28px;
+    padding-bottom: 28px;
+  }
+
+  .auth-card {
+    padding: 30px 24px;
+  }
+}

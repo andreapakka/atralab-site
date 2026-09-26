@@ -1,3 +1,163 @@
+/* --------------------------------------------------
+   ATRALAB - Accesso pagine protette
+   Le pagine NON presenti in ATRALAB_PUBLIC_PATHS sono protette.
+   Per rendere pubblica una pagina, aggiungerla qui.
+-------------------------------------------------- */
+
+const ATRALAB_AUTH_URL = "https://ukoaefhtvhqqdchjnzby.supabase.co";
+const ATRALAB_AUTH_KEY = "sb_publishable_hUhoYFMepUOJlJiy6RfBcg_LHf_V6cU";
+const ATRALAB_AUTH_STORAGE_KEY = "atralab-auth";
+const ATRALAB_RETURN_URL_KEY = "atralab-return-url";
+
+/* PAGINE PUBBLICHE ATRALAB - MODIFICARE QUI */
+const ATRALAB_PUBLIC_PATHS = [
+  "/",
+  "/index.html",
+  "/auth/",
+  "/auth/index.html",
+  "/privacy/",
+  "/privacy/index.html",
+  "/contacts/",
+  "/contacts/index.html"
+];
+
+function normalizeAtralabPath(pathname) {
+  let path = pathname || "/";
+  if (!path.startsWith("/")) path = "/" + path;
+  return path;
+}
+
+function isAtralabPublicPage() {
+  return ATRALAB_PUBLIC_PATHS.includes(
+    normalizeAtralabPath(window.location.pathname)
+  );
+}
+
+function getAtralabAuthToken() {
+  try {
+    return localStorage.getItem(ATRALAB_AUTH_STORAGE_KEY);
+  } catch (error) {
+    console.warn("ATRALAB auth localStorage:", error);
+    return null;
+  }
+}
+
+function clearAtralabAuthToken() {
+  try {
+    localStorage.removeItem(ATRALAB_AUTH_STORAGE_KEY);
+  } catch (error) {
+    console.warn("ATRALAB auth localStorage:", error);
+  }
+}
+
+function saveAtralabReturnUrl() {
+  try {
+    const currentUrl =
+      window.location.pathname +
+      window.location.search +
+      window.location.hash;
+
+    localStorage.setItem(ATRALAB_RETURN_URL_KEY, currentUrl);
+  } catch (error) {
+    console.warn("ATRALAB return URL:", error);
+  }
+}
+
+function redirectToAtralabAuth() {
+  saveAtralabReturnUrl();
+  window.location.replace("/auth/");
+}
+
+async function checkAtralabAccess() {
+  if (isAtralabPublicPage()) return true;
+
+  const token = getAtralabAuthToken();
+
+  if (!token) {
+    redirectToAtralabAuth();
+    return false;
+  }
+
+  try {
+    const response = await fetch(
+      `${ATRALAB_AUTH_URL}/rest/v1/rpc/check_atralab_token`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": ATRALAB_AUTH_KEY
+        },
+        body: JSON.stringify({
+          p_token: token
+        })
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Verifica accesso fallita (${response.status})`);
+    }
+
+    const isValid = await response.json();
+
+    if (isValid === true) return true;
+
+    clearAtralabAuthToken();
+    redirectToAtralabAuth();
+    return false;
+  } catch (error) {
+    console.error("ATRALAB auth:", error);
+    clearAtralabAuthToken();
+    redirectToAtralabAuth();
+    return false;
+  }
+}
+
+async function logoutAtralab() {
+  const token = getAtralabAuthToken();
+
+  if (token) {
+    try {
+      await fetch(
+        `${ATRALAB_AUTH_URL}/rest/v1/rpc/logout_atralab_user`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "apikey": ATRALAB_AUTH_KEY
+          },
+          body: JSON.stringify({
+            p_token: token
+          })
+        }
+      );
+    } catch (error) {
+      console.warn("ATRALAB logout:", error);
+    }
+  }
+
+  clearAtralabAuthToken();
+
+  try {
+    localStorage.removeItem(ATRALAB_RETURN_URL_KEY);
+  } catch (error) {
+    console.warn("ATRALAB logout localStorage:", error);
+  }
+
+  window.location.replace("/");
+}
+
+document.addEventListener("click", function (event) {
+  const logoutLink = event.target.closest("[data-atralab-logout]");
+
+  if (!logoutLink) return;
+
+  event.preventDefault();
+  logoutAtralab();
+});
+
+/* Avvia il controllo prima della normale inizializzazione condivisa. */
+checkAtralabAccess();
+
 function loadCommonHead() {
   const head = document.head;
 
