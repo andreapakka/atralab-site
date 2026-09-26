@@ -49,7 +49,6 @@
             <button type="button" data-password-toggle
               id="togglePassword"
               class="auth-password-toggle"
-              type="button"
               aria-label="Mostra password"
               aria-pressed="false"
               title="Mostra password"
@@ -59,9 +58,14 @@
           </span>
         </label>
 
-        <p id="authMessage" class="auth-message" role="status" aria-live="polite"></p>
+        <p id="authMessage" class="auth-message" data-auth-message role="status" aria-live="polite"></p>
 
         <button id="authSubmit" class="auth-submit" type="submit">Accedi</button>
+
+        <p class="auth-account-info">
+          Non hai un account?
+          <a href="/contacts/">Contattaci</a> per informazioni.
+        </p>
       </form>
     </section>
   </main>
