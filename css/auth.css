@@ -1,0 +1,126 @@
+.auth-main {
+  min-height: calc(100vh - 180px);
+  display: grid;
+  place-items: center;
+  padding: 48px 20px 72px;
+}
+
+.auth-card {
+  width: min(100%, 460px);
+  padding: 34px;
+  border: 1px solid rgba(244, 241, 234, 0.18);
+  border-radius: 18px;
+  background: rgba(244, 241, 234, 0.04);
+}
+
+.auth-eyebrow {
+  margin: 0 0 8px;
+  color: #E76F51;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.auth-card h1 {
+  margin: 0;
+}
+
+.auth-intro {
+  margin: 12px 0 28px;
+  opacity: 0.78;
+}
+
+.auth-form {
+  display: grid;
+  gap: 18px;
+}
+
+.auth-field {
+  display: grid;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.auth-field input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 13px 14px;
+  border: 1px solid rgba(244, 241, 234, 0.25);
+  border-radius: 10px;
+  background: #0E0E0E;
+  color: #F4F1EA;
+  font: inherit;
+  outline: none;
+}
+
+.auth-field input:focus {
+  border-color: #E76F51;
+}
+
+.auth-password-wrap {
+  position: relative;
+  display: block;
+}
+
+.auth-password-wrap input {
+  padding-right: 48px;
+}
+
+.auth-password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #F4F1EA;
+  cursor: pointer;
+  font-size: 1rem;
+  opacity: 0.72;
+}
+
+.auth-password-toggle:hover,
+.auth-password-toggle:focus-visible {
+  opacity: 1;
+  outline: 1px solid rgba(231, 111, 81, 0.7);
+}
+
+.auth-submit {
+  min-height: 46px;
+  border: 0;
+  border-radius: 10px;
+  background: #E76F51;
+  color: #0E0E0E;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.auth-submit:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.auth-message {
+  min-height: 1.4em;
+  margin: -4px 0 0;
+  font-size: 0.92rem;
+}
+
+.auth-message.is-error {
+  color: #ff9d8b;
+}
+
+@media (max-width: 600px) {
+  .auth-main {
+    padding: 30px 16px 56px;
+  }
+
+  .auth-card {
+    padding: 26px 20px;
+  }
+}

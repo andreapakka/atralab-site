@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Accesso | ATRALAB</title>
+
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/internal.css">
+  <link rel="stylesheet" href="/css/auth.css">
+
+  <script src="/js/include.js" defer></script>
+  <script src="/js/auth.js" defer></script>
+</head>
+<body>
+  <div data-include="/components/header.html"></div>
+
+  <main class="auth-main">
+    <section class="auth-card" aria-labelledby="authTitle">
+      <p class="auth-eyebrow">Area riservata</p>
+      <h1 id="authTitle">Accesso</h1>
+      <p class="auth-intro">Inserisci le credenziali per accedere ai Labs.</p>
+
+      <form id="authForm" class="auth-form" novalidate>
+        <label class="auth-field" for="authUsername">
+          <span>Username</span>
+          <input
+            id="authUsername"
+            name="username"
+            type="text"
+            autocomplete="username"
+            autocapitalize="none"
+            spellcheck="false"
+            required
+          >
+        </label>
+
+        <label class="auth-field" for="authPassword">
+          <span>Password</span>
+          <span class="auth-password-wrap">
+            <input
+              id="authPassword"
+              name="password"
+              type="password"
+              autocomplete="current-password"
+              required
+            >
+            <button
+              id="togglePassword"
+              class="auth-password-toggle"
+              type="button"
+              aria-label="Mostra password"
+              aria-pressed="false"
+              title="Mostra password"
+            >
+              <span aria-hidden="true">◉</span>
+            </button>
+          </span>
+        </label>
+
+        <p id="authMessage" class="auth-message" role="status" aria-live="polite"></p>
+
+        <button id="authSubmit" class="auth-submit" type="submit">Accedi</button>
+      </form>
+    </section>
+  </main>
+
+  <div data-include="/components/footer.html"></div>
+</body>
+</html>
