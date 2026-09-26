@@ -1,12 +1,9 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#0E0E0E">
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="JustPass: passa rapidamente testo o PDF tra dispositivi. Il contenuto scade dopo 30 minuti e viene eliminato dopo il ritiro.">
-
   <title>JustPass | ATRALAB</title>
 
   <link rel="stylesheet" href="/css/style.css">
@@ -21,12 +18,9 @@
     <aside data-include="/components/sidebar.html"></aside>
 
     <main class="internal-main justpass-page">
-
       <section class="justpass-hero">
         <p class="justpass-kicker">ATRALAB / JUSTPASS</p>
-
         <h1>Passalo e basta.</h1>
-
         <p class="justpass-intro">
           Invia testo o un PDF a un altro dispositivo con un codice di 6 caratteri.
           JustPass consegna, non conserva.
@@ -34,16 +28,10 @@
       </section>
 
       <div class="justpass-grid">
-
-        <!-- ==================================================
-             INVIA
-        =================================================== -->
-
+        <!-- INVIA -->
         <section class="justpass-panel" aria-labelledby="send-title">
-
           <div class="justpass-panel-head">
             <span class="justpass-step">01</span>
-
             <div>
               <h2 id="send-title">INVIA</h2>
               <p>Crea un JustPass valido per 30 minuti.</p>
@@ -51,340 +39,138 @@
           </div>
 
           <div id="send-form">
-
-            <div
-              class="justpass-tabs"
-              role="tablist"
-              aria-label="Tipo di contenuto"
-            >
-              <button
-                class="justpass-tab is-active"
-                id="tab-text"
-                type="button"
-                role="tab"
-                aria-selected="true"
-                aria-controls="send-text"
-              >
+            <div class="justpass-tabs" role="tablist" aria-label="Tipo di contenuto">
+              <button class="justpass-tab is-active" id="tab-text" type="button"
+                      role="tab" aria-selected="true" aria-controls="send-text">
                 TESTO
               </button>
-
-              <button
-                class="justpass-tab"
-                id="tab-pdf"
-                type="button"
-                role="tab"
-                aria-selected="false"
-                aria-controls="send-pdf"
-              >
+              <button class="justpass-tab" id="tab-pdf" type="button"
+                      role="tab" aria-selected="false" aria-controls="send-pdf">
                 PDF
               </button>
             </div>
 
-            <!-- TESTO -->
-
-            <div
-              id="send-text"
-              class="justpass-mode"
-              role="tabpanel"
-              aria-labelledby="tab-text"
-            >
-              <label for="text-content">
-                Testo da passare
-              </label>
-
-              <textarea
-                id="text-content"
-                maxlength="204800"
-                placeholder="Scrivi o incolla qui testo, link, codice, indirizzi..."
-              ></textarea>
-
+            <div id="send-text" class="justpass-mode" role="tabpanel" aria-labelledby="tab-text">
+              <label for="text-content">Testo da passare</label>
+              <textarea id="text-content" maxlength="204800"
+                        placeholder="Scrivi o incolla qui testo, link, codice, indirizzi..."></textarea>
               <div class="justpass-meta">
                 <span>Massimo 200 KB</span>
                 <span id="text-size">0 B</span>
               </div>
             </div>
 
-            <!-- PDF -->
-
-            <div
-              id="send-pdf"
-              class="justpass-mode"
-              role="tabpanel"
-              aria-labelledby="tab-pdf"
-              hidden
-            >
-              <label
-                class="justpass-file"
-                for="pdf-file"
-              >
-                <span class="justpass-file-title">
-                  Scegli un PDF
-                </span>
-
-                <span id="pdf-file-name">
-                  Nessun file selezionato
-                </span>
+            <div id="send-pdf" class="justpass-mode" role="tabpanel"
+                 aria-labelledby="tab-pdf" hidden>
+              <label class="justpass-file" for="pdf-file">
+                <span class="justpass-file-title">Scegli un PDF</span>
+                <span id="pdf-file-name">Nessun file selezionato</span>
               </label>
-
-              <input
-                id="pdf-file"
-                type="file"
-                accept="application/pdf,.pdf"
-              >
-
+              <input id="pdf-file" type="file" accept="application/pdf,.pdf">
               <div class="justpass-meta">
                 <span>Solo PDF</span>
                 <span>Massimo 5 MB</span>
               </div>
             </div>
 
-            <button
-              id="create-pass"
-              class="justpass-primary"
-              type="button"
-            >
+            <button id="create-pass" class="justpass-primary" type="button">
               Crea JustPass
             </button>
-
-            <p
-              id="send-message"
-              class="justpass-message"
-              aria-live="polite"
-            ></p>
-
+            <p id="send-message" class="justpass-message" aria-live="polite"></p>
           </div>
 
-
-          <!-- RISULTATO INVIO -->
-
-          <div
-            id="send-result"
-            class="justpass-result"
-            hidden
-          >
-
-            <p class="justpass-result-label">
-              IL TUO CODICE
-            </p>
-
-            <div
-              id="send-code"
-              class="justpass-code"
-            >
-              ------
-            </div>
+          <div id="send-result" class="justpass-result" hidden>
+            <p class="justpass-result-label">IL TUO CODICE</p>
+            <div id="send-code" class="justpass-code">------</div>
 
             <div class="justpass-qr-wrap">
-              <div
-                id="send-qr"
-                class="justpass-qr"
-                aria-label="QR code JustPass"
-              ></div>
+              <div id="send-qr" class="justpass-qr" aria-label="QR code JustPass"></div>
             </div>
 
             <p class="justpass-expiry">
-              Scade tra
-              <strong id="send-countdown">
-                30:00
-              </strong>
+              Scade tra <strong id="send-countdown">30:00</strong>
             </p>
 
-            <p
-              id="send-status"
-              class="justpass-status is-waiting"
-            >
+            <p id="send-status" class="justpass-status is-waiting">
               In attesa del ritiro
             </p>
 
             <div class="justpass-result-actions">
-
-              <button
-                id="copy-code"
-                class="justpass-secondary"
-                type="button"
-              >
+              <button id="copy-code" class="justpass-secondary" type="button">
                 Copia codice
               </button>
-
-              <button
-                id="cancel-pass"
-                class="justpass-danger"
-                type="button"
-              >
+              <button id="new-pass" class="justpass-secondary" type="button">
+                Nuovo invio
+              </button>
+              <button id="cancel-pass" class="justpass-danger" type="button">
                 Annulla
               </button>
-
             </div>
 
-            <p
-              id="result-message"
-              class="justpass-message"
-              aria-live="polite"
-            ></p>
-
+            <p id="result-message" class="justpass-message" aria-live="polite"></p>
           </div>
-
         </section>
 
-
-        <!-- ==================================================
-             RITIRA
-        =================================================== -->
-
-        <section
-          class="justpass-panel"
-          aria-labelledby="receive-title"
-        >
-
+        <!-- RITIRA -->
+        <section class="justpass-panel" aria-labelledby="receive-title">
           <div class="justpass-panel-head">
-
-            <span class="justpass-step">
-              02
-            </span>
-
+            <span class="justpass-step">02</span>
             <div>
-              <h2 id="receive-title">
-                RITIRA
-              </h2>
-
-              <p>
-                Inserisci il codice ricevuto.
-              </p>
+              <h2 id="receive-title">RITIRA</h2>
+              <p>Inserisci il codice ricevuto.</p>
             </div>
-
           </div>
 
-
           <div id="receive-form">
+            <label for="receive-code">Codice JustPass</label>
+            <input id="receive-code" class="justpass-code-input"
+                   type="text" maxlength="6" autocomplete="off"
+                   autocapitalize="characters" spellcheck="false"
+                   inputmode="text" placeholder="ABC123">
 
-            <label for="receive-code">
-              Codice JustPass
-            </label>
-
-            <input
-              id="receive-code"
-              class="justpass-code-input"
-              type="text"
-              maxlength="6"
-              autocomplete="off"
-              autocapitalize="characters"
-              spellcheck="false"
-              inputmode="text"
-              placeholder="ABC123"
-            >
-
-            <button
-              id="claim-pass"
-              class="justpass-primary"
-              type="button"
-            >
+            <button id="claim-pass" class="justpass-primary" type="button">
               Ritira
             </button>
 
-            <p
-              id="receive-message"
-              class="justpass-message"
-              aria-live="polite"
-            ></p>
-
+            <p id="receive-message" class="justpass-message" aria-live="polite"></p>
           </div>
 
+          <div id="receive-result" class="justpass-received" hidden>
+            <p id="received-type" class="justpass-result-label"></p>
 
-          <!-- RISULTATO RITIRO -->
-
-          <div
-            id="receive-result"
-            class="justpass-received"
-            hidden
-          >
-
-            <p
-              id="received-type"
-              class="justpass-result-label"
-            ></p>
-
-
-            <!-- TESTO RICEVUTO -->
-
-            <div
-              id="received-text-wrap"
-              hidden
-            >
-
-              <textarea
-                id="received-text"
-                readonly
-              ></textarea>
-
-              <button
-                id="copy-text"
-                class="justpass-primary"
-                type="button"
-              >
+            <div id="received-text-wrap" hidden>
+              <textarea id="received-text" readonly></textarea>
+              <button id="copy-text" class="justpass-primary" type="button">
                 Copia
               </button>
-
             </div>
 
-
-            <!-- PDF RICEVUTO -->
-
-            <div
-              id="received-pdf-wrap"
-              hidden
-            >
-
-              <p
-                id="received-pdf-name"
-                class="justpass-pdf-name"
-              ></p>
-
+            <div id="received-pdf-wrap" hidden>
+              <p id="received-pdf-name" class="justpass-pdf-name"></p>
               <p class="justpass-delivered-note">
                 Il PDF è stato scaricato e rimosso da JustPass.
               </p>
-
             </div>
 
-
-            <button
-              id="receive-another"
-              class="justpass-secondary"
-              type="button"
-            >
+            <button id="receive-another" class="justpass-secondary" type="button">
               Ritira un altro JustPass
             </button>
-
           </div>
-
         </section>
-
       </div>
-
-
-      <!-- ==================================================
-           NOTA
-      =================================================== -->
 
       <section class="justpass-note">
         <strong>Come funziona:</strong>
         il contenuto resta disponibile per un massimo di 30 minuti.
-        Al primo ritiro viene eliminato.
-        Nessun archivio, nessuna cronologia.
+        Al primo ritiro viene eliminato. Nessun archivio, nessuna cronologia.
       </section>
-
     </main>
   </div>
 
   <div data-include="/components/footer.html"></div>
 
   <script src="/js/include.js" defer></script>
-
-  <script
-    src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"
-    defer
-  ></script>
-
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
   <script src="/js/justpass.js" defer></script>
-
 </body>
 </html>

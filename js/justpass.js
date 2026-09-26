@@ -36,6 +36,7 @@
   const sendCountdown = document.getElementById("send-countdown");
   const sendStatus = document.getElementById("send-status");
   const copyCodeButton = document.getElementById("copy-code");
+  const newPassButton = document.getElementById("new-pass");
   const cancelButton = document.getElementById("cancel-pass");
   const resultMessage = document.getElementById("result-message");
 
@@ -385,6 +386,12 @@
     setSendMode("text");
     textContent.focus();
   }
+
+  newPassButton.addEventListener("click", () => {
+    // Il JustPass corrente resta attivo sul server fino a ritiro o scadenza.
+    // Qui interrompiamo soltanto il monitoraggio locale e prepariamo un nuovo invio.
+    resetSender();
+  });
 
   cancelButton.addEventListener("click", async () => {
     if (cancelButton.dataset.action === "new") {
