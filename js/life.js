@@ -10,11 +10,11 @@
   // Tipi mostrati nella sezione "Carte migliori".
   // Aggiungere/rimuovere voci qui per cambiare la selezione.
   const FEATURED_CARD_TYPES = [
+    "1st Edition Holo",
     "Full Art",
     "Photography",
-    "1st Edition Holo",
-    "Holo",
     "Extended",
+    "Holo",
     "Rare"
   ];
 
@@ -24,7 +24,7 @@
     cards: [],
     activeCopies: [],
     ownedVariants: [],
-    featuredType: "",
+    featuredType: "1st Edition Holo",
     collectionsById: new Map(),
     typesById: new Map(),
     copiesByCardId: new Map()
@@ -352,11 +352,13 @@
 
   function renderFeaturedFilters() {
     els.featuredFilters.innerHTML = [
-      `<button class="life-featured-filter is-active" type="button" data-featured-type="" aria-pressed="true">Tutte</button>`,
+      `<button class="life-featured-filter" type="button" data-featured-type="" aria-pressed="false">Tutte</button>`,
       ...FEATURED_CARD_TYPES.map((type) =>
         `<button class="life-featured-filter" type="button" data-featured-type="${escapeAttr(type)}" aria-pressed="false">${escapeHtml(type)}</button>`
       )
     ].join("");
+
+    updateFeaturedFilterState();
   }
 
   function updateFeaturedFilterState() {
