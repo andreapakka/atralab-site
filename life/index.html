@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>LIFE TCG · La mia collezione · ATRALAB</title>
+
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/internal.css">
+  <link rel="stylesheet" href="/css/life.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="/js/include.js" defer></script>
+  <script src="/js/life.js" defer></script>
+</head>
+
+<body>
+  <div data-include="/components/header.html"></div>
+
+  <div class="life-layout">
+    <aside class="life-sidebar-slot" data-include="/components/sidebar.html"></aside>
+
+    <main class="life-main">
+      <section class="life-hero" aria-labelledby="life-title">
+        <p class="life-eyebrow">LIFE TCG</p>
+        <h1 id="life-title">La mia collezione</h1>
+        <p class="life-lead">Carte possedute, varianti e completamento delle collezioni.</p>
+      </section>
+
+      <section class="life-search-section" aria-labelledby="life-search-title">
+        <div class="life-section-heading">
+          <div>
+            <p class="life-kicker">CATALOGO</p>
+            <h2 id="life-search-title">Cerca una carta</h2>
+          </div>
+          <p>Cerca per nome o numero. I risultati mostrano tutte le varianti e se le possiedi.</p>
+        </div>
+
+        <div class="life-search-wrap">
+          <label class="life-search-label" for="life-search">Nome o numero carta</label>
+          <input
+            id="life-search"
+            class="life-search-input"
+            type="search"
+            inputmode="search"
+            autocomplete="off"
+            placeholder="Es. Canadian Lynx oppure 49/100"
+            aria-autocomplete="list"
+            aria-controls="life-search-results"
+            aria-expanded="false"
+          >
+          <div id="life-search-results" class="life-autocomplete" role="listbox" hidden></div>
+        </div>
+      </section>
+
+      <section class="life-overview" aria-labelledby="life-overview-title">
+        <div class="life-section-heading">
+          <div>
+            <p class="life-kicker">PANORAMICA</p>
+            <h2 id="life-overview-title">La collezione adesso</h2>
+          </div>
+        </div>
+
+        <div id="life-general-stats" class="life-stat-grid" aria-live="polite">
+          <div class="life-loading">Caricamento collezione…</div>
+        </div>
+      </section>
+
+      <section class="life-editions" aria-labelledby="life-editions-title">
+        <div class="life-section-heading">
+          <div>
+            <p class="life-kicker">EDIZIONI</p>
+            <h2 id="life-editions-title">Le mie edizioni</h2>
+          </div>
+          <p>Compaiono solo le collezioni di cui possiedi almeno una carta.</p>
+        </div>
+
+        <div id="life-edition-grid" class="life-edition-grid"></div>
+      </section>
+
+      <section id="life-featured-section" class="life-featured" aria-labelledby="life-featured-title">
+        <div class="life-section-heading">
+          <div>
+            <p class="life-kicker">IN EVIDENZA</p>
+            <h2 id="life-featured-title">Carte migliori</h2>
+          </div>
+          <p>Full Art, Photography, 1st Edition Holo, Holo, Extended e Rare.</p>
+        </div>
+
+        <div id="life-featured-grid" class="life-featured-grid"></div>
+      </section>
+
+      <section class="life-collection" aria-labelledby="life-collection-title">
+        <div class="life-section-heading life-section-heading--collection">
+          <div>
+            <p class="life-kicker">COLLEZIONE</p>
+            <h2 id="life-collection-title">Tutte le carte possedute</h2>
+          </div>
+          <p id="life-visible-count" class="life-visible-count"></p>
+        </div>
+
+        <div class="life-filters" aria-label="Filtri collezione">
+          <label>
+            <span>Edizione</span>
+            <select id="life-filter-edition">
+              <option value="">Tutte</option>
+            </select>
+          </label>
+
+          <label>
+            <span>Tipo</span>
+            <select id="life-filter-type">
+              <option value="">Tutti</option>
+            </select>
+          </label>
+
+          <label>
+            <span>Ordina</span>
+            <select id="life-sort">
+              <option value="number">Numero</option>
+              <option value="name">Nome</option>
+              <option value="type">Tipo</option>
+            </select>
+          </label>
+
+          <label class="life-duplicate-toggle">
+            <input id="life-filter-duplicates" type="checkbox">
+            <span>Solo doppioni</span>
+          </label>
+
+          <button id="life-reset-filters" class="life-button life-button--secondary" type="button">
+            Azzera filtri
+          </button>
+        </div>
+
+        <div id="life-card-grid" class="life-card-grid"></div>
+        <p id="life-empty" class="life-empty" hidden>Nessuna carta corrisponde ai filtri selezionati.</p>
+      </section>
+
+      <p id="life-error" class="life-error" role="alert" hidden></p>
+    </main>
+  </div>
+
+  <div data-include="/components/footer.html"></div>
+
+  <div id="life-lightbox" class="life-lightbox" role="dialog" aria-modal="true" aria-labelledby="life-lightbox-title" hidden>
+    <button id="life-lightbox-close" class="life-lightbox-close" type="button" aria-label="Chiudi immagine">×</button>
+    <div class="life-lightbox-content">
+      <img id="life-lightbox-image" alt="">
+      <div class="life-lightbox-caption">
+        <strong id="life-lightbox-title"></strong>
+        <span id="life-lightbox-meta"></span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
