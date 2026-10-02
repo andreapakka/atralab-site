@@ -109,7 +109,7 @@
           <div id="lifeInsertSelected" class="life-selected" hidden>
             <article class="life-selected-card" aria-label="Carta selezionata">
               <div class="life-card-image-wrap">
-                <img id="lifeInsertImage" class="life-card-image" alt="">
+                <img id="lifeInsertImage" class="life-card-image" alt="" role="button" tabindex="0" aria-label="Apri immagine ingrandita">
                 <div id="lifeInsertImageFallback" class="life-card-image-fallback" hidden>Immagine non disponibile</div>
               </div>
 
@@ -206,7 +206,7 @@
           <div id="lifeSellSelected" class="life-selected" hidden>
             <article class="life-selected-card" aria-label="Carta selezionata">
               <div class="life-card-image-wrap">
-                <img id="lifeSellImage" class="life-card-image" alt="">
+                <img id="lifeSellImage" class="life-card-image" alt="" role="button" tabindex="0" aria-label="Apri immagine ingrandita">
                 <div id="lifeSellImageFallback" class="life-card-image-fallback" hidden>Immagine non disponibile</div>
               </div>
 
@@ -304,7 +304,7 @@
           <div id="lifeDeleteSelected" class="life-selected" hidden>
             <article class="life-selected-card" aria-label="Carta selezionata">
               <div class="life-card-image-wrap">
-                <img id="lifeDeleteImage" class="life-card-image" alt="">
+                <img id="lifeDeleteImage" class="life-card-image" alt="" role="button" tabindex="0" aria-label="Apri immagine ingrandita">
                 <div id="lifeDeleteImageFallback" class="life-card-image-fallback" hidden>Immagine non disponibile</div>
               </div>
 
@@ -342,5 +342,14 @@
   </main>
 
   <div data-include="/components/footer.html"></div>
+
+  <div id="lifeLightbox" class="life-lightbox" hidden aria-hidden="true">
+    <div class="life-lightbox-dialog" role="dialog" aria-modal="true" aria-labelledby="lifeLightboxCaption">
+      <button id="lifeLightboxClose" class="life-lightbox-close" type="button" aria-label="Chiudi anteprima">×</button>
+      <img id="lifeLightboxImage" class="life-lightbox-image" alt="">
+      <p id="lifeLightboxCaption" class="life-lightbox-caption"></p>
+    </div>
+  </div>
+
 </body>
 </html>

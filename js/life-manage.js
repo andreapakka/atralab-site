@@ -26,6 +26,10 @@ const elements = {
   globalStatus: document.getElementById("lifeGlobalStatus"),
   tabs: [...document.querySelectorAll("[data-life-mode]")],
   panels: [...document.querySelectorAll("[data-life-panel]")],
+  lightbox: document.getElementById("lifeLightbox"),
+  lightboxImage: document.getElementById("lifeLightboxImage"),
+  lightboxCaption: document.getElementById("lifeLightboxCaption"),
+  lightboxClose: document.getElementById("lifeLightboxClose"),
 
   insert: {
     search: document.getElementById("lifeInsertSearch"),
@@ -329,10 +333,11 @@ function renderSelectedCard(mode, card) {
   ui.type.textContent = enriched.card_type_name;
 
   if (card.image_url) {
+    ui.imageFallback.hidden = true;
+    ui.image.hidden = false;
     ui.image.src = card.image_url;
     ui.image.alt = `${card.name} ${card.card_number_raw}`;
-    ui.image.hidden = false;
-    ui.imageFallback.hidden = true;
+    ui.image.setAttribute("aria-label", `Apri immagine ingrandita di ${card.name}`);
   } else {
     ui.image.removeAttribute("src");
     ui.image.alt = "";
@@ -759,6 +764,54 @@ async function deleteUserCard() {
   setGlobalStatus(`${card?.name ?? "Carta"} eliminata logicamente.`, "ready");
 }
 
+function openLightbox(mode) {
+  const ui = elements[mode];
+  const card = state.selectedCard[mode];
+
+  if (!card || ui.image.hidden || !ui.image.currentSrc && !ui.image.src) return;
+
+  elements.lightboxImage.src = ui.image.currentSrc || ui.image.src;
+  elements.lightboxImage.alt = ui.image.alt;
+  elements.lightboxCaption.textContent = `${card.name} · ${card.card_number_raw} · ${enrichCard(card).collection_name}`;
+  elements.lightbox.hidden = false;
+  elements.lightbox.setAttribute("aria-hidden", "false");
+  document.body.classList.add("life-lightbox-open");
+  elements.lightboxClose.focus();
+}
+
+function closeLightbox() {
+  if (elements.lightbox.hidden) return;
+
+  elements.lightbox.hidden = true;
+  elements.lightbox.setAttribute("aria-hidden", "true");
+  elements.lightboxImage.removeAttribute("src");
+  elements.lightboxImage.alt = "";
+  elements.lightboxCaption.textContent = "";
+  document.body.classList.remove("life-lightbox-open");
+}
+
+function bindCardPreview(mode) {
+  const image = elements[mode].image;
+
+  image.addEventListener("click", () => openLightbox(mode));
+  image.addEventListener("keydown", event => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      openLightbox(mode);
+    }
+  });
+
+  image.addEventListener("load", () => {
+    image.hidden = false;
+    elements[mode].imageFallback.hidden = true;
+  });
+
+  image.addEventListener("error", () => {
+    image.hidden = true;
+    elements[mode].imageFallback.hidden = false;
+  });
+}
+
 function bindAutocomplete(mode) {
   const ui = elements[mode];
 
@@ -816,19 +869,19 @@ function bindEvents() {
     });
   });
 
-  elements.insert.image.addEventListener("error", () => {
-    elements.insert.image.hidden = true;
-    elements.insert.imageFallback.hidden = false;
+  bindCardPreview("insert");
+  bindCardPreview("sell");
+  bindCardPreview("delete");
+
+  elements.lightboxClose.addEventListener("click", closeLightbox);
+  elements.lightbox.addEventListener("click", event => {
+    if (event.target === elements.lightbox) closeLightbox();
   });
 
-  elements.sell.image.addEventListener("error", () => {
-    elements.sell.image.hidden = true;
-    elements.sell.imageFallback.hidden = false;
-  });
-
-  elements.delete.image.addEventListener("error", () => {
-    elements.delete.image.hidden = true;
-    elements.delete.imageFallback.hidden = false;
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape" && !elements.lightbox.hidden) {
+      closeLightbox();
+    }
   });
 }
 
