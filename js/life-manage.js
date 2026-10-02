@@ -298,6 +298,7 @@ function renderSearchResults(mode, query) {
   if (limited.length === 0) {
     target.innerHTML = '<div class="life-result-empty">Nessuna carta trovata.</div>';
     target.hidden = false;
+    positionAutocomplete(target);		
     return;
   }
 
@@ -321,6 +322,7 @@ function renderSearchResults(mode, query) {
   }).join("");
 
   target.hidden = false;
+  positionAutocomplete(target);	
 }
 
 function renderSelectedCard(mode, card) {
@@ -907,6 +909,18 @@ async function initLifeManage() {
   } catch (error) {
     console.error("LIFE init:", error);
     setGlobalStatus("Errore durante il caricamento dei dati LIFE.", "error");
+  }
+}
+
+function positionAutocomplete(results) {
+  results.classList.remove("is-up");
+
+  const rect = results.parentElement.getBoundingClientRect();
+  const spaceBelow = window.innerHeight - rect.bottom;
+  const spaceAbove = rect.top;
+
+  if (spaceBelow < 320 && spaceAbove > spaceBelow) {
+    results.classList.add("is-up");
   }
 }
 
