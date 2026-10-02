@@ -994,7 +994,7 @@ async function initLifeManage() {
     elements.delete.search.disabled = false;
 
     renderPackProgress();
-    setInsertEntryMode("single");
+    setInsertEntryMode("pack");
 
     setGlobalStatus(
       `${state.cards.length} carte nel catalogo · ${state.userCards.filter(copyIsAvailableForDelete).length} copie registrate`,
