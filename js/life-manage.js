@@ -11,7 +11,7 @@ const state = {
   cardTypes: new Map(),
   products: [],
   userCards: [],
-  insertEntryMode: "single",
+  insertEntryMode: "pack",
   pack: {
     number: 1,
     count: 0
