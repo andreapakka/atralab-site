@@ -24,6 +24,7 @@
     cards: [],
     activeCopies: [],
     ownedVariants: [],
+    featuredType: "",
     collectionsById: new Map(),
     typesById: new Map(),
     copiesByCardId: new Map()
@@ -63,6 +64,7 @@
     els.generalStats = document.getElementById("life-general-stats");
     els.editionGrid = document.getElementById("life-edition-grid");
     els.featuredSection = document.getElementById("life-featured-section");
+    els.featuredFilters = document.getElementById("life-featured-filters");
     els.featuredGrid = document.getElementById("life-featured-grid");
     els.cardGrid = document.getElementById("life-card-grid");
     els.visibleCount = document.getElementById("life-visible-count");
@@ -102,6 +104,15 @@
     });
 
     els.resetFilters.addEventListener("click", resetFilters);
+
+    els.featuredFilters.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-featured-type]");
+      if (!button) return;
+
+      state.featuredType = button.dataset.featuredType || "";
+      updateFeaturedFilterState();
+      renderFeatured();
+    });
 
     els.editionGrid.addEventListener("click", (event) => {
       const button = event.target.closest("[data-edition-filter]");
@@ -214,6 +225,7 @@
   function renderAll() {
     renderGeneralStats();
     renderEditionStats();
+    renderFeaturedFilters();
     renderFeatured();
     renderFilterOptions();
     renderCollectionGrid();
@@ -338,11 +350,31 @@
     }).join("");
   }
 
+  function renderFeaturedFilters() {
+    els.featuredFilters.innerHTML = [
+      `<button class="life-featured-filter is-active" type="button" data-featured-type="" aria-pressed="true">Tutte</button>`,
+      ...FEATURED_CARD_TYPES.map((type) =>
+        `<button class="life-featured-filter" type="button" data-featured-type="${escapeAttr(type)}" aria-pressed="false">${escapeHtml(type)}</button>`
+      )
+    ].join("");
+  }
+
+  function updateFeaturedFilterState() {
+    els.featuredFilters.querySelectorAll("[data-featured-type]").forEach((button) => {
+      const active = (button.dataset.featuredType || "") === state.featuredType;
+      button.classList.toggle("is-active", active);
+      button.setAttribute("aria-pressed", active ? "true" : "false");
+    });
+  }
+
   function renderFeatured() {
     const featuredRank = new Map(FEATURED_CARD_TYPES.map((type, index) => [type, index]));
 
-    const items = state.ownedVariants
-      .filter((item) => featuredRank.has(item.card.typeName))
+    const allFeaturedItems = state.ownedVariants
+      .filter((item) => featuredRank.has(item.card.typeName));
+
+    const items = allFeaturedItems
+      .filter((item) => !state.featuredType || item.card.typeName === state.featuredType)
       .sort((a, b) => {
         const rankDiff = featuredRank.get(a.card.typeName) - featuredRank.get(b.card.typeName);
         if (rankDiff) return rankDiff;
@@ -351,12 +383,18 @@
         return compareCardNumber(a.card, b.card);
       });
 
-    if (!items.length) {
+    if (!allFeaturedItems.length) {
       els.featuredSection.hidden = true;
       return;
     }
 
     els.featuredSection.hidden = false;
+
+    if (!items.length) {
+      els.featuredGrid.innerHTML = `<p class="life-empty">Nessuna carta posseduta di questo tipo.</p>`;
+      return;
+    }
+
     els.featuredGrid.innerHTML = items.map(({ card, copies }) => `
       <article class="life-featured-card">
         ${renderFeaturedImage(card)}
