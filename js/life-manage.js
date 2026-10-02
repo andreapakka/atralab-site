@@ -11,6 +11,11 @@ const state = {
   cardTypes: new Map(),
   products: [],
   userCards: [],
+  insertEntryMode: "single",
+  pack: {
+    number: 1,
+    count: 0
+  },
   selectedCard: {
     insert: null,
     sell: null,
@@ -41,6 +46,12 @@ const elements = {
     name: document.getElementById("lifeInsertName"),
     number: document.getElementById("lifeInsertNumber"),
     type: document.getElementById("lifeInsertType"),
+    modeSingle: document.getElementById("lifeInsertModeSingle"),
+    modePack: document.getElementById("lifeInsertModePack"),
+    packStatus: document.getElementById("lifePackStatus"),
+    packNumber: document.getElementById("lifePackNumber"),
+    packCounter: document.getElementById("lifePackCounter"),
+    packProgress: document.getElementById("lifePackProgress"),
     form: document.getElementById("lifeInsertForm"),
     product: document.getElementById("lifeInsertProduct"),
     obtainedAt: document.getElementById("lifeInsertObtainedAt"),
@@ -232,6 +243,70 @@ function sortCardsForSearch(cards, query) {
 
     return collectionA.localeCompare(collectionB, "it", { sensitivity: "base" });
   });
+}
+
+function getPackProgress() {
+  const packedCopies = state.userCards.filter(copy => {
+    const packNumber = Number(copy.pack_number);
+    return Number.isInteger(packNumber) && packNumber > 0;
+  });
+
+  if (packedCopies.length === 0) {
+    return { number: 1, count: 0 };
+  }
+
+  const maxPackNumber = Math.max(...packedCopies.map(copy => Number(copy.pack_number)));
+  const currentCount = packedCopies.filter(
+    copy => Number(copy.pack_number) === maxPackNumber
+  ).length;
+
+  if (currentCount >= 10) {
+    return { number: maxPackNumber + 1, count: 0 };
+  }
+
+  return { number: maxPackNumber, count: currentCount };
+}
+
+function renderPackProgress() {
+  const progress = getPackProgress();
+  state.pack.number = progress.number;
+  state.pack.count = progress.count;
+
+  elements.insert.packNumber.textContent = `#${progress.number}`;
+  elements.insert.packCounter.textContent = `Carta ${progress.count + 1} di 10`;
+  elements.insert.packProgress.innerHTML = Array.from({ length: 10 }, (_, index) => {
+    const className = index < progress.count
+      ? "is-done"
+      : index === progress.count
+        ? "is-current"
+        : "";
+    return `<span${className ? ` class="${className}"` : ""}></span>`;
+  }).join("");
+}
+
+function updateInsertSubmitLabel() {
+  elements.insert.submit.textContent = state.insertEntryMode === "pack"
+    ? "Aggiungi al pacchetto"
+    : "Aggiungi alla collezione";
+}
+
+function setInsertEntryMode(mode) {
+  if (mode !== "single" && mode !== "pack") return;
+
+  state.insertEntryMode = mode;
+  const isPack = mode === "pack";
+
+  elements.insert.modeSingle.classList.toggle("is-active", !isPack);
+  elements.insert.modePack.classList.toggle("is-active", isPack);
+  elements.insert.modeSingle.setAttribute("aria-pressed", String(!isPack));
+  elements.insert.modePack.setAttribute("aria-pressed", String(isPack));
+  elements.insert.packStatus.hidden = !isPack;
+
+  if (isPack) {
+    renderPackProgress();
+  }
+
+  updateInsertSubmitLabel();
 }
 
 function copyIsAvailableForSale(copy) {
@@ -589,7 +664,7 @@ async function loadStaticData() {
 async function loadUserCards() {
   const { data, error } = await lifeDb
     .from("life_user_cards")
-    .select("id,card_id,obtained_at,updated_at,notes,sleeved,toploader,sold_at,sold_price,obtained_from_product_id,created_at,deleted_at")
+    .select("id,card_id,obtained_at,updated_at,notes,sleeved,toploader,sold_at,sold_price,obtained_from_product_id,created_at,deleted_at,pack_number")
     .order("obtained_at", { ascending: false });
 
   if (error) throw error;
@@ -613,6 +688,7 @@ async function insertUserCard(event) {
 
   const productId = Number(elements.insert.product.value);
   const obtainedAt = toIsoFromLocal(elements.insert.obtainedAt.value);
+  const packProgress = state.insertEntryMode === "pack" ? getPackProgress() : null;
 
   if (!productId) {
     setMessage(elements.insert.message, "Scegli la provenienza.", "error");
@@ -630,7 +706,8 @@ async function insertUserCard(event) {
     notes: elements.insert.notes.value.trim() || null,
     sleeved: elements.insert.sleeved.checked,
     toploader: elements.insert.toploader.checked,
-    obtained_from_product_id: productId
+    obtained_from_product_id: productId,
+    pack_number: packProgress?.number ?? null
   };
 
   elements.insert.submit.disabled = true;
@@ -642,7 +719,7 @@ async function insertUserCard(event) {
     .insert(payload);
 
   elements.insert.submit.disabled = false;
-  elements.insert.submit.textContent = "Aggiungi alla collezione";
+  updateInsertSubmitLabel();
 
   if (error) {
     console.error("LIFE insert:", error);
@@ -658,6 +735,11 @@ async function insertUserCard(event) {
 
   await refreshUserCards();
 
+  const completedPack = packProgress && packProgress.count === 9;
+  if (state.insertEntryMode === "pack") {
+    renderPackProgress();
+  }
+
   const savedProduct = elements.insert.product.value;
   elements.insert.form.reset();
   elements.insert.product.value = savedProduct;
@@ -665,7 +747,15 @@ async function insertUserCard(event) {
 
   resetSelected("insert");
   elements.insert.search.focus();
-  setGlobalStatus(`${card.name} aggiunta alla collezione.`, "ready");
+
+  if (packProgress) {
+    const packMessage = completedPack
+      ? `${card.name} aggiunta al pacchetto ${packProgress.number}. Pacchetto completato.`
+      : `${card.name} aggiunta al pacchetto ${packProgress.number} · ${packProgress.count + 1}/10.`;
+    setGlobalStatus(packMessage, "ready");
+  } else {
+    setGlobalStatus(`${card.name} aggiunta alla collezione.`, "ready");
+  }
 }
 
 async function sellUserCard(event) {
@@ -844,6 +934,9 @@ function bindEvents() {
     tab.addEventListener("click", () => setMode(tab.dataset.lifeMode));
   });
 
+  elements.insert.modeSingle.addEventListener("click", () => setInsertEntryMode("single"));
+  elements.insert.modePack.addEventListener("click", () => setInsertEntryMode("pack"));
+
   bindAutocomplete("insert");
   bindAutocomplete("sell");
   bindAutocomplete("delete");
@@ -899,6 +992,9 @@ async function initLifeManage() {
     elements.insert.search.disabled = false;
     elements.sell.search.disabled = false;
     elements.delete.search.disabled = false;
+
+    renderPackProgress();
+    setInsertEntryMode("single");
 
     setGlobalStatus(
       `${state.cards.length} carte nel catalogo · ${state.userCards.filter(copyIsAvailableForDelete).length} copie registrate`,

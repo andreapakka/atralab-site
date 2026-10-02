@@ -83,6 +83,39 @@
             </div>
             <p>Aggiungi una nuova copia fisica alla collezione.</p>
           </header>
+
+          <div class="life-insert-mode" aria-label="Modalità inserimento">
+            <div class="life-insert-mode-buttons" role="group" aria-label="Tipo di inserimento">
+              <button
+                id="lifeInsertModeSingle"
+                class="life-insert-mode-button is-active"
+                type="button"
+                aria-pressed="true"
+              >
+                Carta singola
+              </button>
+              <button
+                id="lifeInsertModePack"
+                class="life-insert-mode-button"
+                type="button"
+                aria-pressed="false"
+              >
+                Pacchetto da 10
+              </button>
+            </div>
+
+            <div id="lifePackStatus" class="life-pack-status" hidden>
+              <div class="life-pack-status-main">
+                <div>
+                  <span class="life-pack-label">Pacchetto</span>
+                  <strong id="lifePackNumber">#1</strong>
+                </div>
+                <span id="lifePackCounter" class="life-pack-counter">Carta 1 di 10</span>
+              </div>
+              <div id="lifePackProgress" class="life-pack-progress" aria-hidden="true"></div>
+            </div>
+          </div>
+
           <div class="life-card-block">
             <div class="life-section-heading">
               <span class="life-step">01</span>

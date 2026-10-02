@@ -112,6 +112,102 @@
   text-transform: uppercase;
 }
 
+/* Insert mode: single card or automatic 10-card pack. */
+.life-insert-mode {
+  display: grid;
+  gap: 10px;
+}
+
+.life-insert-mode-buttons {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.life-insert-mode-button {
+  min-height: 42px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  color: var(--muted);
+  background: rgba(0, 0, 0, 0.14);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: color 0.16s ease, border-color 0.16s ease, background 0.16s ease;
+}
+
+.life-insert-mode-button:hover {
+  color: var(--cream);
+  border-color: rgba(231, 111, 81, 0.35);
+}
+
+.life-insert-mode-button.is-active {
+  color: var(--cream);
+  border-color: rgba(231, 111, 81, 0.52);
+  background: rgba(231, 111, 81, 0.11);
+}
+
+.life-pack-status {
+  padding: 12px 14px;
+  border: 1px solid rgba(231, 111, 81, 0.34);
+  border-radius: 12px;
+  background: rgba(231, 111, 81, 0.065);
+}
+
+.life-pack-status-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.life-pack-status-main > div {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+}
+
+.life-pack-label {
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 600;
+}
+
+.life-pack-status strong {
+  color: var(--cream);
+  font-size: 1rem;
+}
+
+.life-pack-counter {
+  color: var(--accent);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.life-pack-progress {
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  gap: 4px;
+  margin-top: 10px;
+}
+
+.life-pack-progress span {
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(244, 241, 234, 0.12);
+}
+
+.life-pack-progress span.is-done {
+  background: var(--accent);
+}
+
+.life-pack-progress span.is-current {
+  background: rgba(231, 111, 81, 0.42);
+  box-shadow: inset 0 0 0 1px rgba(231, 111, 81, 0.55);
+}
+
 .life-card-block,
 .life-form,
 .life-copy-section,
@@ -750,6 +846,16 @@ body.life-lightbox-open {
 
   .life-card-info h2 {
     font-size: 1.35rem;
+  }
+
+  .life-insert-mode-buttons {
+    grid-template-columns: 1fr;
+  }
+
+  .life-pack-status-main {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 4px;
   }
 
   .life-checks {
