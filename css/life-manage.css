@@ -1,0 +1,631 @@
+.life-manage-page .life-manage-content {
+  max-width: 860px;
+}
+
+.life-manage-heading {
+  margin-bottom: 20px;
+}
+
+.life-manage-heading .internal-lead {
+  margin-bottom: 0;
+}
+
+.life-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+  padding: 5px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.life-tab {
+  min-height: 42px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  color: var(--muted);
+  background: transparent;
+  font: inherit;
+  font-size: 0.84rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: color 0.16s ease, border-color 0.16s ease, background 0.16s ease;
+}
+
+.life-tab:hover {
+  color: var(--cream);
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.life-tab.is-active {
+  color: var(--cream);
+  border-color: rgba(231, 111, 81, 0.45);
+  background: rgba(231, 111, 81, 0.11);
+}
+
+.life-global-status {
+  min-height: 20px;
+  margin: 0 0 10px;
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+
+.life-global-status.is-ready {
+  color: rgba(244, 241, 234, 0.52);
+}
+
+.life-global-status.is-error {
+  color: #ff8d83;
+}
+
+.life-panel {
+  display: grid;
+  gap: 12px;
+}
+
+.life-card-block,
+.life-form,
+.life-copy-section,
+.life-delete-action {
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.025));
+  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.035);
+}
+
+.life-section-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 13px;
+}
+
+.life-section-heading h2 {
+  margin: 0;
+  font-size: 1rem;
+  letter-spacing: -0.025em;
+}
+
+.life-section-heading p {
+  margin: 3px 0 0;
+  color: var(--muted);
+  font-size: 0.74rem;
+  line-height: 1.4;
+}
+
+.life-step {
+  flex: 0 0 auto;
+  padding-top: 2px;
+  color: var(--accent);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.life-field {
+  display: grid;
+  gap: 6px;
+}
+
+.life-field > span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.life-field input,
+.life-field select,
+.life-field textarea {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  outline: none;
+  color: var(--cream);
+  background: rgba(0, 0, 0, 0.20);
+  font: inherit;
+  transition: border-color 0.16s ease, background 0.16s ease, box-shadow 0.16s ease;
+}
+
+.life-field input,
+.life-field select {
+  height: 44px;
+  padding: 0 11px;
+}
+
+.life-field textarea {
+  min-height: 86px;
+  padding: 10px 11px;
+  resize: vertical;
+}
+
+.life-field input:focus,
+.life-field select:focus,
+.life-field textarea:focus {
+  border-color: var(--accent);
+  background: rgba(231, 111, 81, 0.055);
+  box-shadow: 0 0 0 3px rgba(231, 111, 81, 0.08);
+}
+
+.life-field input:disabled,
+.life-field select:disabled,
+.life-field textarea:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+
+.life-field select option {
+  color: #111;
+  background: #fff;
+}
+
+.life-autocomplete {
+  position: relative;
+}
+
+.life-autocomplete-results {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 7px);
+  left: 0;
+  right: 0;
+  max-height: min(420px, 60vh);
+  overflow-y: auto;
+  border: 1px solid rgba(244, 241, 234, 0.20);
+  border-radius: 12px;
+  background: #151515;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.42);
+}
+
+.life-result {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 9px 10px;
+  border: 0;
+  border-bottom: 1px solid rgba(244, 241, 234, 0.08);
+  color: var(--cream);
+  background: transparent;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+
+.life-result:last-child {
+  border-bottom: 0;
+}
+
+.life-result:hover,
+.life-result.is-highlighted {
+  background: rgba(231, 111, 81, 0.10);
+}
+
+.life-result-thumb {
+  width: 44px;
+  aspect-ratio: 0.72;
+  object-fit: cover;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.life-result-thumb-fallback {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  aspect-ratio: 0.72;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 0.58rem;
+}
+
+.life-result-main {
+  min-width: 0;
+}
+
+.life-result-name {
+  display: block;
+  overflow: hidden;
+  color: var(--cream);
+  font-size: 0.83rem;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.life-result-sub {
+  display: block;
+  margin-top: 2px;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 0.68rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.life-result-number {
+  align-self: start;
+  padding: 4px 6px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 0.64rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.life-result-empty {
+  padding: 13px;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.life-selected {
+  display: grid;
+  gap: 12px;
+}
+
+.life-selected-card {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  gap: 18px;
+  align-items: center;
+  padding: 16px;
+  border: 1px solid rgba(231, 111, 81, 0.32);
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(231, 111, 81, 0.10), rgba(255, 255, 255, 0.025));
+  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.17), inset 0 1px 0 rgba(255, 255, 255, 0.035);
+}
+
+.life-card-image-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 0.72;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.24);
+}
+
+.life-card-image {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.life-card-image-fallback {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 12px;
+  color: var(--muted);
+  font-size: 0.7rem;
+  text-align: center;
+}
+
+.life-card-info {
+  min-width: 0;
+}
+
+.life-card-collection {
+  margin: 0 0 7px;
+  color: var(--accent);
+  font-size: 0.67rem;
+  font-weight: 700;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+}
+
+.life-card-info h2 {
+  margin: 0;
+  font-size: clamp(1.5rem, 4vw, 2.2rem);
+  line-height: 1;
+  letter-spacing: -0.045em;
+}
+
+.life-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 11px;
+}
+
+.life-card-meta span {
+  padding: 5px 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.025);
+  font-size: 0.69rem;
+  font-weight: 600;
+}
+
+.life-form {
+  display: grid;
+  gap: 12px;
+}
+
+.life-form-secondary {
+  margin-top: 0;
+}
+
+.life-form-heading {
+  margin-bottom: 1px;
+}
+
+.life-form-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.life-form-grid-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.life-checks {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.life-check {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 11px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  color: var(--cream);
+  background: rgba(0, 0, 0, 0.14);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.life-check input {
+  width: 17px;
+  height: 17px;
+  margin: 0;
+  accent-color: var(--accent);
+}
+
+.life-actions,
+.life-delete-action {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.life-delete-action {
+  justify-content: flex-start;
+}
+
+.life-primary-button,
+.life-danger-button {
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: 10px;
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.16s ease, filter 0.16s ease, opacity 0.16s ease;
+}
+
+.life-primary-button {
+  border: 1px solid var(--accent);
+  color: var(--black);
+  background: var(--accent);
+}
+
+.life-danger-button {
+  border: 1px solid rgba(255, 112, 100, 0.65);
+  color: #ffd3cf;
+  background: rgba(180, 48, 39, 0.30);
+}
+
+.life-primary-button:hover,
+.life-danger-button:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.06);
+}
+
+.life-primary-button:disabled,
+.life-danger-button:disabled {
+  opacity: 0.55;
+  cursor: wait;
+  transform: none;
+}
+
+.life-message {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.life-message.is-success {
+  color: #8fe3a8;
+}
+
+.life-message.is-error {
+  color: #ff8d83;
+}
+
+.life-copy-list {
+  display: grid;
+  gap: 8px;
+}
+
+.life-copy-option {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 11px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  color: var(--cream);
+  background: rgba(255, 255, 255, 0.022);
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  transition: border-color 0.16s ease, background 0.16s ease, box-shadow 0.16s ease;
+}
+
+.life-copy-option:hover {
+  border-color: rgba(231, 111, 81, 0.38);
+}
+
+.life-copy-option.is-selected {
+  border-color: var(--accent);
+  background: rgba(231, 111, 81, 0.10);
+  box-shadow: 0 0 0 3px rgba(231, 111, 81, 0.06);
+}
+
+.life-copy-radio {
+  width: 16px;
+  height: 16px;
+  border: 1px solid rgba(244, 241, 234, 0.36);
+  border-radius: 50%;
+  background: transparent;
+  box-shadow: inset 0 0 0 3px transparent;
+}
+
+.life-copy-option.is-selected .life-copy-radio {
+  border-color: var(--accent);
+  background: var(--accent);
+  box-shadow: inset 0 0 0 3px #151515;
+}
+
+.life-copy-main {
+  min-width: 0;
+}
+
+.life-copy-title {
+  display: block;
+  color: var(--cream);
+  font-size: 0.77rem;
+  font-weight: 700;
+}
+
+.life-copy-sub {
+  display: block;
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 0.67rem;
+  line-height: 1.4;
+}
+
+.life-copy-badges {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 5px;
+}
+
+.life-copy-badge {
+  padding: 4px 6px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 0.60rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.life-copy-badge.is-sold {
+  color: #ffd0a6;
+  border-color: rgba(255, 181, 106, 0.40);
+  background: rgba(255, 181, 106, 0.08);
+}
+
+.life-copy-empty {
+  padding: 10px 0 2px;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+@media (max-width: 720px) {
+  .life-selected-card {
+    grid-template-columns: 112px minmax(0, 1fr);
+    gap: 14px;
+  }
+
+  .life-form-grid-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .life-copy-option {
+    grid-template-columns: 20px minmax(0, 1fr);
+  }
+
+  .life-copy-badges {
+    grid-column: 2;
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 500px) {
+  .life-tabs {
+    gap: 5px;
+  }
+
+  .life-tab {
+    min-height: 40px;
+    padding: 0 6px;
+    font-size: 0.78rem;
+  }
+
+  .life-card-block,
+  .life-form,
+  .life-copy-section,
+  .life-delete-action,
+  .life-selected-card {
+    padding: 13px;
+  }
+
+  .life-selected-card {
+    grid-template-columns: 92px minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .life-card-info h2 {
+    font-size: 1.35rem;
+  }
+
+  .life-checks {
+    grid-template-columns: 1fr;
+  }
+
+  .life-actions,
+  .life-delete-action {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .life-primary-button,
+  .life-danger-button {
+    width: 100%;
+  }
+
+  .life-result {
+    grid-template-columns: 38px minmax(0, 1fr) auto;
+    gap: 8px;
+  }
+
+  .life-result-thumb,
+  .life-result-thumb-fallback {
+    width: 38px;
+  }
+}

@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+
+  <title>LIFE — Gestione collezione | ATRALAB</title>
+  <meta
+    name="description"
+    content="Gestione privata della collezione LIFE TCG: inserimento, vendita e cancellazione logica delle copie."
+  >
+
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/internal.css">
+  <link rel="stylesheet" href="/css/life-manage.css">
+
+  <script src="/js/include.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="/js/life-manage.js" defer></script>
+</head>
+
+<body class="life-manage-page">
+  <div data-include="/components/header.html"></div>
+
+  <main class="container internal-shell">
+    <div class="internal-layout">
+      <aside class="internal-sidebar">
+        <div data-include="/components/sidebar.html"></div>
+      </aside>
+
+      <section class="internal-content life-manage-content">
+        <header class="life-manage-heading">
+          <p class="internal-kicker">LIFE TCG</p>
+          <h1>Gestione collezione</h1>
+          <p class="internal-lead">
+            Inserisci una nuova copia, registra una vendita oppure elimina logicamente una copia inserita per errore.
+          </p>
+        </header>
+
+        <nav class="life-tabs" aria-label="Operazioni sulla collezione" role="tablist">
+          <button
+            class="life-tab is-active"
+            type="button"
+            role="tab"
+            aria-selected="true"
+            aria-controls="lifePanelInsert"
+            data-life-mode="insert"
+          >
+            Inserisci
+          </button>
+          <button
+            class="life-tab"
+            type="button"
+            role="tab"
+            aria-selected="false"
+            aria-controls="lifePanelSell"
+            data-life-mode="sell"
+          >
+            Vendi
+          </button>
+          <button
+            class="life-tab"
+            type="button"
+            role="tab"
+            aria-selected="false"
+            aria-controls="lifePanelDelete"
+            data-life-mode="delete"
+          >
+            Elimina
+          </button>
+        </nav>
+
+        <p id="lifeGlobalStatus" class="life-global-status" role="status" aria-live="polite">
+          Caricamento catalogo…
+        </p>
+
+        <section id="lifePanelInsert" class="life-panel" data-life-panel="insert" role="tabpanel">
+          <div class="life-card-block">
+            <div class="life-section-heading">
+              <span class="life-step">01</span>
+              <div>
+                <h2>Cerca la carta</h2>
+                <p>Scrivi il nome oppure il numero della carta.</p>
+              </div>
+            </div>
+
+            <div class="life-autocomplete" data-autocomplete="insert">
+              <label class="life-field" for="lifeInsertSearch">
+                <span>Nome o numero</span>
+                <input
+                  id="lifeInsertSearch"
+                  type="search"
+                  autocomplete="off"
+                  spellcheck="false"
+                  placeholder="Es. Giant Panda, 118/100, P3"
+                  disabled
+                >
+              </label>
+              <div
+                id="lifeInsertResults"
+                class="life-autocomplete-results"
+                role="listbox"
+                hidden
+              ></div>
+            </div>
+          </div>
+
+          <div id="lifeInsertSelected" class="life-selected" hidden>
+            <article class="life-selected-card" aria-label="Carta selezionata">
+              <div class="life-card-image-wrap">
+                <img id="lifeInsertImage" class="life-card-image" alt="">
+                <div id="lifeInsertImageFallback" class="life-card-image-fallback" hidden>Immagine non disponibile</div>
+              </div>
+
+              <div class="life-card-info">
+                <p id="lifeInsertCollection" class="life-card-collection"></p>
+                <h2 id="lifeInsertName"></h2>
+                <div class="life-card-meta">
+                  <span id="lifeInsertNumber"></span>
+                  <span id="lifeInsertType"></span>
+                </div>
+              </div>
+            </article>
+
+            <form id="lifeInsertForm" class="life-form" novalidate>
+              <div class="life-section-heading life-form-heading">
+                <span class="life-step">02</span>
+                <div>
+                  <h2>Dati della copia</h2>
+                  <p>Questi dati appartengono alla copia fisica che stai inserendo.</p>
+                </div>
+              </div>
+
+              <div class="life-form-grid life-form-grid-2">
+                <label class="life-field" for="lifeInsertProduct">
+                  <span>Provenienza</span>
+                  <select id="lifeInsertProduct" required>
+                    <option value="">Caricamento…</option>
+                  </select>
+                </label>
+
+                <label class="life-field" for="lifeInsertObtainedAt">
+                  <span>Data ottenimento</span>
+                  <input id="lifeInsertObtainedAt" type="datetime-local" required>
+                </label>
+              </div>
+
+              <div class="life-checks" aria-label="Protezione carta">
+                <label class="life-check">
+                  <input id="lifeInsertSleeved" type="checkbox">
+                  <span>Sleeved</span>
+                </label>
+                <label class="life-check">
+                  <input id="lifeInsertToploader" type="checkbox">
+                  <span>Toploader</span>
+                </label>
+              </div>
+
+              <label class="life-field" for="lifeInsertNotes">
+                <span>Note</span>
+                <textarea id="lifeInsertNotes" rows="3" placeholder="Facoltative"></textarea>
+              </label>
+
+              <div class="life-actions">
+                <button id="lifeInsertSubmit" class="life-primary-button" type="submit">
+                  Aggiungi alla collezione
+                </button>
+                <p id="lifeInsertMessage" class="life-message" role="status" aria-live="polite"></p>
+              </div>
+            </form>
+          </div>
+        </section>
+
+        <section id="lifePanelSell" class="life-panel" data-life-panel="sell" role="tabpanel" hidden>
+          <div class="life-card-block">
+            <div class="life-section-heading">
+              <span class="life-step">01</span>
+              <div>
+                <h2>Cerca una carta posseduta</h2>
+                <p>La ricerca mostra soltanto copie non vendute e non eliminate.</p>
+              </div>
+            </div>
+
+            <div class="life-autocomplete" data-autocomplete="sell">
+              <label class="life-field" for="lifeSellSearch">
+                <span>Nome o numero</span>
+                <input
+                  id="lifeSellSearch"
+                  type="search"
+                  autocomplete="off"
+                  spellcheck="false"
+                  placeholder="Es. Narwhal, 54/100, P1"
+                  disabled
+                >
+              </label>
+              <div
+                id="lifeSellResults"
+                class="life-autocomplete-results"
+                role="listbox"
+                hidden
+              ></div>
+            </div>
+          </div>
+
+          <div id="lifeSellSelected" class="life-selected" hidden>
+            <article class="life-selected-card" aria-label="Carta selezionata">
+              <div class="life-card-image-wrap">
+                <img id="lifeSellImage" class="life-card-image" alt="">
+                <div id="lifeSellImageFallback" class="life-card-image-fallback" hidden>Immagine non disponibile</div>
+              </div>
+
+              <div class="life-card-info">
+                <p id="lifeSellCollection" class="life-card-collection"></p>
+                <h2 id="lifeSellName"></h2>
+                <div class="life-card-meta">
+                  <span id="lifeSellNumber"></span>
+                  <span id="lifeSellType"></span>
+                </div>
+              </div>
+            </article>
+
+            <div class="life-copy-section">
+              <div class="life-section-heading">
+                <span class="life-step">02</span>
+                <div>
+                  <h2>Scegli la copia</h2>
+                  <p>Se hai più copie uguali, scegli quella che hai venduto.</p>
+                </div>
+              </div>
+              <div id="lifeSellCopies" class="life-copy-list"></div>
+            </div>
+
+            <form id="lifeSellForm" class="life-form life-form-secondary" novalidate hidden>
+              <div class="life-section-heading life-form-heading">
+                <span class="life-step">03</span>
+                <div>
+                  <h2>Dati vendita</h2>
+                  <p>Registra data e prezzo della vendita.</p>
+                </div>
+              </div>
+
+              <div class="life-form-grid life-form-grid-2">
+                <label class="life-field" for="lifeSellAt">
+                  <span>Data vendita</span>
+                  <input id="lifeSellAt" type="datetime-local" required>
+                </label>
+
+                <label class="life-field" for="lifeSellPrice">
+                  <span>Prezzo vendita (€)</span>
+                  <input
+                    id="lifeSellPrice"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    inputmode="decimal"
+                    placeholder="0,00"
+                    required
+                  >
+                </label>
+              </div>
+
+              <div class="life-actions">
+                <button id="lifeSellSubmit" class="life-primary-button" type="submit">
+                  Registra vendita
+                </button>
+                <p id="lifeSellMessage" class="life-message" role="status" aria-live="polite"></p>
+              </div>
+            </form>
+          </div>
+        </section>
+
+        <section id="lifePanelDelete" class="life-panel" data-life-panel="delete" role="tabpanel" hidden>
+          <div class="life-card-block">
+            <div class="life-section-heading">
+              <span class="life-step">01</span>
+              <div>
+                <h2>Cerca la carta</h2>
+                <p>Puoi eliminare logicamente qualsiasi copia non già eliminata.</p>
+              </div>
+            </div>
+
+            <div class="life-autocomplete" data-autocomplete="delete">
+              <label class="life-field" for="lifeDeleteSearch">
+                <span>Nome o numero</span>
+                <input
+                  id="lifeDeleteSearch"
+                  type="search"
+                  autocomplete="off"
+                  spellcheck="false"
+                  placeholder="Es. Cheetah, 33/100, P1"
+                  disabled
+                >
+              </label>
+              <div
+                id="lifeDeleteResults"
+                class="life-autocomplete-results"
+                role="listbox"
+                hidden
+              ></div>
+            </div>
+          </div>
+
+          <div id="lifeDeleteSelected" class="life-selected" hidden>
+            <article class="life-selected-card" aria-label="Carta selezionata">
+              <div class="life-card-image-wrap">
+                <img id="lifeDeleteImage" class="life-card-image" alt="">
+                <div id="lifeDeleteImageFallback" class="life-card-image-fallback" hidden>Immagine non disponibile</div>
+              </div>
+
+              <div class="life-card-info">
+                <p id="lifeDeleteCollection" class="life-card-collection"></p>
+                <h2 id="lifeDeleteName"></h2>
+                <div class="life-card-meta">
+                  <span id="lifeDeleteNumber"></span>
+                  <span id="lifeDeleteType"></span>
+                </div>
+              </div>
+            </article>
+
+            <div class="life-copy-section">
+              <div class="life-section-heading">
+                <span class="life-step">02</span>
+                <div>
+                  <h2>Scegli la copia</h2>
+                  <p>La riga resterà nel database con una cancellazione logica.</p>
+                </div>
+              </div>
+              <div id="lifeDeleteCopies" class="life-copy-list"></div>
+            </div>
+
+            <div id="lifeDeleteAction" class="life-delete-action" hidden>
+              <button id="lifeDeleteSubmit" class="life-danger-button" type="button">
+                Elimina copia
+              </button>
+              <p id="lifeDeleteMessage" class="life-message" role="status" aria-live="polite"></p>
+            </div>
+          </div>
+        </section>
+      </section>
+    </div>
+  </main>
+
+  <div data-include="/components/footer.html"></div>
+</body>
+</html>
