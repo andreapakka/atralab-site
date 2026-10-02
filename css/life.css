@@ -441,8 +441,14 @@
 
 .life-card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 12px;
+}
+
+@media (max-width: 980px) {
+  .life-card-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 }
 
 .life-card {
