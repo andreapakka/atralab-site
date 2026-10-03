@@ -4,8 +4,8 @@
    Per rendere pubblica una pagina, aggiungerla qui.
 -------------------------------------------------- */
 
-const ATRALAB_AUTH_URL = "https://ukoaefhtvhqqdchjnzby.supabase.co";
-const ATRALAB_AUTH_KEY = "sb_publishable_hUhoYFMepUOJlJiy6RfBcg_LHf_V6cU";
+const ATRALAB_AUTH_URL = "https://pcpsbrnhfhzkjlnstgfr.supabase.co";
+const ATRALAB_AUTH_KEY = "sb_publishable_IRKqtPwpSGWd-YbnyvXqsg_DFKZSotn";
 const ATRALAB_AUTH_STORAGE_KEY = "atralab-auth";
 const ATRALAB_RETURN_URL_KEY = "atralab-return-url";
 
