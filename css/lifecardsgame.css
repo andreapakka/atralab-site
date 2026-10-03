@@ -13,8 +13,8 @@
   --life-orange: #e76f51;
   --life-red: #e05252;
   --life-green: #71a77a;
-  --life-card-width: 250px;
-  --life-card-crop-height: 174px;
+  --life-card-width: 200px;
+  --life-card-crop-height: 139px;
 }
 
 .life-game-layout {
@@ -464,8 +464,8 @@ body.life-modal-open {
   }
 
   :root {
-    --life-card-width: 250px;
-    --life-card-crop-height: 174px;
+    --life-card-width: 200px;
+    --life-card-crop-height: 139px;
   }
 
   .life-game-main {
