@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>LIFE Cards Game · ATRALAB</title>
+
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/internal.css">
+  <link rel="stylesheet" href="/css/lifecardsgame.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="/js/include.js" defer></script>
+  <script src="/js/lifecardsgame.js" defer></script>
+</head>
+
+<body>
+  <div data-include="/components/header.html"></div>
+
+  <div class="life-game-layout">
+    <aside data-include="/components/sidebar.html"></aside>
+
+    <main class="life-game-main">
+      <section class="life-game-hero">
+        <p class="life-game-eyebrow">LIFE TCG · GAME</p>
+        <h1>LIFE Cards Game</h1>
+        <p class="life-game-intro">
+          Indovina la carta usando soltanto i dati stampati. Scegli un livello per iniziare un nuovo round.
+        </p>
+      </section>
+
+      <section class="life-game-panel" aria-labelledby="life-game-level-title">
+        <div class="life-game-panel-head">
+          <div>
+            <p class="life-game-kicker">DIFFICOLTÀ</p>
+            <h2 id="life-game-level-title">Scegli il livello</h2>
+          </div>
+          <p id="life-game-round-status" class="life-game-round-status" aria-live="polite"></p>
+        </div>
+
+        <div id="life-game-levels" class="life-game-levels" aria-label="Livelli di difficoltà">
+          <button type="button" class="life-level-button" data-level="1">
+            <strong>Livello 1</strong>
+            <span>2 carte · 4 dati</span>
+          </button>
+
+          <button type="button" class="life-level-button" data-level="2">
+            <strong>Livello 2</strong>
+            <span>4 carte · 3 dati</span>
+          </button>
+
+          <button type="button" class="life-level-button" data-level="3">
+            <strong>Livello 3</strong>
+            <span>6 carte · 2 dati</span>
+          </button>
+
+          <button type="button" class="life-level-button" data-level="4">
+            <strong>Livello 4</strong>
+            <span>10 carte · 2 dati</span>
+          </button>
+        </div>
+      </section>
+
+      <section id="life-game-round" class="life-game-round" aria-live="polite">
+        <div id="life-game-empty" class="life-game-empty">
+          <span class="life-game-empty-mark">?</span>
+          <p>Scegli un livello per iniziare.</p>
+        </div>
+
+        <div id="life-game-content" class="life-game-content" hidden>
+          <div class="life-clues-wrap">
+            <p class="life-game-kicker">INDIZI</p>
+            <div id="life-game-clues" class="life-clues"></div>
+          </div>
+
+          <div class="life-cards-wrap">
+            <p class="life-game-kicker">QUALE CARTA È?</p>
+            <div id="life-game-cards" class="life-cards-grid"></div>
+          </div>
+        </div>
+
+        <div id="life-game-error" class="life-game-error" role="alert" hidden></div>
+      </section>
+    </main>
+  </div>
+
+  <div data-include="/components/footer.html"></div>
+
+  <div id="life-win-modal" class="life-win-modal" hidden>
+    <div class="life-win-backdrop" data-close-modal></div>
+
+    <section class="life-win-dialog" role="dialog" aria-modal="true" aria-labelledby="life-win-title">
+      <div class="life-win-copy">
+        <p class="life-game-kicker">RISPOSTA ESATTA</p>
+        <h2 id="life-win-title">Complimenti!</h2>
+        <p id="life-win-name" class="life-win-name"></p>
+        <p id="life-win-score" class="life-win-score"></p>
+      </div>
+
+      <div id="life-win-card" class="life-win-card" aria-hidden="true"></div>
+
+      <button type="button" id="life-win-close" class="life-win-close">Chiudi</button>
+    </section>
+  </div>
+</body>
+</html>
