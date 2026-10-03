@@ -1,6 +1,7 @@
 (() => {
-  const SUPABASE_URL = "https://ukoaefhtvhqqdchjnzby.supabase.co";
-  const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_hUhoYFMepUOJlJiy6RfBcg_LHf_V6cU";
+  const SUPABASE_URL = "https://pcpsbrnhfhzkjlnstgfr.supabase.co";  
+  
+  const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_IRKqtPwpSGWd-YbnyvXqsg_DFKZSotn";
   const AI_FUNCTION_NAME = "openai-proxy";
   const RESULT_FUNCTION_NAME = "mystery-phrase-result";
 
