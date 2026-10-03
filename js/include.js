@@ -22,7 +22,9 @@ const ATRALAB_PUBLIC_PATHS = [
   "/selfcall/",
   "/selfcall/index.html",
   "/callme/",
-  "/callme/index.html"   
+  "/callme/index.html",   
+  "/auth-otp-test/",
+  "/auth-otp-test/index.html" 
 ];
 
 function normalizeAtralabPath(pathname) {
