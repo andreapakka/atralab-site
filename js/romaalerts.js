@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const API_URL = "https://ukoaefhtvhqqdchjnzby.supabase.co/functions/v1/roma-alerts";
+  const API_URL = "https://pcpsbrnhfhzkjlnstgfr.supabase.co/functions/v1/roma-alerts";
   const ALERT_CACHE_KEY = "atralab-romaalerts-last-v1";
   const GEOCODE_CACHE_KEY = "atralab-romaalerts-geocode-v1";
   const ALERT_CACHE_MAX_AGE = 24 * 60 * 60 * 1000;
