@@ -1,8 +1,9 @@
 (() => {
   "use strict";
 
-  const AUTH_URL = "https://ukoaefhtvhqqdchjnzby.supabase.co";
-  const AUTH_KEY = "sb_publishable_hUhoYFMepUOJlJiy6RfBcg_LHf_V6cU";
+  const AUTH_URL = "https://pcpsbrnhfhzkjlnstgfr.supabase.co";
+  
+  const AUTH_KEY = "sb_publishable_IRKqtPwpSGWd-YbnyvXqsg_DFKZSotn";
   const AUTH_STORAGE_KEY = "atralab-auth";
   const RETURN_URL_KEY = "atralab-return-url";
 
