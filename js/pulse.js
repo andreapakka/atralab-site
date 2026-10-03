@@ -10,10 +10,10 @@
 */
 
 const SUPABASE_URL =
-  "https://ukoaefhtvhqqdchjnzby.supabase.co";
+  "https://pcpsbrnhfhzkjlnstgfr.supabase.co";
 
 const SUPABASE_PUBLISHABLE_KEY =
-  "sb_publishable_hUhoYFMepUOJlJiy6RfBcg_LHf_V6cU";
+  "sb_publishable_IRKqtPwpSGWd-YbnyvXqsg_DFKZSotn";
 
 const PULSE_FEED_URL =
   `${SUPABASE_URL}/functions/v1/pulse-feed`;
