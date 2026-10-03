@@ -241,11 +241,11 @@
   }
 
   function renderRound() {
-    const empty = document.getElementById("life-game-empty");
+    const round = document.getElementById("life-game-round");
     const content = document.getElementById("life-game-content");
     const errorBox = document.getElementById("life-game-error");
 
-    if (empty) empty.hidden = true;
+    if (round) round.hidden = false;
     if (content) content.hidden = false;
     if (errorBox) errorBox.hidden = true;
 
@@ -385,11 +385,11 @@
   }
 
   function showFatalError(message) {
-    const empty = document.getElementById("life-game-empty");
+    const round = document.getElementById("life-game-round");
     const content = document.getElementById("life-game-content");
     const errorBox = document.getElementById("life-game-error");
 
-    if (empty) empty.hidden = true;
+    if (round) round.hidden = false;
     if (content) content.hidden = true;
 
     if (errorBox) {

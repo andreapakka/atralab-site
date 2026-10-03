@@ -1,3 +1,7 @@
+[hidden] {
+  display: none !important;
+}
+
 :root {
   --life-bg: #0e0e0e;
   --life-panel: #151515;
@@ -22,7 +26,7 @@
 
 .life-game-main {
   min-width: 0;
-  padding: 42px clamp(18px, 4vw, 64px) 72px;
+  padding: 24px clamp(18px, 3vw, 48px) 52px;
   color: var(--life-cream);
   background:
     linear-gradient(rgba(231, 111, 81, 0.035) 1px, transparent 1px),
@@ -40,7 +44,7 @@
 }
 
 .life-game-hero {
-  margin-bottom: 28px;
+  margin-bottom: 12px;
 }
 
 .life-game-eyebrow,
@@ -56,17 +60,17 @@
 .life-game-hero h1 {
   margin: 0;
   max-width: 900px;
-  font-size: clamp(2.5rem, 6vw, 5.25rem);
+  font-size: clamp(2.25rem, 4.5vw, 4.2rem);
   line-height: 0.98;
   letter-spacing: -0.045em;
 }
 
 .life-game-intro {
   max-width: 760px;
-  margin: 18px 0 0;
+  margin: 10px 0 0;
   color: var(--life-muted);
   font-size: clamp(1rem, 1.7vw, 1.15rem);
-  line-height: 1.6;
+  line-height: 1.45;
 }
 
 .life-game-panel,
@@ -76,8 +80,8 @@
 }
 
 .life-game-panel {
-  padding: clamp(18px, 2.8vw, 28px);
-  margin-bottom: 20px;
+  padding: 16px 18px;
+  margin-bottom: 12px;
 }
 
 .life-game-panel-head {
@@ -107,8 +111,8 @@
 }
 
 .life-level-button {
-  min-height: 72px;
-  padding: 12px 14px;
+  min-height: 58px;
+  padding: 9px 12px;
   border: 1px solid var(--life-line-strong);
   border-radius: 0;
   background: #111;
@@ -157,37 +161,13 @@
 }
 
 .life-game-round {
-  min-height: 360px;
-  padding: clamp(20px, 3vw, 34px);
-}
-
-.life-game-empty {
-  min-height: 290px;
-  display: grid;
-  place-items: center;
-  align-content: center;
-  gap: 12px;
-  color: var(--life-muted);
-  text-align: center;
-}
-
-.life-game-empty-mark {
-  display: grid;
-  place-items: center;
-  width: 68px;
-  height: 68px;
-  border: 1px solid var(--life-line-strong);
-  color: var(--life-orange);
-  font-size: 2rem;
-}
-
-.life-game-empty p {
-  margin: 0;
+  min-height: 0;
+  padding: 18px;
 }
 
 .life-game-content {
   display: grid;
-  gap: 34px;
+  gap: 22px;
 }
 
 .life-clues-wrap {
@@ -195,8 +175,10 @@
 }
 
 .life-clues {
-  width: min(640px, 100%);
+  width: min(760px, 100%);
   margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   border: 1px solid var(--life-line);
   background: #101010;
 }
@@ -205,13 +187,18 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  gap: 24px;
-  min-height: 56px;
-  padding: 10px 18px;
+  gap: 16px;
+  min-height: 48px;
+  padding: 8px 14px;
+  border-right: 1px solid var(--life-line);
   border-bottom: 1px solid var(--life-line);
 }
 
-.life-clue-row:last-child {
+.life-clue-row:nth-child(2n) {
+  border-right: 0;
+}
+
+.life-clue-row:nth-last-child(-n + 2) {
   border-bottom: 0;
 }
 
@@ -239,7 +226,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(var(--life-card-width), var(--life-card-width)));
   justify-content: center;
-  gap: 18px;
+  gap: 14px;
 }
 
 .life-game-card {
@@ -418,12 +405,6 @@ body.life-modal-open {
   overflow: hidden;
 }
 
-@media (max-width: 1100px) {
-  .life-game-levels {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
 @media (max-width: 900px) {
   .life-game-layout {
     display: block;
@@ -443,6 +424,27 @@ body.life-modal-open {
   }
 }
 
+@media (max-width: 760px) {
+  .life-game-levels {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .life-clues {
+    grid-template-columns: 1fr;
+  }
+
+  .life-clue-row,
+  .life-clue-row:nth-child(2n),
+  .life-clue-row:nth-last-child(-n + 2) {
+    border-right: 0;
+    border-bottom: 1px solid var(--life-line);
+  }
+
+  .life-clue-row:last-child {
+    border-bottom: 0;
+  }
+}
+
 @media (max-width: 620px) {
   :root {
     --life-card-width: 250px;
@@ -452,10 +454,6 @@ body.life-modal-open {
   .life-game-main {
     padding-inline: 14px;
     padding-bottom: 48px;
-  }
-
-  .life-game-levels {
-    grid-template-columns: 1fr 1fr;
   }
 
   .life-level-button {
