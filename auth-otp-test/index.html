@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Test accesso OTP | ATRALAB</title>
+
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/internal.css">
+  <link rel="stylesheet" href="/css/auth-otp-test.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="/js/include.js" defer></script>
+  <script src="/js/auth-otp-test.js" defer></script>
+</head>
+<body>
+  <div data-include="/components/header.html"></div>
+
+  <main class="otp-main">
+    <section class="otp-card" aria-labelledby="otpTitle">
+      <p class="otp-eyebrow">Area riservata · Test</p>
+      <h1 id="otpTitle">Accesso con codice</h1>
+      <p class="otp-intro">Inserisci la tua email. Ti invieremo un codice temporaneo di 6 cifre.</p>
+
+      <form id="otpEmailForm" class="otp-form" novalidate>
+        <label class="otp-field" for="otpEmail">
+          <span>Email</span>
+          <input
+            id="otpEmail"
+            name="email"
+            type="email"
+            inputmode="email"
+            autocomplete="email"
+            autocapitalize="none"
+            spellcheck="false"
+            required
+          >
+        </label>
+
+        <button id="otpSendButton" class="otp-submit" type="submit">Invia codice</button>
+      </form>
+
+      <section id="otpVerifySection" class="otp-verify" hidden aria-labelledby="otpCodeLabel">
+        <p id="otpCodeLabel" class="otp-code-label">Codice ricevuto</p>
+
+        <div id="otpCodeInputs" class="otp-code" role="group" aria-label="Codice OTP a 6 cifre">
+          <input class="otp-digit" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="1" aria-label="Cifra 1">
+          <input class="otp-digit" type="text" inputmode="numeric" maxlength="1" aria-label="Cifra 2">
+          <input class="otp-digit" type="text" inputmode="numeric" maxlength="1" aria-label="Cifra 3">
+          <input class="otp-digit" type="text" inputmode="numeric" maxlength="1" aria-label="Cifra 4">
+          <input class="otp-digit" type="text" inputmode="numeric" maxlength="1" aria-label="Cifra 5">
+          <input class="otp-digit" type="text" inputmode="numeric" maxlength="1" aria-label="Cifra 6">
+        </div>
+
+        <button id="otpVerifyButton" class="otp-submit" type="button">Accedi</button>
+        <button id="otpChangeEmailButton" class="otp-secondary" type="button">Cambia email</button>
+      </section>
+
+      <p id="otpMessage" class="otp-message" data-otp-message role="status" aria-live="polite"></p>
+
+      <p class="otp-account-info">
+        Problemi con l’accesso?
+        <a href="/contatti/">Contattaci</a>.
+      </p>
+    </section>
+  </main>
+
+  <div data-include="/components/footer.html"></div>
+</body>
+</html>

@@ -1,0 +1,183 @@
+.otp-main {
+  min-height: calc(100vh - 180px);
+  display: grid;
+  place-items: center;
+  padding: 48px 20px 72px;
+}
+
+.otp-card {
+  width: min(100%, 520px);
+  padding: 34px;
+  border: 1px solid rgba(244, 241, 234, 0.18);
+  border-radius: 18px;
+  background: rgba(244, 241, 234, 0.04);
+}
+
+.otp-eyebrow {
+  margin: 0 0 8px;
+  color: #E76F51;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.otp-card h1 {
+  margin: 0;
+}
+
+.otp-intro {
+  margin: 12px 0 28px;
+  opacity: 0.78;
+}
+
+.otp-form,
+.otp-verify {
+  display: grid;
+  gap: 18px;
+}
+
+.otp-field {
+  display: grid;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.otp-field input {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 54px;
+  padding: 13px 14px;
+  border: 1px solid rgba(244, 241, 234, 0.25);
+  border-radius: 10px;
+  background: #0E0E0E;
+  color: #F4F1EA;
+  font: inherit;
+  outline: none;
+}
+
+.otp-field input:focus,
+.otp-digit:focus {
+  border-color: #E76F51;
+}
+
+.otp-submit,
+.otp-secondary {
+  min-height: 50px;
+  border-radius: 10px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.otp-submit {
+  border: 0;
+  background: #E76F51;
+  color: #0E0E0E;
+}
+
+.otp-secondary {
+  border: 1px solid rgba(244, 241, 234, 0.24);
+  background: transparent;
+  color: #F4F1EA;
+}
+
+.otp-submit:disabled,
+.otp-secondary:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.otp-verify {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(244, 241, 234, 0.12);
+}
+
+.otp-code-label {
+  margin: 0;
+  font-weight: 600;
+}
+
+.otp-code {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.otp-digit {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  min-width: 0;
+  box-sizing: border-box;
+  border: 1px solid rgba(244, 241, 234, 0.25);
+  border-radius: 10px;
+  background: #0E0E0E;
+  color: #F4F1EA;
+  font: inherit;
+  font-size: 1.45rem;
+  font-weight: 700;
+  text-align: center;
+  outline: none;
+}
+
+.otp-message {
+  min-height: 1.4em;
+  margin: 18px 0 0;
+  font-size: 0.92rem;
+}
+
+.otp-message:not(:empty) {
+  padding: 10px 12px;
+  border: 1px solid rgba(231, 111, 81, 0.45);
+  border-radius: 8px;
+  background: rgba(231, 111, 81, 0.08);
+}
+
+.otp-message.is-error {
+  color: #ff9d8b;
+}
+
+.otp-message.is-success {
+  border-color: rgba(117, 190, 134, 0.45);
+  background: rgba(117, 190, 134, 0.08);
+  color: #b9e8c4;
+}
+
+.otp-account-info {
+  margin: 20px 0 0;
+  text-align: center;
+  font-size: 0.88rem;
+  font-weight: 400;
+  opacity: 0.78;
+}
+
+.otp-account-info a {
+  color: #E76F51;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.otp-account-info a:hover,
+.otp-account-info a:focus-visible {
+  text-decoration: underline;
+}
+
+@media (max-width: 600px) {
+  .otp-main {
+    padding: 30px 16px 56px;
+  }
+
+  .otp-card {
+    padding: 26px 20px;
+  }
+
+  .otp-code {
+    gap: 7px;
+  }
+
+  .otp-digit {
+    border-radius: 8px;
+    font-size: 1.2rem;
+  }
+}
