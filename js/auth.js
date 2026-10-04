@@ -74,6 +74,55 @@
     return value.trim();
   }
 
+  async function redirectIfAlreadyAuthenticated() {
+    try {
+      if (supabaseClient) {
+        const {
+          data: { session },
+          error,
+        } = await supabaseClient.auth.getSession();
+
+        if (!error && session?.access_token) {
+          window.location.replace("/");
+          return true;
+        }
+      }
+
+      const legacyToken = localStorage.getItem(AUTH_STORAGE_KEY);
+
+      if (legacyToken) {
+        const response = await fetch(
+          `${AUTH_URL}/rest/v1/rpc/check_atralab_token`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "apikey": AUTH_KEY,
+            },
+            body: JSON.stringify({
+              p_token: legacyToken,
+            }),
+          }
+        );
+
+        if (response.ok) {
+          const isValid = await response.json();
+
+          if (isValid === true) {
+            window.location.replace("/");
+            return true;
+          }
+        }
+
+        localStorage.removeItem(AUTH_STORAGE_KEY);
+      }
+    } catch (error) {
+      console.warn("ATRALAB auth status check:", error);
+    }
+
+    return false;
+  }
+
   usernameInput?.addEventListener("input", normalizeUsername);
 
   legacyToggle?.addEventListener("click", () => {
@@ -290,7 +339,12 @@
 
   if (window.supabase?.createClient) {
     supabaseClient = window.supabase.createClient(AUTH_URL, AUTH_KEY);
-    initTurnstile();
+
+    redirectIfAlreadyAuthenticated().then((redirected) => {
+      if (!redirected) {
+        initTurnstile();
+      }
+    });
   } else {
     setOtpMessage("Accesso con codice non disponibile. Puoi usare username e password.");
     if (legacyLogin) legacyLogin.hidden = false;
