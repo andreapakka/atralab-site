@@ -1,13 +1,15 @@
 /* --------------------------------------------------
    ATRALAB - Accesso pagine protette
    Le pagine NON presenti in ATRALAB_PUBLIC_PATHS sono protette.
-   Per rendere pubblica una pagina, aggiungerla qui.
+   Durante la transizione sono validi sia Supabase Auth OTP
+   sia il vecchio token username/password.
 -------------------------------------------------- */
 
 const ATRALAB_AUTH_URL = "https://pcpsbrnhfhzkjlnstgfr.supabase.co";
 const ATRALAB_AUTH_KEY = "sb_publishable_IRKqtPwpSGWd-YbnyvXqsg_DFKZSotn";
 const ATRALAB_AUTH_STORAGE_KEY = "atralab-auth";
 const ATRALAB_RETURN_URL_KEY = "atralab-return-url";
+const ATRALAB_SUPABASE_SESSION_KEY = "sb-pcpsbrnhfhzkjlnstgfr-auth-token";
 
 /* PAGINE PUBBLICHE ATRALAB - MODIFICARE QUI */
 const ATRALAB_PUBLIC_PATHS = [
@@ -22,9 +24,9 @@ const ATRALAB_PUBLIC_PATHS = [
   "/selfcall/",
   "/selfcall/index.html",
   "/callme/",
-  "/callme/index.html",   
+  "/callme/index.html",
   "/auth-otp-test/",
-  "/auth-otp-test/index.html" 
+  "/auth-otp-test/index.html"
 ];
 
 function normalizeAtralabPath(pathname) {
@@ -38,6 +40,104 @@ function isAtralabPublicPage() {
     normalizeAtralabPath(window.location.pathname)
   );
 }
+
+/* ---------- Supabase Auth OTP ---------- */
+
+function getAtralabSupabaseSession() {
+  try {
+    const raw = localStorage.getItem(ATRALAB_SUPABASE_SESSION_KEY);
+    if (!raw) return null;
+
+    const session = JSON.parse(raw);
+    return session && typeof session === "object" ? session : null;
+  } catch (error) {
+    console.warn("ATRALAB Supabase session:", error);
+    return null;
+  }
+}
+
+function saveAtralabSupabaseSession(session) {
+  try {
+    localStorage.setItem(
+      ATRALAB_SUPABASE_SESSION_KEY,
+      JSON.stringify(session)
+    );
+  } catch (error) {
+    console.warn("ATRALAB Supabase session save:", error);
+  }
+}
+
+function clearAtralabSupabaseSession() {
+  try {
+    localStorage.removeItem(ATRALAB_SUPABASE_SESSION_KEY);
+  } catch (error) {
+    console.warn("ATRALAB Supabase session clear:", error);
+  }
+}
+
+async function refreshAtralabSupabaseSession(refreshToken) {
+  if (!refreshToken) return false;
+
+  try {
+    const response = await fetch(
+      `${ATRALAB_AUTH_URL}/auth/v1/token?grant_type=refresh_token`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": ATRALAB_AUTH_KEY
+        },
+        body: JSON.stringify({
+          refresh_token: refreshToken
+        })
+      }
+    );
+
+    if (!response.ok) return false;
+
+    const session = await response.json();
+
+    if (!session?.access_token || !session?.refresh_token) {
+      return false;
+    }
+
+    saveAtralabSupabaseSession(session);
+    return true;
+  } catch (error) {
+    console.warn("ATRALAB Supabase refresh:", error);
+    return false;
+  }
+}
+
+async function checkAtralabSupabaseAccess() {
+  const session = getAtralabSupabaseSession();
+
+  if (!session?.access_token) return false;
+
+  try {
+    const response = await fetch(`${ATRALAB_AUTH_URL}/auth/v1/user`, {
+      headers: {
+        "apikey": ATRALAB_AUTH_KEY,
+        "Authorization": `Bearer ${session.access_token}`
+      }
+    });
+
+    if (response.ok) return true;
+
+    if ((response.status === 401 || response.status === 403) && session.refresh_token) {
+      const refreshed = await refreshAtralabSupabaseSession(session.refresh_token);
+      if (refreshed) return true;
+    }
+
+    clearAtralabSupabaseSession();
+    return false;
+  } catch (error) {
+    console.warn("ATRALAB Supabase auth:", error);
+    return false;
+  }
+}
+
+/* ---------- Vecchio login username/password ---------- */
 
 function getAtralabAuthToken() {
   try {
@@ -56,33 +156,10 @@ function clearAtralabAuthToken() {
   }
 }
 
-function saveAtralabReturnUrl() {
-  try {
-    const currentUrl =
-      window.location.pathname +
-      window.location.search +
-      window.location.hash;
-
-    localStorage.setItem(ATRALAB_RETURN_URL_KEY, currentUrl);
-  } catch (error) {
-    console.warn("ATRALAB return URL:", error);
-  }
-}
-
-function redirectToAtralabAuth() {
-  saveAtralabReturnUrl();
-  window.location.replace("/auth/");
-}
-
-async function checkAtralabAccess() {
-  if (isAtralabPublicPage()) return true;
-
+async function checkAtralabLegacyAccess() {
   const token = getAtralabAuthToken();
 
-  if (!token) {
-    redirectToAtralabAuth();
-    return false;
-  }
+  if (!token) return false;
 
   try {
     const response = await fetch(
@@ -108,20 +185,68 @@ async function checkAtralabAccess() {
     if (isValid === true) return true;
 
     clearAtralabAuthToken();
-    redirectToAtralabAuth();
     return false;
   } catch (error) {
-    console.error("ATRALAB auth:", error);
+    console.error("ATRALAB auth legacy:", error);
     clearAtralabAuthToken();
-    redirectToAtralabAuth();
     return false;
   }
 }
 
-async function logoutAtralab() {
-  const token = getAtralabAuthToken();
+/* ---------- Controllo accesso comune ---------- */
 
-  if (token) {
+function saveAtralabReturnUrl() {
+  try {
+    const currentUrl =
+      window.location.pathname +
+      window.location.search +
+      window.location.hash;
+
+    localStorage.setItem(ATRALAB_RETURN_URL_KEY, currentUrl);
+  } catch (error) {
+    console.warn("ATRALAB return URL:", error);
+  }
+}
+
+function redirectToAtralabAuth() {
+  saveAtralabReturnUrl();
+  window.location.replace("/auth/");
+}
+
+async function checkAtralabAccess() {
+  if (isAtralabPublicPage()) return true;
+
+  /* 1. Nuovo login OTP / Supabase Auth */
+  if (await checkAtralabSupabaseAccess()) return true;
+
+  /* 2. Fallback temporaneo: vecchio username/password */
+  if (await checkAtralabLegacyAccess()) return true;
+
+  redirectToAtralabAuth();
+  return false;
+}
+
+/* ---------- Logout comune ---------- */
+
+async function logoutAtralab() {
+  const supabaseSession = getAtralabSupabaseSession();
+  const legacyToken = getAtralabAuthToken();
+
+  if (supabaseSession?.access_token) {
+    try {
+      await fetch(`${ATRALAB_AUTH_URL}/auth/v1/logout`, {
+        method: "POST",
+        headers: {
+          "apikey": ATRALAB_AUTH_KEY,
+          "Authorization": `Bearer ${supabaseSession.access_token}`
+        }
+      });
+    } catch (error) {
+      console.warn("ATRALAB Supabase logout:", error);
+    }
+  }
+
+  if (legacyToken) {
     try {
       await fetch(
         `${ATRALAB_AUTH_URL}/rest/v1/rpc/logout_atralab_user`,
@@ -132,15 +257,16 @@ async function logoutAtralab() {
             "apikey": ATRALAB_AUTH_KEY
           },
           body: JSON.stringify({
-            p_token: token
+            p_token: legacyToken
           })
         }
       );
     } catch (error) {
-      console.warn("ATRALAB logout:", error);
+      console.warn("ATRALAB logout legacy:", error);
     }
   }
 
+  clearAtralabSupabaseSession();
   clearAtralabAuthToken();
 
   try {
