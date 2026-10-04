@@ -61,6 +61,17 @@
   border-color: #E76F51;
 }
 
+
+.otp-captcha-wrap {
+  min-height: 65px;
+  display: flex;
+  align-items: center;
+}
+
+.otp-turnstile {
+  width: 100%;
+}
+
 .otp-submit,
 .otp-secondary {
   min-height: 50px;

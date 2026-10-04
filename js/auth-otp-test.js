@@ -4,6 +4,7 @@
   const SUPABASE_URL = "https://pcpsbrnhfhzkjlnstgfr.supabase.co";
   const SUPABASE_KEY = "sb_publishable_IRKqtPwpSGWd-YbnyvXqsg_DFKZSotn";
   const DEVICE_STORAGE_KEY = "atralab-device-id";
+  const TURNSTILE_SITE_KEY = "0x4AAAAAAFNXuMibEqqJr4d4";
 
   const emailForm = document.getElementById("otpEmailForm");
   const emailInput = document.getElementById("otpEmail");
@@ -12,6 +13,7 @@
   const verifyButton = document.getElementById("otpVerifyButton");
   const changeEmailButton = document.getElementById("otpChangeEmailButton");
   const message = document.getElementById("otpMessage");
+  const turnstileContainer = document.getElementById("otpTurnstile");
   const digitInputs = Array.from(document.querySelectorAll(".otp-digit"));
 
   if (!window.supabase?.createClient) {
@@ -21,6 +23,8 @@
 
   const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
   let currentEmail = "";
+  let turnstileWidgetId = null;
+  let captchaToken = "";
 
   function setMessage(text, type = "") {
     if (!message) return;
@@ -32,6 +36,43 @@
 
   function normalizeEmail(value) {
     return String(value || "").trim().toLowerCase();
+  }
+
+  function resetTurnstile() {
+    captchaToken = "";
+    sendButton.disabled = true;
+
+    if (window.turnstile && turnstileWidgetId !== null) {
+      window.turnstile.reset(turnstileWidgetId);
+    }
+  }
+
+  function initTurnstile() {
+    if (!turnstileContainer || !window.turnstile) {
+      window.setTimeout(initTurnstile, 100);
+      return;
+    }
+
+    turnstileWidgetId = window.turnstile.render(turnstileContainer, {
+      sitekey: TURNSTILE_SITE_KEY,
+      theme: "dark",
+      size: "flexible",
+      callback(token) {
+        captchaToken = token;
+        sendButton.disabled = false;
+        setMessage("");
+      },
+      "expired-callback"() {
+        captchaToken = "";
+        sendButton.disabled = true;
+        setMessage("Verifica anti-bot scaduta. Attendi il nuovo controllo.", "error");
+      },
+      "error-callback"() {
+        captchaToken = "";
+        sendButton.disabled = true;
+        setMessage("Verifica anti-bot non disponibile. Ricarica la pagina.", "error");
+      },
+    });
   }
 
   function getDeviceId() {
@@ -177,6 +218,11 @@
       return;
     }
 
+    if (!captchaToken) {
+      setMessage("Completa la verifica anti-bot prima di richiedere il codice.", "error");
+      return;
+    }
+
     sendButton.disabled = true;
     setMessage("Invio del codice in corso…");
 
@@ -185,17 +231,19 @@
         email,
         options: {
           shouldCreateUser: true,
+          captchaToken,
         },
       });
 
       if (error) throw error;
 
       await logAuth("requested", email);
+      captchaToken = "";
       showVerifyStep(email);
       setMessage(`Codice inviato a ${email}.`, "success");
     } catch (error) {
       console.error("ATRALAB OTP request:", error);
-      sendButton.disabled = false;
+      resetTurnstile();
       setMessage("Non è stato possibile inviare il codice. Riprova.", "error");
     }
   });
@@ -254,5 +302,8 @@
       input.disabled = false;
     });
     resetToEmailStep();
+    resetTurnstile();
   });
+
+  initTurnstile();
 })();

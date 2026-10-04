@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="/css/auth-otp-test.css">
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
   <script src="/js/include.js" defer></script>
   <script src="/js/auth-otp-test.js" defer></script>
 </head>
@@ -38,7 +39,11 @@
           >
         </label>
 
-        <button id="otpSendButton" class="otp-submit" type="submit">Invia codice</button>
+        <div class="otp-captcha-wrap">
+          <div id="otpTurnstile" class="otp-turnstile" aria-label="Verifica anti-bot"></div>
+        </div>
+
+        <button id="otpSendButton" class="otp-submit" type="submit" disabled>Invia codice</button>
       </form>
 
       <section id="otpVerifySection" class="otp-verify" hidden aria-labelledby="otpCodeLabel">
