@@ -237,6 +237,10 @@
       if (digit && index < digitInputs.length - 1) {
         digitInputs[index + 1].focus();
       }
+
+      if (/^\d{6}$/.test(getOtpCode())) {
+        otpVerifyButton?.click();
+      }
     });
 
     input.addEventListener("keydown", (event) => {
@@ -277,6 +281,10 @@
 
       const focusIndex = Math.min(pasted.length, digitInputs.length) - 1;
       digitInputs[Math.max(focusIndex, 0)]?.focus();
+
+      if (/^\d{6}$/.test(getOtpCode())) {
+        window.setTimeout(() => otpVerifyButton?.click(), 0);
+      }
     });
   });
 
@@ -327,7 +335,7 @@
       await logAuth("requested", email);
       captchaToken = "";
       showVerifyStep(email);
-      setOtpMessage(`Codice inviato a ${email}.`, "success");
+      setOtpMessage(`Codice inviato a ${email}. Controlla la posta in arrivo e, se non lo trovi, anche Spam/Posta indesiderata.`, "success");
     } catch (error) {
       console.error("ATRALAB OTP request:", error);
       resetTurnstile();
@@ -336,7 +344,7 @@
   });
 
   otpVerifyButton?.addEventListener("click", async () => {
-    if (!supabaseClient) return;
+    if (!supabaseClient || otpVerifyButton.disabled) return;
 
     const token = getOtpCode();
 

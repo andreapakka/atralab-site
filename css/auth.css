@@ -127,7 +127,7 @@
 
 .auth-submit:disabled,
 .auth-secondary:disabled {
-  cursor: wait;
+  cursor: default;
   opacity: 0.65;
 }
 
