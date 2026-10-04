@@ -373,10 +373,17 @@
       otpVerifyButton.disabled = true;
       if (otpChangeEmailButton) otpChangeEmailButton.disabled = false;
 
-      setOtpMessage(
-        "Accesso OTP riuscito. La sessione è stata creata; l’integrazione con le pagine protette verrà attivata nel prossimo passo.",
-        "success"
-      );
+      setOtpMessage("Accesso riuscito. Reindirizzamento…", "success");
+
+      const returnUrl = getSafeReturnUrl();
+
+      try {
+        localStorage.removeItem(RETURN_URL_KEY);
+      } catch (error) {
+        console.warn("ATRALAB return URL cleanup:", error);
+      }
+
+      window.location.replace(returnUrl);
     } catch (error) {
       console.error("ATRALAB OTP verify:", error);
       otpVerifyButton.disabled = false;
