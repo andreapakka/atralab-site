@@ -10,6 +10,8 @@
   <link rel="stylesheet" href="/css/internal.css">
   <link rel="stylesheet" href="/css/auth.css">
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
   <script src="/js/include.js" defer></script>
   <script src="/js/auth.js" defer></script>
 </head>
@@ -19,54 +21,104 @@
   <main class="auth-main">
     <section class="auth-card" aria-labelledby="authTitle">
       <p class="auth-eyebrow">Area riservata</p>
-      <h1 id="authTitle">Accesso</h1>
-      <p class="auth-intro">Inserisci le credenziali per accedere ai Labs.</p>
+      <h1 id="authTitle">Accesso con codice</h1>
+      <p class="auth-intro">Inserisci la tua email. Ti invieremo un codice temporaneo di 6 cifre.</p>
 
-      <form method="post" id="authForm" class="auth-form" novalidate>
-        <label class="auth-field" for="authUsername">
-          <span>Username</span>
+      <form id="otpEmailForm" class="auth-form" novalidate>
+        <label class="auth-field" for="otpEmail">
+          <span>Email</span>
           <input
-            id="authUsername"
-            name="username"
-            type="text"
-            autocomplete="username"
+            id="otpEmail"
+            name="email"
+            type="email"
+            inputmode="email"
+            autocomplete="email"
             autocapitalize="none"
             spellcheck="false"
             required
           >
         </label>
 
-        <label class="auth-field" for="authPassword">
-          <span>Password</span>
-          <span class="auth-password-wrap">
+        <div class="auth-captcha-wrap">
+          <div id="otpTurnstile" class="auth-turnstile" aria-label="Verifica anti-bot"></div>
+        </div>
+
+        <button id="otpSendButton" class="auth-submit" type="submit" disabled>Invia codice</button>
+      </form>
+
+      <section id="otpVerifySection" class="auth-verify" hidden aria-labelledby="otpCodeLabel">
+        <p id="otpCodeLabel" class="auth-code-label">Codice ricevuto</p>
+
+        <div id="otpCodeInputs" class="auth-code" role="group" aria-label="Codice OTP a 6 cifre">
+          <input class="auth-digit" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="1" aria-label="Cifra 1">
+          <input class="auth-digit" type="text" inputmode="numeric" maxlength="1" aria-label="Cifra 2">
+          <input class="auth-digit" type="text" inputmode="numeric" maxlength="1" aria-label="Cifra 3">
+          <input class="auth-digit" type="text" inputmode="numeric" maxlength="1" aria-label="Cifra 4">
+          <input class="auth-digit" type="text" inputmode="numeric" maxlength="1" aria-label="Cifra 5">
+          <input class="auth-digit" type="text" inputmode="numeric" maxlength="1" aria-label="Cifra 6">
+        </div>
+
+        <button id="otpVerifyButton" class="auth-submit" type="button">Accedi</button>
+        <button id="otpChangeEmailButton" class="auth-secondary" type="button">Cambia email</button>
+      </section>
+
+      <p id="otpMessage" class="auth-message" role="status" aria-live="polite"></p>
+
+      <div class="auth-divider" aria-hidden="true"><span>oppure</span></div>
+
+      <button id="legacyToggle" class="auth-legacy-toggle" type="button" aria-expanded="false" aria-controls="legacyLogin">
+        Accedi con username e password
+      </button>
+
+      <section id="legacyLogin" class="auth-legacy" hidden>
+        <form method="post" id="legacyAuthForm" class="auth-form" novalidate>
+          <label class="auth-field" for="authUsername">
+            <span>Username</span>
             <input
-              id="authPassword"
-              name="password"
-              type="password"
-              autocomplete="current-password"
+              id="authUsername"
+              name="username"
+              type="text"
+              autocomplete="username"
+              autocapitalize="none"
+              spellcheck="false"
               required
             >
-            <button type="button" data-password-toggle
-              id="togglePassword"
-              class="auth-password-toggle"
-              aria-label="Mostra password"
-              aria-pressed="false"
-              title="Mostra password"
-            >
-              <span aria-hidden="true">◉</span>
-            </button>
-          </span>
-        </label>
+          </label>
 
-        <p id="authMessage" class="auth-message" data-auth-message role="status" aria-live="polite"></p>
+          <label class="auth-field" for="authPassword">
+            <span>Password</span>
+            <span class="auth-password-wrap">
+              <input
+                id="authPassword"
+                name="password"
+                type="password"
+                autocomplete="current-password"
+                required
+              >
+              <button
+                type="button"
+                id="togglePassword"
+                class="auth-password-toggle"
+                data-password-toggle
+                aria-label="Mostra password"
+                aria-pressed="false"
+                title="Mostra password"
+              >
+                <span aria-hidden="true">◉</span>
+              </button>
+            </span>
+          </label>
 
-        <button id="authSubmit" class="auth-submit" type="submit">Accedi</button>
+          <p id="legacyAuthMessage" class="auth-message" role="status" aria-live="polite"></p>
 
-        <p class="auth-account-info">
-          Non hai un account?
-          <a href="/contatti/">Contattaci</a> per informazioni.
-        </p>
-      </form>
+          <button id="legacyAuthSubmit" class="auth-submit" type="submit">Accedi</button>
+        </form>
+      </section>
+
+      <p class="auth-account-info">
+        Problemi con l’accesso?
+        <a href="/contatti/">Contattaci</a>.
+      </p>
     </section>
   </main>
 
