@@ -426,6 +426,14 @@
         throw new Error("Sessione Supabase non creata");
       }
 
+      const { error: roleError } = await supabaseClient.rpc(
+        "ensure_atralab_user_role"
+      );
+
+      if (roleError) {
+        throw roleError;
+      }
+
       await logAuth("verified", currentEmail, accessToken);
 
       digitInputs.forEach((input) => {
