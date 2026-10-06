@@ -2,6 +2,7 @@ User-agent: *
 Disallow: /internal/
 Disallow: /components/
 Disallow: /setup/
+Disallow: /control/
 
 Allow: /
 
