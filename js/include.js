@@ -41,6 +41,20 @@ function isAtralabPublicPage() {
   );
 }
 
+function getAtralabPermissionPath() {
+  let path = normalizeAtralabPath(window.location.pathname);
+
+  if (path.endsWith("/index.html")) {
+    path = path.slice(0, -"index.html".length);
+  }
+
+  if (path.startsWith("/internal/")) {
+    return "/internal/";
+  }
+
+  return path;
+}
+
 /* ---------- Supabase Auth OTP ---------- */
 
 function getAtralabSupabaseSession() {
@@ -137,6 +151,45 @@ async function checkAtralabSupabaseAccess() {
   }
 }
 
+async function checkAtralabPagePermission() {
+  const session = getAtralabSupabaseSession();
+
+  if (!session?.access_token) return false;
+
+  try {
+    const response = await fetch(
+      `${ATRALAB_AUTH_URL}/rest/v1/rpc/can_access_page`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": ATRALAB_AUTH_KEY,
+          "Authorization": `Bearer ${session.access_token}`
+        },
+        body: JSON.stringify({
+          p_path: getAtralabPermissionPath()
+        })
+      }
+    );
+
+    if (!response.ok) {
+      console.warn(
+        `ATRALAB autorizzazione pagina fallita (${response.status})`
+      );
+      return false;
+    }
+
+    return (await response.json()) === true;
+  } catch (error) {
+    console.warn("ATRALAB autorizzazione pagina:", error);
+    return false;
+  }
+}
+
+function redirectAtralabAccessDenied() {
+  window.location.replace("/");
+}
+
 /* ---------- Vecchio login username/password ---------- */
 
 function getAtralabAuthToken() {
@@ -217,7 +270,12 @@ async function checkAtralabAccess() {
   if (isAtralabPublicPage()) return true;
 
   /* 1. Nuovo login OTP / Supabase Auth */
-  if (await checkAtralabSupabaseAccess()) return true;
+  if (await checkAtralabSupabaseAccess()) {
+    if (await checkAtralabPagePermission()) return true;
+
+    redirectAtralabAccessDenied();
+    return false;
+  }
 
   /* 2. Fallback temporaneo: vecchio username/password */
   if (await checkAtralabLegacyAccess()) return true;
