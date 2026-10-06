@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="theme-color" content="#0E0E0E">
+
+  <title>Control | ATRALAB</title>
+
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/internal.css">
+  <link rel="stylesheet" href="/css/control.css">
+</head>
+<body>
+  <div data-include="/components/header.html"></div>
+
+  <div class="control-layout">
+    <aside class="control-sidebar" data-include="/components/sidebar.html"></aside>
+
+    <main class="control-main" id="mainContent">
+      <header class="control-hero">
+        <p class="control-kicker">ATRALAB</p>
+        <h1>Control</h1>
+        <p>Gestione semplice dei ruoli associati alle email che hanno effettuato almeno un accesso OTP.</p>
+      </header>
+
+      <section class="control-card" aria-labelledby="rolesTitle">
+        <div class="control-section-head">
+          <div>
+            <p class="control-kicker">AUTORIZZAZIONI</p>
+            <h2 id="rolesTitle">Email e ruoli</h2>
+          </div>
+          <button class="control-link-button" id="refreshRoles" type="button">Aggiorna</button>
+        </div>
+
+        <p class="control-note">
+          Ogni email compare una sola volta. Il ruolo <strong>user</strong> viene assegnato automaticamente
+          al primo login OTP verificato.
+        </p>
+
+        <p class="control-status" id="controlStatus" role="status" aria-live="polite"></p>
+
+        <div id="rolesList" class="control-list">
+          <p class="control-muted">Caricamento...</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div data-include="/components/footer.html"></div>
+
+  <script src="/js/include.js" defer></script>
+  <script src="/js/control.js" defer></script>
+</body>
+</html>
