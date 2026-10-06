@@ -26,7 +26,9 @@ const ATRALAB_PUBLIC_PATHS = [
   "/callme/",
   "/callme/index.html",
   "/auth-otp-test/",
-  "/auth-otp-test/index.html"
+  "/auth-otp-test/index.html",
+  "/access-denied/",
+  "/access-denied/index.html"
 ];
 
 function normalizeAtralabPath(pathname) {
@@ -187,7 +189,7 @@ async function checkAtralabPagePermission() {
 }
 
 function redirectAtralabAccessDenied() {
-  window.location.replace("/");
+  window.location.replace("/access-denied/");
 }
 
 /* ---------- Vecchio login username/password ---------- */
