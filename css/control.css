@@ -228,3 +228,111 @@ body {
     flex: 1;
   }
 }
+
+
+.control-card-spaced {
+  margin-top: 22px;
+}
+
+.control-page-form {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) auto auto;
+  gap: 16px;
+  align-items: end;
+  margin-top: 20px;
+  padding: 16px;
+  border: 1px solid var(--control-border);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.control-field {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+}
+
+.control-field > span,
+.control-role-checks legend {
+  color: var(--control-muted);
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.control-input {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid var(--control-border);
+  border-radius: 10px;
+  background: var(--control-bg);
+  color: var(--control-text);
+  padding: 9px 11px;
+  font: inherit;
+}
+
+.control-role-checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.control-role-checks legend {
+  width: 100%;
+  margin-bottom: 5px;
+}
+
+.control-role-checks label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--control-text);
+}
+
+.control-page-path {
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.control-role-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.control-role-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 4px 9px;
+  border: 1px solid var(--control-border);
+  border-radius: 999px;
+  color: var(--control-text);
+  font-size: 0.82rem;
+}
+
+.control-danger-button {
+  min-height: 40px;
+  border: 1px solid rgba(231, 111, 81, 0.45);
+  border-radius: 10px;
+  background: transparent;
+  color: #ff9b87;
+  padding: 8px 12px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.control-danger-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+@media (max-width: 760px) {
+  .control-page-form {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+}

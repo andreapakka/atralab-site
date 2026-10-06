@@ -174,6 +174,202 @@
     }
   }
 
+
+  const pagesList = document.getElementById("pagesList");
+  const pageStatus = document.getElementById("pageStatus");
+  const refreshPagesButton = document.getElementById("refreshPages");
+  const pageRoleForm = document.getElementById("pageRoleForm");
+  const pagePathInput = document.getElementById("pagePath");
+  const savePageRolesButton = document.getElementById("savePageRoles");
+
+  function setPageStatus(message = "", type = "") {
+    pageStatus.textContent = message;
+    pageStatus.className = "control-status";
+
+    if (type) {
+      pageStatus.classList.add(`is-${type}`);
+    }
+  }
+
+  function getSelectedPageRoles() {
+    return [...document.querySelectorAll('input[name="pageRole"]:checked')]
+      .map((input) => input.value);
+  }
+
+  function setSelectedPageRoles(roles = []) {
+    document.querySelectorAll('input[name="pageRole"]').forEach((input) => {
+      input.checked = roles.includes(input.value);
+    });
+  }
+
+  function normalizePath(path) {
+    let value = String(path || "").trim();
+
+    if (!value) return "";
+
+    if (!value.startsWith("/")) {
+      value = `/${value}`;
+    }
+
+    if (value.endsWith("/index.html")) {
+      value = value.slice(0, -"index.html".length);
+    }
+
+    return value;
+  }
+
+  function editPage(item) {
+    pagePathInput.value = item.path;
+    setSelectedPageRoles(item.roles || []);
+    pagePathInput.focus();
+    setPageStatus(`Modifica ${item.path}`);
+  }
+
+  async function deletePage(item) {
+    if (item.path === "/control/") {
+      setPageStatus("La pagina /control/ non può essere rimossa.", "error");
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Rimuovere ${item.path} dalla matrice dei permessi?`
+    );
+
+    if (!confirmed) return;
+
+    setPageStatus(`Rimuovo ${item.path}...`);
+
+    try {
+      const removed = await rpc("delete_atralab_page_roles", {
+        p_path: item.path
+      });
+
+      if (removed !== true) {
+        throw new Error("Rimozione non eseguita");
+      }
+
+      setPageStatus(`Pagina rimossa: ${item.path}`, "success");
+      await loadPages(false);
+    } catch (error) {
+      setPageStatus(error.message || "Errore durante la rimozione", "error");
+    }
+  }
+
+  function renderPages(rows) {
+    pagesList.innerHTML = "";
+
+    if (!Array.isArray(rows) || rows.length === 0) {
+      pagesList.innerHTML = '<p class="control-muted">Nessuna pagina configurata.</p>';
+      return;
+    }
+
+    for (const item of rows) {
+      const row = document.createElement("div");
+      row.className = "control-row";
+
+      const main = document.createElement("div");
+      main.className = "control-row-main";
+
+      const path = document.createElement("div");
+      path.className = "control-page-path";
+      path.textContent = item.path;
+
+      const badges = document.createElement("div");
+      badges.className = "control-role-badges";
+
+      for (const role of item.roles || []) {
+        const badge = document.createElement("span");
+        badge.className = "control-role-badge";
+        badge.textContent = role;
+        badges.appendChild(badge);
+      }
+
+      main.append(path, badges);
+
+      const actions = document.createElement("div");
+      actions.className = "control-row-actions";
+
+      const editButton = document.createElement("button");
+      editButton.type = "button";
+      editButton.className = "control-button";
+      editButton.textContent = "Modifica";
+      editButton.addEventListener("click", () => editPage(item));
+
+      const deleteButton = document.createElement("button");
+      deleteButton.type = "button";
+      deleteButton.className = "control-danger-button";
+      deleteButton.textContent = "Rimuovi";
+      deleteButton.disabled = item.path === "/control/";
+      deleteButton.addEventListener("click", () => deletePage(item));
+
+      actions.append(editButton, deleteButton);
+      row.append(main, actions);
+      pagesList.appendChild(row);
+    }
+  }
+
+  async function loadPages(showMessage = true) {
+    refreshPagesButton.disabled = true;
+
+    if (showMessage) {
+      setPageStatus("Caricamento...");
+    }
+
+    try {
+      const rows = await rpc("list_atralab_page_roles");
+      renderPages(rows);
+      setPageStatus("");
+    } catch (error) {
+      pagesList.innerHTML = '<p class="control-muted">Impossibile caricare le pagine.</p>';
+      setPageStatus(error.message || "Accesso non disponibile", "error");
+    } finally {
+      refreshPagesButton.disabled = false;
+    }
+  }
+
+  pageRoleForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const path = normalizePath(pagePathInput.value);
+    const roles = getSelectedPageRoles();
+
+    if (!path) {
+      setPageStatus("Inserisci il path della pagina.", "error");
+      return;
+    }
+
+    if (roles.length === 0) {
+      setPageStatus("Seleziona almeno un ruolo.", "error");
+      return;
+    }
+
+    savePageRolesButton.disabled = true;
+    setPageStatus(`Salvo ${path}...`);
+
+    try {
+      const saved = await rpc("set_atralab_page_roles", {
+        p_path: path,
+        p_roles: roles
+      });
+
+      if (saved !== true) {
+        throw new Error("Salvataggio non eseguito");
+      }
+
+      pagePathInput.value = "";
+      setSelectedPageRoles([]);
+      setPageStatus(`Permessi salvati per ${path}`, "success");
+      await loadPages(false);
+    } catch (error) {
+      setPageStatus(error.message || "Errore durante il salvataggio", "error");
+    } finally {
+      savePageRolesButton.disabled = false;
+    }
+  });
+
+  refreshPagesButton.addEventListener("click", () => loadPages(true));
+
   refreshButton.addEventListener("click", () => loadRoles(true));
   loadRoles(true);
+  loadPages(true);
 })();
