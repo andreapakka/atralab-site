@@ -28,7 +28,15 @@ const ATRALAB_PUBLIC_PATHS = [
   "/auth-otp-test/",
   "/auth-otp-test/index.html",
   "/access-denied/",
-  "/access-denied/index.html"
+  "/access-denied/index.html",
+  "/romaalerts/",
+  "/romaalerts/index.html",
+  "/pulse/",
+  "/pulse/index.html",
+  "/nextscore/",
+  "/nextscore/index.html",
+  "/aroundme/",
+  "/aroundme/index.html"
 ];
 
 function normalizeAtralabPath(pathname) {
