@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow">
+  <title>InPair · ATRALAB</title>
+
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/internal.css">
+  <link rel="stylesheet" href="/css/inpair.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
+  <script src="/js/include.js" defer></script>
+  <script src="/js/inpair.js" defer></script>
+</head>
+<body>
+  <div data-include="/components/header.html"></div>
+
+  <div class="internal-layout">
+    <aside data-include="/components/sidebar.html"></aside>
+
+    <main class="internal-main inpair-main" id="inpairMain">
+      <section class="inpair-hero">
+        <div>
+          <p class="inpair-kicker">SPESE CONDIVISE</p>
+          <h1>InPair</h1>
+          <p class="inpair-subtitle">Un evento, tutte le spese, tutti in pari.</p>
+        </div>
+        <div class="inpair-user" id="currentUserBox" hidden>
+          <span id="currentUserEmail"></span>
+          <span class="inpair-badge" id="currentUserRole"></span>
+        </div>
+      </section>
+
+      <div class="inpair-status" id="statusBox" role="status" aria-live="polite" hidden></div>
+
+      <!-- HOME EVENTI -->
+      <section id="eventsView" hidden>
+        <div class="inpair-section-head">
+          <div>
+            <p class="inpair-eyebrow">EVENTI</p>
+            <h2>Attivi</h2>
+          </div>
+          <button type="button" class="inpair-button" id="newEventButton" hidden>Nuovo evento</button>
+        </div>
+
+        <div class="inpair-event-list" id="activeEvents"></div>
+        <p class="inpair-empty" id="activeEventsEmpty" hidden>Nessun evento attivo.</p>
+
+        <details class="inpair-closed-block" id="closedEventsBlock">
+          <summary>Eventi chiusi <span id="closedCount"></span></summary>
+          <div class="inpair-event-list inpair-event-list-closed" id="closedEvents"></div>
+          <p class="inpair-empty" id="closedEventsEmpty" hidden>Nessun evento chiuso.</p>
+        </details>
+      </section>
+
+      <!-- DETTAGLIO EVENTO -->
+      <section id="eventView" hidden>
+        <div class="inpair-event-top">
+          <button type="button" class="inpair-link-button" id="backToEvents">← Eventi</button>
+          <div class="inpair-event-heading">
+            <div>
+              <div class="inpair-title-row">
+                <h2 id="eventTitle"></h2>
+                <span class="inpair-badge" id="eventState"></span>
+              </div>
+              <p class="inpair-event-meta" id="eventMeta"></p>
+            </div>
+            <button type="button" class="inpair-icon-button" id="shareButton" aria-label="Condividi evento">↗</button>
+          </div>
+        </div>
+
+        <div class="inpair-summary-grid">
+          <article class="inpair-summary-card">
+            <span>Totale</span>
+            <strong id="summaryTotal">€ 0,00</strong>
+          </article>
+          <article class="inpair-summary-card">
+            <span>Quota media</span>
+            <strong id="summaryShare">€ 0,00</strong>
+          </article>
+          <article class="inpair-summary-card inpair-summary-personal">
+            <span>Il tuo saldo</span>
+            <strong id="summaryBalance">€ 0,00</strong>
+          </article>
+        </div>
+
+        <div class="inpair-tabs" role="tablist" aria-label="Sezioni evento">
+          <button type="button" role="tab" class="is-active" data-tab="expenses" aria-selected="true">Spese</button>
+          <button type="button" role="tab" data-tab="situation" aria-selected="false">Situazione</button>
+          <button type="button" role="tab" data-tab="settlement" aria-selected="false">Pareggio</button>
+        </div>
+
+        <!-- SPESE -->
+        <section class="inpair-tab-panel" data-panel="expenses">
+          <div class="inpair-actions-row">
+            <button type="button" class="inpair-button" id="addExpenseButton">Aggiungi spesa</button>
+            <label class="inpair-check">
+              <input type="checkbox" id="activeOnly" checked>
+              <span>Solo attive</span>
+            </label>
+          </div>
+
+          <form class="inpair-form-card" id="expenseForm" hidden>
+            <div class="inpair-form-grid">
+              <label>
+                <span>Descrizione</span>
+                <input type="text" id="expenseDescription" maxlength="200" required autocomplete="off" placeholder="Es. Ristorante">
+              </label>
+              <label>
+                <span>Importo</span>
+                <input type="number" id="expenseAmount" min="0.01" step="0.01" inputmode="decimal" required placeholder="0,00">
+              </label>
+              <label>
+                <span>Categoria</span>
+                <select id="expenseCategory" required></select>
+              </label>
+              <label id="expensePayerWrap" hidden>
+                <span>Di chi è la spesa</span>
+                <select id="expensePayer"></select>
+              </label>
+            </div>
+            <div class="inpair-form-actions">
+              <button type="button" class="inpair-button secondary" id="cancelExpenseForm">Annulla</button>
+              <button type="submit" class="inpair-button">Salva spesa</button>
+            </div>
+          </form>
+
+          <div class="inpair-expense-list" id="expenseList"></div>
+          <p class="inpair-empty" id="expenseEmpty" hidden>Nessuna spesa da mostrare.</p>
+        </section>
+
+        <!-- SITUAZIONE -->
+        <section class="inpair-tab-panel" data-panel="situation" hidden>
+          <div class="inpair-person-list" id="situationList"></div>
+        </section>
+
+        <!-- PAREGGIO -->
+        <section class="inpair-tab-panel" data-panel="settlement" hidden>
+          <div class="inpair-settlement-intro" id="settlementIntro"></div>
+          <div class="inpair-settlement-list" id="settlementList"></div>
+        </section>
+
+        <!-- ADMIN -->
+        <details class="inpair-admin" id="adminPanel" hidden>
+          <summary>Gestione evento</summary>
+
+          <div class="inpair-admin-grid">
+            <form class="inpair-admin-card" id="titleForm">
+              <h3>Titolo</h3>
+              <label>
+                <span>Nome evento</span>
+                <input type="text" id="adminTitle" maxlength="120" required>
+              </label>
+              <button type="submit" class="inpair-button secondary">Aggiorna titolo</button>
+            </form>
+
+            <div class="inpair-admin-card">
+              <h3>Partecipanti</h3>
+              <form id="participantForm" class="inpair-inline-form">
+                <select id="participantSelect" required></select>
+                <button type="submit" class="inpair-button secondary">Aggiungi</button>
+              </form>
+              <div class="inpair-participant-admin-list" id="participantAdminList"></div>
+            </div>
+
+            <div class="inpair-admin-card">
+              <h3>Stato evento</h3>
+              <p id="adminEventStateText"></p>
+              <button type="button" class="inpair-button danger" id="toggleEventStateButton"></button>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <!-- NUOVO EVENTO -->
+      <dialog class="inpair-dialog" id="newEventDialog">
+        <form method="dialog" id="newEventForm">
+          <div class="inpair-dialog-head">
+            <h2>Nuovo evento</h2>
+            <button type="button" class="inpair-icon-button" data-close-dialog aria-label="Chiudi">×</button>
+          </div>
+          <label>
+            <span>Titolo</span>
+            <input type="text" id="newEventTitle" maxlength="120" required placeholder="Es. Weekend a Firenze">
+          </label>
+          <div class="inpair-form-actions">
+            <button type="button" class="inpair-button secondary" data-close-dialog>Annulla</button>
+            <button type="submit" class="inpair-button">Crea</button>
+          </div>
+        </form>
+      </dialog>
+
+      <!-- CONDIVISIONE -->
+      <dialog class="inpair-dialog" id="shareDialog">
+        <div class="inpair-dialog-head">
+          <h2>Condividi evento</h2>
+          <button type="button" class="inpair-icon-button" data-close-dialog aria-label="Chiudi">×</button>
+        </div>
+        <p class="inpair-muted">Il link funziona solo per utenti autenticati e autorizzati sull'evento.</p>
+        <div class="inpair-share-url" id="shareUrl"></div>
+        <div class="inpair-qr" id="qrCode"></div>
+        <button type="button" class="inpair-button" id="copyLinkButton">Copia link</button>
+      </dialog>
+    </main>
+  </div>
+
+  <div data-include="/components/footer.html"></div>
+</body>
+</html>

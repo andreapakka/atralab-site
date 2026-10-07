@@ -1,0 +1,632 @@
+:root {
+  --inpair-bg: #0e0e0e;
+  --inpair-panel: #171717;
+  --inpair-panel-2: #202020;
+  --inpair-border: #343434;
+  --inpair-text: #f4f1ea;
+  --inpair-muted: #aaa59b;
+  --inpair-accent: #e76f51;
+  --inpair-good: #76b58a;
+  --inpair-bad: #d87979;
+}
+
+.inpair-main {
+  min-width: 0;
+  max-width: 980px;
+  padding-bottom: 48px;
+}
+
+.inpair-hero,
+.inpair-section-head,
+.inpair-event-heading,
+.inpair-actions-row,
+.inpair-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.inpair-hero {
+  margin-bottom: 18px;
+}
+
+.inpair-kicker,
+.inpair-eyebrow {
+  margin: 0 0 4px;
+  color: var(--inpair-accent);
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .14em;
+}
+
+.inpair-hero h1,
+.inpair-section-head h2,
+.inpair-event-heading h2 {
+  margin: 0;
+}
+
+.inpair-hero h1 {
+  font-size: clamp(2rem, 7vw, 3.4rem);
+  line-height: .95;
+}
+
+.inpair-subtitle,
+.inpair-event-meta,
+.inpair-muted,
+.inpair-empty {
+  color: var(--inpair-muted);
+}
+
+.inpair-subtitle {
+  margin: 8px 0 0;
+}
+
+.inpair-user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  font-size: .82rem;
+  color: var(--inpair-muted);
+}
+
+.inpair-user span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.inpair-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 3px 8px;
+  border: 1px solid var(--inpair-border);
+  border-radius: 999px;
+  font-size: .72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+
+.inpair-status {
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  border: 1px solid var(--inpair-border);
+  border-left: 3px solid var(--inpair-accent);
+  background: var(--inpair-panel);
+  font-size: .9rem;
+}
+
+.inpair-status.is-error {
+  border-left-color: var(--inpair-bad);
+}
+
+.inpair-section-head {
+  margin-bottom: 10px;
+}
+
+.inpair-event-list,
+.inpair-expense-list,
+.inpair-person-list,
+.inpair-settlement-list,
+.inpair-participant-admin-list {
+  display: grid;
+  gap: 8px;
+}
+
+.inpair-event-card,
+.inpair-expense-card,
+.inpair-person-card,
+.inpair-settlement-card,
+.inpair-form-card,
+.inpair-admin-card {
+  border: 1px solid var(--inpair-border);
+  background: var(--inpair-panel);
+  border-radius: 12px;
+}
+
+.inpair-event-card {
+  width: 100%;
+  padding: 14px;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.inpair-event-card:hover,
+.inpair-event-card:focus-visible {
+  border-color: var(--inpair-accent);
+}
+
+.inpair-event-card-top,
+.inpair-expense-top,
+.inpair-person-top,
+.inpair-settlement-row,
+.inpair-participant-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.inpair-event-card strong {
+  font-size: 1.03rem;
+}
+
+.inpair-event-card p,
+.inpair-expense-card p,
+.inpair-person-card p {
+  margin: 5px 0 0;
+  color: var(--inpair-muted);
+  font-size: .82rem;
+}
+
+.inpair-closed-block {
+  margin-top: 20px;
+  border-top: 1px solid var(--inpair-border);
+  padding-top: 12px;
+}
+
+.inpair-closed-block summary,
+.inpair-admin summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.inpair-event-list-closed {
+  margin-top: 10px;
+  opacity: .82;
+}
+
+.inpair-event-top {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.inpair-link-button,
+.inpair-icon-button {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--inpair-text);
+  cursor: pointer;
+}
+
+.inpair-link-button {
+  width: max-content;
+  padding: 4px 0;
+  color: var(--inpair-muted);
+}
+
+.inpair-icon-button {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--inpair-border);
+  border-radius: 10px;
+  font-size: 1.2rem;
+}
+
+.inpair-event-heading {
+  align-items: flex-start;
+}
+
+.inpair-title-row {
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
+.inpair-event-heading h2 {
+  font-size: clamp(1.5rem, 6vw, 2.2rem);
+}
+
+.inpair-event-meta {
+  margin: 5px 0 0;
+  font-size: .84rem;
+}
+
+.inpair-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.inpair-summary-card {
+  min-width: 0;
+  padding: 11px;
+  border: 1px solid var(--inpair-border);
+  border-radius: 10px;
+  background: var(--inpair-panel);
+}
+
+.inpair-summary-card span {
+  display: block;
+  color: var(--inpair-muted);
+  font-size: .72rem;
+}
+
+.inpair-summary-card strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 1.05rem;
+  overflow-wrap: anywhere;
+}
+
+.inpair-summary-card strong.is-positive,
+.inpair-money.is-positive {
+  color: var(--inpair-good);
+}
+
+.inpair-summary-card strong.is-negative,
+.inpair-money.is-negative {
+  color: var(--inpair-bad);
+}
+
+.inpair-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin: 14px 0 12px;
+  border: 1px solid var(--inpair-border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.inpair-tabs button {
+  min-height: 44px;
+  border: 0;
+  border-right: 1px solid var(--inpair-border);
+  background: var(--inpair-panel);
+  color: var(--inpair-muted);
+  font: inherit;
+  font-size: .86rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.inpair-tabs button:last-child {
+  border-right: 0;
+}
+
+.inpair-tabs button.is-active {
+  background: var(--inpair-accent);
+  color: #111;
+}
+
+.inpair-actions-row {
+  margin-bottom: 10px;
+}
+
+.inpair-button {
+  min-height: 44px;
+  padding: 9px 14px;
+  border: 1px solid var(--inpair-accent);
+  border-radius: 9px;
+  background: var(--inpair-accent);
+  color: #111;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.inpair-button.secondary {
+  background: transparent;
+  color: var(--inpair-text);
+  border-color: var(--inpair-border);
+}
+
+.inpair-button.danger {
+  background: transparent;
+  color: var(--inpair-bad);
+  border-color: var(--inpair-bad);
+}
+
+.inpair-button:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+
+.inpair-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 44px;
+  color: var(--inpair-muted);
+  font-size: .84rem;
+}
+
+.inpair-form-card {
+  margin-bottom: 10px;
+  padding: 12px;
+}
+
+.inpair-form-grid,
+.inpair-admin-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.inpair-form-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.inpair-form-grid label,
+.inpair-admin-card label,
+.inpair-dialog label {
+  display: grid;
+  gap: 5px;
+}
+
+.inpair-form-grid label > span,
+.inpair-admin-card label > span,
+.inpair-dialog label > span {
+  color: var(--inpair-muted);
+  font-size: .78rem;
+}
+
+.inpair-main input,
+.inpair-main select {
+  width: 100%;
+  min-height: 44px;
+  padding: 9px 10px;
+  border: 1px solid var(--inpair-border);
+  border-radius: 8px;
+  background: #111;
+  color: var(--inpair-text);
+  font: inherit;
+  font-size: 16px;
+}
+
+.inpair-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.inpair-expense-card,
+.inpair-person-card,
+.inpair-settlement-card {
+  padding: 12px;
+}
+
+.inpair-expense-card.is-deleted {
+  opacity: .58;
+}
+
+.inpair-expense-card.is-deleted .inpair-expense-title,
+.inpair-expense-card.is-deleted .inpair-expense-amount {
+  text-decoration: line-through;
+}
+
+.inpair-expense-title {
+  font-weight: 700;
+}
+
+.inpair-expense-amount {
+  white-space: nowrap;
+  font-weight: 700;
+}
+
+.inpair-expense-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px 10px;
+  margin-top: 6px;
+  color: var(--inpair-muted);
+  font-size: .76rem;
+}
+
+.inpair-expense-actions {
+  margin-top: 8px;
+}
+
+.inpair-mini-button {
+  min-height: 34px;
+  padding: 5px 9px;
+  border: 1px solid var(--inpair-border);
+  border-radius: 7px;
+  background: transparent;
+  color: var(--inpair-muted);
+  font: inherit;
+  font-size: .76rem;
+  cursor: pointer;
+}
+
+.inpair-person-values {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+  margin-top: 8px;
+}
+
+.inpair-person-values div {
+  min-width: 0;
+}
+
+.inpair-person-values span {
+  display: block;
+  color: var(--inpair-muted);
+  font-size: .7rem;
+}
+
+.inpair-person-values strong {
+  display: block;
+  margin-top: 2px;
+  font-size: .88rem;
+  overflow-wrap: anywhere;
+}
+
+.inpair-settlement-card strong {
+  color: var(--inpair-accent);
+}
+
+.inpair-settlement-intro {
+  margin-bottom: 10px;
+  color: var(--inpair-muted);
+  font-size: .86rem;
+}
+
+.inpair-admin {
+  margin-top: 20px;
+  padding-top: 12px;
+  border-top: 1px solid var(--inpair-border);
+}
+
+.inpair-admin-grid {
+  margin-top: 10px;
+}
+
+.inpair-admin-card {
+  padding: 12px;
+}
+
+.inpair-admin-card h3 {
+  margin: 0 0 10px;
+  font-size: 1rem;
+}
+
+.inpair-admin-card p {
+  color: var(--inpair-muted);
+  font-size: .84rem;
+}
+
+.inpair-inline-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 7px;
+}
+
+.inpair-participant-admin-list {
+  margin-top: 9px;
+}
+
+.inpair-participant-row {
+  padding: 8px 0;
+  border-top: 1px solid var(--inpair-border);
+  font-size: .82rem;
+}
+
+.inpair-participant-row span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.inpair-dialog {
+  width: min(92vw, 460px);
+  padding: 16px;
+  border: 1px solid var(--inpair-border);
+  border-radius: 14px;
+  background: var(--inpair-panel);
+  color: var(--inpair-text);
+}
+
+.inpair-dialog::backdrop {
+  background: rgba(0,0,0,.72);
+}
+
+.inpair-dialog-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.inpair-dialog-head h2 {
+  margin: 0;
+}
+
+.inpair-share-url {
+  margin: 10px 0;
+  padding: 9px;
+  border: 1px solid var(--inpair-border);
+  border-radius: 8px;
+  background: #111;
+  color: var(--inpair-muted);
+  font-size: .76rem;
+  overflow-wrap: anywhere;
+}
+
+.inpair-qr {
+  display: grid;
+  place-items: center;
+  margin: 12px auto;
+  padding: 12px;
+  width: max-content;
+  max-width: 100%;
+  background: #fff;
+  border-radius: 8px;
+}
+
+.inpair-qr img,
+.inpair-qr canvas {
+  max-width: 100%;
+  height: auto !important;
+}
+
+.inpair-empty {
+  margin: 10px 0;
+  font-size: .86rem;
+}
+
+@media (min-width: 760px) {
+  .inpair-admin-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .inpair-event-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .inpair-main {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .inpair-hero {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .inpair-user {
+    width: 100%;
+  }
+
+  .inpair-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .inpair-summary-personal {
+    grid-column: 1 / -1;
+  }
+
+  .inpair-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .inpair-person-values {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 380px) {
+  .inpair-actions-row {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .inpair-check {
+    min-height: 36px;
+  }
+
+  .inpair-tabs button {
+    font-size: .78rem;
+  }
+}
