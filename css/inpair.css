@@ -630,3 +630,76 @@
     font-size: .78rem;
   }
 }
+
+/* Rifiniture InPair - layout compatto, annullamento inline e grafico situazione */
+.inpair-expense-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.inpair-expense-cancel {
+  flex: 0 0 auto;
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid var(--inpair-border);
+  border-radius: 7px;
+  background: transparent;
+  color: var(--inpair-bad);
+  font: inherit;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.inpair-expense-cancel:hover,
+.inpair-expense-cancel:focus-visible {
+  border-color: var(--inpair-bad);
+  background: rgba(216, 121, 121, .08);
+}
+
+.inpair-chart-section {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--inpair-border);
+}
+
+.inpair-chart-head h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.inpair-chart-head p {
+  margin: 4px 0 10px;
+  color: var(--inpair-muted);
+  font-size: .78rem;
+}
+
+.inpair-chart-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.inpair-chart-stage {
+  position: relative;
+  height: 300px;
+  min-width: 100%;
+}
+
+@media (min-width: 900px) {
+  .inpair-main {
+    padding-right: 28px;
+  }
+}
+
+@media (max-width: 620px) {
+  .inpair-chart-stage {
+    height: 260px;
+  }
+}

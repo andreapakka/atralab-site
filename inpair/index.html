@@ -12,6 +12,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js" defer></script>
   <script src="/js/include.js" defer></script>
   <script src="/js/inpair.js" defer></script>
 </head>
@@ -88,8 +89,8 @@
         </div>
 
         <div class="inpair-tabs" role="tablist" aria-label="Sezioni evento">
-          <button type="button" role="tab" class="is-active" data-tab="expenses" aria-selected="true">Spese</button>
-          <button type="button" role="tab" data-tab="situation" aria-selected="false">Situazione</button>
+          <button type="button" role="tab" data-tab="expenses" aria-selected="false">Spese</button>
+          <button type="button" role="tab" class="is-active" data-tab="situation" aria-selected="true">Situazione</button>
           <button type="button" role="tab" data-tab="settlement" aria-selected="false">Pareggio</button>
         </div>
 
@@ -106,16 +107,16 @@
           <form class="inpair-form-card" id="expenseForm" hidden>
             <div class="inpair-form-grid">
               <label>
+                <span>Categoria</span>
+                <select id="expenseCategory" required></select>
+              </label>
+              <label>
                 <span>Descrizione</span>
                 <input type="text" id="expenseDescription" maxlength="200" required autocomplete="off" placeholder="Es. Ristorante">
               </label>
               <label>
                 <span>Importo</span>
                 <input type="number" id="expenseAmount" min="0.01" step="0.01" inputmode="decimal" required placeholder="0,00">
-              </label>
-              <label>
-                <span>Categoria</span>
-                <select id="expenseCategory" required></select>
               </label>
               <label id="expensePayerWrap" hidden>
                 <span>Di chi è la spesa</span>
@@ -133,8 +134,22 @@
         </section>
 
         <!-- SITUAZIONE -->
-        <section class="inpair-tab-panel" data-panel="situation" hidden>
+        <section class="inpair-tab-panel" data-panel="situation">
           <div class="inpair-person-list" id="situationList"></div>
+          <section class="inpair-chart-section" id="dailyChartSection">
+            <div class="inpair-chart-head">
+              <div>
+                <h3>Spese per giorno</h3>
+                <p>Quanto ha speso ogni partecipante nel giorno di registrazione.</p>
+              </div>
+            </div>
+            <div class="inpair-chart-scroll">
+              <div class="inpair-chart-stage" id="dailyChartStage">
+                <canvas id="dailyExpenseChart" aria-label="Grafico delle spese giornaliere per partecipante" role="img"></canvas>
+              </div>
+            </div>
+            <p class="inpair-empty" id="dailyChartEmpty" hidden>Nessuna spesa attiva da rappresentare.</p>
+          </section>
         </section>
 
         <!-- PAREGGIO -->

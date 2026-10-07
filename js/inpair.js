@@ -19,7 +19,8 @@
     event: null,
     participants: [],
     expenses: [],
-    activeTab: "expenses"
+    activeTab: "situation",
+    dailyChart: null
   };
 
   const $ = (id) => document.getElementById(id);
@@ -65,6 +66,9 @@
     expenseList: $("expenseList"),
     expenseEmpty: $("expenseEmpty"),
     situationList: $("situationList"),
+    dailyChartStage: $("dailyChartStage"),
+    dailyExpenseChart: $("dailyExpenseChart"),
+    dailyChartEmpty: $("dailyChartEmpty"),
     settlementIntro: $("settlementIntro"),
     settlementList: $("settlementList"),
     adminPanel: $("adminPanel"),
@@ -427,7 +431,7 @@
     els.expenseList.innerHTML = list.map((expense) => {
       const deleted = Boolean(expense.deleted_at);
       const cancelButton = canCancelExpense(expense)
-        ? `<button type="button" class="inpair-mini-button" data-cancel-expense="${expense.expense_id}">Annulla spesa</button>`
+        ? `<button type="button" class="inpair-expense-cancel" data-cancel-expense="${expense.expense_id}" aria-label="Annulla ${escapeHtml(expense.description)}" title="Annulla spesa">×</button>`
         : "";
 
       const deletedMeta = deleted
@@ -437,7 +441,10 @@
       return `
         <article class="inpair-expense-card ${deleted ? "is-deleted" : ""}">
           <div class="inpair-expense-top">
-            <div class="inpair-expense-title">${escapeHtml(expense.description)}</div>
+            <div class="inpair-expense-heading">
+              ${cancelButton}
+              <div class="inpair-expense-title">${escapeHtml(expense.description)}</div>
+            </div>
             <div class="inpair-expense-amount">${escapeHtml(euroFromCents(toCents(expense.amount)))}</div>
           </div>
           <div class="inpair-expense-meta">
@@ -447,7 +454,6 @@
             <span>${escapeHtml(formatDateTime(expense.created_at))}</span>
             ${deletedMeta}
           </div>
-          ${cancelButton ? `<div class="inpair-expense-actions">${cancelButton}</div>` : ""}
         </article>`;
     }).join("");
 
@@ -476,6 +482,125 @@
           </div>
         </article>`;
     }).join("");
+    renderDailyExpenseChart();
+  }
+
+  function emailColor(email) {
+    let hash = 0;
+    const value = normalizeEmail(email);
+    for (let i = 0; i < value.length; i += 1) {
+      hash = ((hash << 5) - hash + value.charCodeAt(i)) | 0;
+    }
+    const hue = Math.abs(hash) % 360;
+    return `hsl(${hue} 68% 58%)`;
+  }
+
+  function dateKeyRome(value) {
+    const date = new Date(value);
+    const parts = new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Europe/Rome",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit"
+    }).formatToParts(date);
+    const map = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+    return `${map.year}-${map.month}-${map.day}`;
+  }
+
+  function formatDayLabel(key) {
+    const [year, month, day] = key.split("-").map(Number);
+    return new Intl.DateTimeFormat("it-IT", { day: "numeric", month: "short" })
+      .format(new Date(Date.UTC(year, month - 1, day)));
+  }
+
+  function renderDailyExpenseChart() {
+    if (state.dailyChart) {
+      state.dailyChart.destroy();
+      state.dailyChart = null;
+    }
+
+    const expenses = activeExpenses();
+    const participants = activeParticipants()
+      .map((p) => normalizeEmail(p.email))
+      .filter(Boolean)
+      .sort((a, b) => a.localeCompare(b));
+
+    const daySet = new Set(expenses.map((expense) => dateKeyRome(expense.created_at)));
+    const days = Array.from(daySet).sort();
+    els.dailyChartEmpty.hidden = days.length > 0;
+    els.dailyChartStage.hidden = days.length === 0;
+
+    if (!days.length || !window.Chart) return;
+
+    const values = new Map();
+    for (const email of participants) values.set(email, new Map(days.map((day) => [day, 0])));
+    for (const expense of expenses) {
+      const email = normalizeEmail(expense.paid_by_email);
+      const day = dateKeyRome(expense.created_at);
+      if (!values.has(email)) values.set(email, new Map(days.map((key) => [key, 0])));
+      values.get(email).set(day, (values.get(email).get(day) || 0) + Number(expense.amount || 0));
+    }
+
+    const width = Math.max(640, days.length * 92);
+    els.dailyChartStage.style.width = `${width}px`;
+
+    const datasets = Array.from(values.entries()).map(([email, dayMap]) => {
+      const color = emailColor(email);
+      return {
+        label: email,
+        data: days.map((day) => Number((dayMap.get(day) || 0).toFixed(2))),
+        borderColor: color,
+        backgroundColor: color,
+        pointBackgroundColor: color,
+        pointBorderColor: color,
+        borderWidth: 2,
+        pointRadius: 3,
+        pointHoverRadius: 5,
+        tension: 0.2,
+        fill: false
+      };
+    });
+
+    state.dailyChart = new window.Chart(els.dailyExpenseChart, {
+      type: "line",
+      data: { labels: days.map(formatDayLabel), datasets },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: "index", intersect: false },
+        plugins: {
+          legend: {
+            display: true,
+            position: "top",
+            labels: { color: "#f4f1ea", boxWidth: 12, boxHeight: 12, usePointStyle: true }
+          },
+          tooltip: {
+            callbacks: {
+              label(context) {
+                const value = Number(context.parsed.y || 0).toLocaleString("it-IT", {
+                  style: "currency", currency: "EUR"
+                });
+                return `${context.dataset.label}: ${value}`;
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: { color: "rgba(255,255,255,.06)" },
+            ticks: { color: "#aaa59b" }
+          },
+          y: {
+            beginAtZero: true,
+            grid: { color: "rgba(255,255,255,.08)" },
+            ticks: {
+              color: "#aaa59b",
+              callback(value) { return `${value} €`; }
+            }
+          }
+        }
+      }
+    });
   }
 
   function renderSettlement(rows) {
@@ -740,7 +865,7 @@
 
     els.addExpenseButton.addEventListener("click", () => {
       els.expenseForm.hidden = !els.expenseForm.hidden;
-      if (!els.expenseForm.hidden) setTimeout(() => els.expenseDescription.focus(), 0);
+      if (!els.expenseForm.hidden) setTimeout(() => els.expenseCategory.focus(), 0);
     });
     els.cancelExpenseForm.addEventListener("click", () => {
       els.expenseForm.reset();
