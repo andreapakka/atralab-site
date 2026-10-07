@@ -572,7 +572,13 @@
       values.get(email).set(day, (values.get(email).get(day) || 0) + Number(expense.amount || 0));
     }
 
-    const width = Math.max(640, days.length * 92);
+    // Il grafico può scorrere dentro il suo wrapper senza allargare la pagina.
+    // Su mobile manteniamo una larghezza minima più contenuta; cresce solo quando
+    // i giorni diventano abbastanza numerosi da richiedere davvero lo scroll.
+    const isMobile = window.matchMedia("(max-width: 620px)").matches;
+    const minChartWidth = isMobile ? 360 : 640;
+    const pixelsPerDay = isMobile ? 66 : 92;
+    const width = Math.max(minChartWidth, days.length * pixelsPerDay);
     els.dailyChartStage.style.width = `${width}px`;
 
     const datasets = Array.from(values.entries()).map(([email, dayMap]) => {
@@ -603,7 +609,25 @@
           legend: {
             display: true,
             position: "top",
-            labels: { color: "#f4f1ea", boxWidth: 12, boxHeight: 12, usePointStyle: true }
+            labels: {
+              color: "#f4f1ea",
+              boxWidth: 10,
+              boxHeight: 10,
+              usePointStyle: true,
+              padding: isMobile ? 8 : 12,
+              font: { size: isMobile ? 10 : 12 },
+              generateLabels(chart) {
+                const labels = window.Chart.defaults.plugins.legend.labels.generateLabels(chart);
+                if (!isMobile) return labels;
+                return labels.map((item) => {
+                  const full = String(item.text || "");
+                  if (full.length <= 26) return item;
+                  const at = full.indexOf("@");
+                  const local = at > 0 ? full.slice(0, at) : full;
+                  return { ...item, text: local.length > 22 ? `${local.slice(0, 21)}…` : local };
+                });
+              }
+            }
           },
           tooltip: {
             callbacks: {

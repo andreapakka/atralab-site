@@ -794,3 +794,65 @@
     flex: 1 1 auto;
   }
 }
+
+
+/* InPair v6 - contenimento overflow mobile grafici */
+.inpair-main,
+#eventView,
+[data-panel],
+.inpair-chart-section,
+.inpair-chart-scroll {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.inpair-chart-section {
+  width: 100%;
+  overflow: hidden;
+}
+
+.inpair-chart-scroll {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-inline: contain;
+}
+
+.inpair-chart-stage,
+.inpair-category-chart-stage {
+  max-width: none;
+}
+
+.inpair-chart-stage canvas,
+.inpair-category-chart-stage canvas {
+  display: block;
+}
+
+.inpair-person-card,
+.inpair-person-top,
+.inpair-person-top > * {
+  min-width: 0;
+}
+
+.inpair-person-top strong,
+.inpair-person-card p {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+@media (max-width: 620px) {
+  .inpair-main,
+  #eventView,
+  [data-panel] {
+    width: 100%;
+    overflow-x: clip;
+  }
+
+  .inpair-chart-scroll {
+    margin-inline: 0;
+  }
+
+  .inpair-chart-stage {
+    min-width: 100%;
+  }
+}
