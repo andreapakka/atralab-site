@@ -692,6 +692,12 @@
   min-width: 100%;
 }
 
+.inpair-category-chart-stage {
+  position: relative;
+  width: 100%;
+  min-height: 220px;
+}
+
 @media (min-width: 900px) {
   .inpair-main {
     padding-right: 28px;

@@ -20,7 +20,8 @@
     participants: [],
     expenses: [],
     activeTab: "situation",
-    dailyChart: null
+    dailyChart: null,
+    categoryChart: null
   };
 
   const $ = (id) => document.getElementById(id);
@@ -69,6 +70,9 @@
     dailyChartStage: $("dailyChartStage"),
     dailyExpenseChart: $("dailyExpenseChart"),
     dailyChartEmpty: $("dailyChartEmpty"),
+    categoryChartStage: $("categoryChartStage"),
+    categoryExpenseChart: $("categoryExpenseChart"),
+    categoryChartEmpty: $("categoryChartEmpty"),
     settlementIntro: $("settlementIntro"),
     settlementList: $("settlementList"),
     adminPanel: $("adminPanel"),
@@ -509,6 +513,7 @@
         </article>`;
     }).join("");
     renderDailyExpenseChart();
+    renderCategoryExpenseChart();
   }
 
   function emailColor(email) {
@@ -623,6 +628,82 @@
               color: "#aaa59b",
               callback(value) { return `${value} €`; }
             }
+          }
+        }
+      }
+    });
+  }
+
+  function renderCategoryExpenseChart() {
+    if (state.categoryChart) {
+      state.categoryChart.destroy();
+      state.categoryChart = null;
+    }
+
+    const totals = new Map();
+    for (const expense of activeExpenses()) {
+      const categoryId = Number(expense.category_id);
+      totals.set(categoryId, (totals.get(categoryId) || 0) + Number(expense.amount || 0));
+    }
+
+    const rows = Array.from(totals.entries())
+      .map(([categoryId, total]) => ({
+        category: categoryName(categoryId),
+        total: Number(total.toFixed(2))
+      }))
+      .filter((row) => row.total > 0)
+      .sort((a, b) => b.total - a.total || a.category.localeCompare(b.category, "it"));
+
+    els.categoryChartEmpty.hidden = rows.length > 0;
+    els.categoryChartStage.hidden = rows.length === 0;
+
+    if (!rows.length || !window.Chart) return;
+
+    const height = Math.max(220, rows.length * 42 + 56);
+    els.categoryChartStage.style.height = `${height}px`;
+
+    state.categoryChart = new window.Chart(els.categoryExpenseChart, {
+      type: "bar",
+      data: {
+        labels: rows.map((row) => row.category),
+        datasets: [{
+          label: "Totale",
+          data: rows.map((row) => row.total),
+          backgroundColor: "rgba(231, 111, 81, .78)",
+          borderColor: "rgba(231, 111, 81, 1)",
+          borderWidth: 1,
+          borderRadius: 5,
+          borderSkipped: false
+        }]
+      },
+      options: {
+        indexAxis: "y",
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label(context) {
+                return Number(context.parsed.x || 0).toLocaleString("it-IT", {
+                  style: "currency", currency: "EUR"
+                });
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            beginAtZero: true,
+            grid: { color: "rgba(255,255,255,.08)" },
+            ticks: {
+              color: "#aaa59b",
+              callback(value) { return `${value} €`; }
+            }
+          },
+          y: {
+            grid: { display: false },
+            ticks: { color: "#f4f1ea" }
           }
         }
       }
