@@ -110,6 +110,14 @@
     return String(value || "").trim().toLowerCase();
   }
 
+  // Solo presentazione: il DB e tutta la logica continuano a usare l'email completa.
+  // La Gestione evento mostra volutamente l'indirizzo completo.
+  function displayEmail(value) {
+    const email = normalizeEmail(value);
+    const at = email.indexOf("@");
+    return at > 0 ? email.slice(0, at) : email;
+  }
+
   function euroFromCents(cents) {
     return new Intl.NumberFormat("it-IT", {
       style: "currency",
@@ -198,7 +206,7 @@
     state.user = session.user;
     state.isAdmin = Boolean(await rpc("inpair_is_admin"));
 
-    els.currentUserEmail.textContent = normalizeEmail(state.user.email);
+    els.currentUserEmail.textContent = displayEmail(state.user.email);
     els.currentUserRole.textContent = state.isAdmin ? "admin" : "utente";
     els.currentUserBox.hidden = false;
     els.newEventButton.hidden = !state.isAdmin;
@@ -430,7 +438,7 @@
     const currentEmail = normalizeEmail(state.user.email);
     const participants = activeParticipants();
     els.expensePayer.innerHTML = participants
-      .map((p) => `<option value="${escapeHtml(p.email)}">${escapeHtml(p.email)}</option>`)
+      .map((p) => `<option value="${escapeHtml(p.email)}">${escapeHtml(displayEmail(p.email))}</option>`)
       .join("");
 
     if (participants.some((p) => normalizeEmail(p.email) === currentEmail)) {
@@ -463,10 +471,10 @@
         ? `<button type="button" class="inpair-expense-cancel" data-cancel-expense="${expense.expense_id}" aria-label="Annulla ${escapeHtml(expense.description)}" title="Annulla spesa">×</button>`
         : "";
       const insertedInfo = createdBy && createdBy !== paidBy
-        ? `<span class="inpair-expense-info" title="Inserita da ${escapeHtml(createdBy)}" aria-label="Inserita da ${escapeHtml(createdBy)}">ⓘ</span>`
+        ? `<span class="inpair-expense-info" title="Inserita da ${escapeHtml(displayEmail(createdBy))}" aria-label="Inserita da ${escapeHtml(displayEmail(createdBy))}">ⓘ</span>`
         : "";
       const deletedMeta = deleted
-        ? `<span class="inpair-expense-deleted-meta">Annullata ${escapeHtml(formatDateTime(expense.deleted_at))}${expense.deleted_by_email ? ` da ${escapeHtml(expense.deleted_by_email)}` : ""}</span>`
+        ? `<span class="inpair-expense-deleted-meta">Annullata ${escapeHtml(formatDateTime(expense.deleted_at))}${expense.deleted_by_email ? ` da ${escapeHtml(displayEmail(expense.deleted_by_email))}` : ""}</span>`
         : "";
 
       return `
@@ -481,7 +489,7 @@
           <div class="inpair-expense-meta">
             <span class="inpair-expense-date">${escapeHtml(formatExpenseDateTime(expense.created_at))}</span>
             <span>${escapeHtml(categoryName(expense.category_id))}</span>
-            <span>Di <strong class="inpair-expense-payer" style="color:${escapeHtml(payerColor)}">${escapeHtml(paidBy)}</strong></span>
+            <span>Di <strong class="inpair-expense-payer" style="color:${escapeHtml(payerColor)}">${escapeHtml(displayEmail(paidBy))}</strong></span>
             ${deletedMeta}
           </div>
         </article>`;
@@ -502,7 +510,7 @@
       return `
         <article class="inpair-person-card">
           <div class="inpair-person-top">
-            <strong>${escapeHtml(row.email)}${me}</strong>
+            <strong>${escapeHtml(displayEmail(row.email))}${me}</strong>
             <strong class="inpair-money ${balanceClass}">${escapeHtml(balanceText)}</strong>
           </div>
           <div class="inpair-person-values">
@@ -584,7 +592,7 @@
     const datasets = Array.from(values.entries()).map(([email, dayMap]) => {
       const color = emailColor(email);
       return {
-        label: email,
+        label: displayEmail(email),
         data: days.map((day) => Number((dayMap.get(day) || 0).toFixed(2))),
         borderColor: color,
         backgroundColor: color,
@@ -620,11 +628,8 @@
                 const labels = window.Chart.defaults.plugins.legend.labels.generateLabels(chart);
                 if (!isMobile) return labels;
                 return labels.map((item) => {
-                  const full = String(item.text || "");
-                  if (full.length <= 26) return item;
-                  const at = full.indexOf("@");
-                  const local = at > 0 ? full.slice(0, at) : full;
-                  return { ...item, text: local.length > 22 ? `${local.slice(0, 21)}…` : local };
+                  const text = String(item.text || "");
+                  return text.length > 22 ? { ...item, text: `${text.slice(0, 21)}…` } : item;
                 });
               }
             }
@@ -753,7 +758,7 @@
     els.settlementList.innerHTML = plan.map((item) => `
       <article class="inpair-settlement-card">
         <div class="inpair-settlement-row">
-          <span>${escapeHtml(item.from)} → ${escapeHtml(item.to)}</span>
+          <span>${escapeHtml(displayEmail(item.from))} → ${escapeHtml(displayEmail(item.to))}</span>
           <strong>${escapeHtml(euroFromCents(item.amount))}</strong>
         </div>
       </article>`).join("");
