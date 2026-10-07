@@ -129,6 +129,26 @@
     }).format(d);
   }
 
+  function formatExpenseDateTime(value) {
+    if (!value) return "";
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return "";
+
+    const parts = new Intl.DateTimeFormat("it-IT", {
+      timeZone: "Europe/Rome",
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false
+    }).formatToParts(d);
+    const map = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+    const months = ["Gen", "Feb", "Mar", "Apr", "Mag", "Giu", "Lug", "Ago", "Set", "Ott", "Nov", "Dic"];
+    const monthName = months[Math.max(0, Number(map.month) - 1)] || map.month;
+    return `${map.day} ${monthName} ${map.year} alle ${map.hour}:${map.minute}`;
+  }
+
   function eventUrl(guid) {
     const url = new URL("/inpair/", window.location.origin);
     url.searchParams.set("event", guid);
@@ -427,31 +447,37 @@
   function renderExpenses() {
     const showActiveOnly = els.activeOnly.checked;
     const list = state.expenses.filter((e) => !showActiveOnly || !e.deleted_at);
+    const todayKey = dateKeyRome(new Date());
 
     els.expenseList.innerHTML = list.map((expense) => {
       const deleted = Boolean(expense.deleted_at);
+      const isToday = !deleted && dateKeyRome(expense.created_at) === todayKey;
+      const paidBy = normalizeEmail(expense.paid_by_email);
+      const createdBy = normalizeEmail(expense.created_by_email);
+      const payerColor = emailColor(paidBy);
       const cancelButton = canCancelExpense(expense)
         ? `<button type="button" class="inpair-expense-cancel" data-cancel-expense="${expense.expense_id}" aria-label="Annulla ${escapeHtml(expense.description)}" title="Annulla spesa">×</button>`
         : "";
-
+      const insertedInfo = createdBy && createdBy !== paidBy
+        ? `<span class="inpair-expense-info" title="Inserita da ${escapeHtml(createdBy)}" aria-label="Inserita da ${escapeHtml(createdBy)}">ⓘ</span>`
+        : "";
       const deletedMeta = deleted
-        ? `<span>Annullata ${escapeHtml(formatDateTime(expense.deleted_at))}${expense.deleted_by_email ? ` da ${escapeHtml(expense.deleted_by_email)}` : ""}</span>`
+        ? `<span class="inpair-expense-deleted-meta">Annullata ${escapeHtml(formatDateTime(expense.deleted_at))}${expense.deleted_by_email ? ` da ${escapeHtml(expense.deleted_by_email)}` : ""}</span>`
         : "";
 
       return `
-        <article class="inpair-expense-card ${deleted ? "is-deleted" : ""}">
+        <article class="inpair-expense-card ${deleted ? "is-deleted" : ""} ${isToday ? "is-today" : ""}">
           <div class="inpair-expense-top">
             <div class="inpair-expense-heading">
               ${cancelButton}
-              <div class="inpair-expense-title">${escapeHtml(expense.description)}</div>
+              <div class="inpair-expense-title">${escapeHtml(expense.description)} ${insertedInfo}</div>
             </div>
             <div class="inpair-expense-amount">${escapeHtml(euroFromCents(toCents(expense.amount)))}</div>
           </div>
           <div class="inpair-expense-meta">
+            <span class="inpair-expense-date">${escapeHtml(formatExpenseDateTime(expense.created_at))}</span>
             <span>${escapeHtml(categoryName(expense.category_id))}</span>
-            <span>Di ${escapeHtml(expense.paid_by_email)}</span>
-            <span>Inserita da ${escapeHtml(expense.created_by_email)}</span>
-            <span>${escapeHtml(formatDateTime(expense.created_at))}</span>
+            <span>Di <strong class="inpair-expense-payer" style="color:${escapeHtml(payerColor)}">${escapeHtml(paidBy)}</strong></span>
             ${deletedMeta}
           </div>
         </article>`;
@@ -526,7 +552,7 @@
       .sort((a, b) => a.localeCompare(b));
 
     const daySet = new Set(expenses.map((expense) => dateKeyRome(expense.created_at)));
-    const days = Array.from(daySet).sort();
+    const days = Array.from(daySet).sort((a, b) => b.localeCompare(a));
     els.dailyChartEmpty.hidden = days.length > 0;
     els.dailyChartStage.hidden = days.length === 0;
 

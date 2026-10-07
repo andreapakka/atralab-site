@@ -703,3 +703,51 @@
     height: 260px;
   }
 }
+
+/* InPair v3 - card spese, evidenza oggi e griglia desktop */
+.inpair-expense-meta {
+  display: grid;
+  gap: 3px;
+  margin-top: 7px;
+}
+
+.inpair-expense-date {
+  color: var(--inpair-text);
+  font-weight: 600;
+}
+
+.inpair-expense-payer {
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.inpair-expense-info {
+  display: inline-block;
+  margin-left: 4px;
+  color: var(--inpair-muted);
+  font-size: .78em;
+  font-weight: 400;
+  cursor: help;
+  vertical-align: .05em;
+}
+
+.inpair-expense-deleted-meta {
+  margin-top: 3px;
+  color: var(--inpair-bad);
+}
+
+.inpair-expense-card.is-today:not(.is-deleted) {
+  border-color: rgba(231, 111, 81, .78);
+  box-shadow: inset 3px 0 0 var(--inpair-accent);
+}
+
+@media (min-width: 760px) {
+  .inpair-expense-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+  }
+
+  .inpair-expense-card {
+    min-width: 0;
+  }
+}
