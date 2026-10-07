@@ -62,14 +62,17 @@
         <div class="inpair-event-top">
           <button type="button" class="inpair-link-button" id="backToEvents">← Eventi</button>
           <div class="inpair-event-heading">
-            <div>
+            <div class="inpair-event-heading-copy">
               <div class="inpair-title-row">
                 <h2 id="eventTitle"></h2>
                 <span class="inpair-badge" id="eventState"></span>
               </div>
               <p class="inpair-event-meta" id="eventMeta"></p>
             </div>
-            <button type="button" class="inpair-icon-button" id="shareButton" aria-label="Condividi evento">↗</button>
+            <div class="inpair-event-actions">
+              <button type="button" class="inpair-button" id="addExpenseButton">Aggiungi spesa</button>
+              <button type="button" class="inpair-icon-button" id="shareButton" aria-label="Condividi evento">↗</button>
+            </div>
           </div>
         </div>
 
@@ -96,8 +99,7 @@
 
         <!-- SPESE -->
         <section class="inpair-tab-panel" data-panel="expenses">
-          <div class="inpair-actions-row">
-            <button type="button" class="inpair-button" id="addExpenseButton">Aggiungi spesa</button>
+          <div class="inpair-actions-row inpair-expense-filters">
             <label class="inpair-check">
               <input type="checkbox" id="activeOnly" checked>
               <span>Solo attive</span>

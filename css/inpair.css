@@ -751,3 +751,40 @@
     min-width: 0;
   }
 }
+
+/* InPair v4 - azione Aggiungi spesa nella testata evento */
+.inpair-event-heading-copy {
+  min-width: 0;
+}
+
+.inpair-event-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
+.inpair-event-actions .inpair-button {
+  white-space: nowrap;
+}
+
+.inpair-expense-filters {
+  justify-content: flex-end;
+}
+
+@media (max-width: 620px) {
+  .inpair-event-heading {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .inpair-event-actions {
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .inpair-event-actions .inpair-button {
+    flex: 1 1 auto;
+  }
+}
