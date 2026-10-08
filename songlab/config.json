@@ -1,0 +1,90 @@
+{
+  "version": 1,
+  "defaults": {
+    "genre": "auto",
+    "mood": "auto",
+    "tempo": "auto",
+    "energy": "auto",
+    "instruments": [],
+    "production": "auto",
+    "voice": "auto",
+    "lyrics": "",
+    "extra": ""
+  },
+  "limits": {
+    "titleMaxChars": 200,
+    "lyricsMinChars": 300,
+    "lyricsMaxChars": 5000,
+    "extraMaxChars": 300,
+    "promptMaxChars": 1024,
+    "maxInstruments": 4
+  },
+  "promptOrder": ["genre", "mood", "tempo", "energy", "instruments", "production", "extra"],
+  "options": {
+    "genre": [
+      {"value":"auto","label":"Automatico","en":""},
+      {"value":"pop","label":"Pop","en":"pop"},
+      {"value":"rock","label":"Rock","en":"rock"},
+      {"value":"indie","label":"Indie","en":"indie"},
+      {"value":"hiphop","label":"Rap / Hip-Hop","en":"rap and hip-hop"},
+      {"value":"trap","label":"Trap","en":"trap"},
+      {"value":"rnb","label":"R&B / Soul","en":"R&B and soul"},
+      {"value":"electronic","label":"Elettronica / Dance","en":"electronic dance music"},
+      {"value":"folk","label":"Folk / Acustico","en":"acoustic folk"},
+      {"value":"jazz","label":"Jazz / Blues","en":"jazz and blues"},
+      {"value":"cinematic","label":"Cinematico / Orchestrale","en":"cinematic orchestral music"}
+    ],
+    "mood": [
+      {"value":"auto","label":"Automatico","en":""},
+      {"value":"happy","label":"Allegro / Solare","en":"joyful and sunny mood"},
+      {"value":"melancholic","label":"Malinconico","en":"melancholic mood"},
+      {"value":"romantic","label":"Romantico","en":"romantic mood"},
+      {"value":"sad","label":"Triste / Introspettivo","en":"sad and introspective mood"},
+      {"value":"energetic","label":"Energico / Carico","en":"energetic and driven mood"},
+      {"value":"dreamy","label":"Sognante / Etereo","en":"dreamy and ethereal mood"},
+      {"value":"dark","label":"Oscuro / Misterioso","en":"dark and mysterious mood"},
+      {"value":"epic","label":"Epico / Trionfale","en":"epic and triumphant mood"},
+      {"value":"relaxed","label":"Rilassato / Tranquillo","en":"relaxed and calm mood"},
+      {"value":"sensual","label":"Sensuale / Intenso","en":"sensual and intense mood"}
+    ],
+    "tempo": [
+      {"value":"auto","label":"Automatico","en":""},
+      {"value":"slow","label":"Lento","en":"slow tempo"},
+      {"value":"medium","label":"Medio","en":"medium tempo"},
+      {"value":"fast","label":"Veloce","en":"fast tempo"}
+    ],
+    "energy": [
+      {"value":"auto","label":"Automatico","en":""},
+      {"value":"low","label":"Bassa","en":"low energy"},
+      {"value":"medium","label":"Media","en":"moderate energy"},
+      {"value":"high","label":"Alta","en":"high energy"}
+    ],
+    "instruments": [
+      {"value":"piano","label":"Pianoforte","en":"piano"},
+      {"value":"acoustic_guitar","label":"Chitarra acustica","en":"acoustic guitar"},
+      {"value":"electric_guitar","label":"Chitarra elettrica","en":"electric guitar"},
+      {"value":"drums","label":"Batteria","en":"drums"},
+      {"value":"bass","label":"Basso","en":"bass guitar"},
+      {"value":"synths","label":"Sintetizzatori","en":"synthesizers"},
+      {"value":"strings","label":"Archi","en":"strings"},
+      {"value":"winds","label":"Fiati","en":"wind instruments"},
+      {"value":"percussion","label":"Percussioni","en":"percussion"},
+      {"value":"orchestra","label":"Orchestra","en":"orchestra"}
+    ],
+    "production": [
+      {"value":"auto","label":"Automatico","en":""},
+      {"value":"intimate","label":"Intimo / Acustico","en":"intimate acoustic production"},
+      {"value":"modern","label":"Moderno / Pulito","en":"modern clean production"},
+      {"value":"lofi","label":"Lo-fi / Vintage","en":"lo-fi vintage production"},
+      {"value":"epic","label":"Epico / Cinematografico","en":"epic cinematic production"},
+      {"value":"minimal","label":"Minimalista","en":"minimalist arrangement"},
+      {"value":"orchestral","label":"Orchestrale","en":"orchestral arrangement"},
+      {"value":"live","label":"Live / Concerto","en":"live concert atmosphere"}
+    ],
+    "voice": [
+      {"value":"auto","label":"Automatica","gender":null},
+      {"value":"male","label":"Maschile","gender":"male"},
+      {"value":"female","label":"Femminile","gender":"female"}
+    ]
+  }
+}
