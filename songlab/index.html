@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0e0e0e">
+  <title>SongLab · ATRALAB</title>
+  <meta name="description" content="SongLab: dai voce alle tue parole. Crea e conserva le tue canzoni.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/internal.css">
+  <link rel="stylesheet" href="/css/songlab.css">
+  <script src="/js/include.js" defer></script>
+  <script src="/js/songlab.js" defer></script>
+</head>
+<body>
+  <div id="header-placeholder"></div>
+  <div id="sidebar-placeholder"></div>
+  <main class="sl-main" id="main-content">
+    <div class="sl-wrap">
+      <header class="sl-heading"><div><p class="sl-eyebrow">ATRALAB · LABORATORIO MUSICALE</p><h1>SongLab<span class="sl-dot">.</span></h1><p class="sl-subtitle">Dai voce alle tue parole.</p></div><span class="sl-chip">V1 · Mureka</span></header>
+      <div id="sl-notice" class="sl-notice" role="status" aria-live="polite" hidden></div>
+      <section class="sl-auth" id="sl-auth" hidden><h2>Accesso richiesto</h2><p>Per usare SongLab accedi con il login OTP di ATRALAB. L'accesso è riservato ai ruoli family e admin.</p><button type="button" id="sl-retry-auth" class="sl-btn sl-secondary">Ho effettuato l'accesso · Riprova</button></section>
+      <div id="sl-app" hidden>
+        <nav class="sl-tabs" aria-label="Sezioni SongLab" role="tablist"><button class="sl-tab is-active" type="button" id="sl-tab-create" role="tab" aria-selected="true" aria-controls="sl-create">Crea canzone</button><button class="sl-tab" type="button" id="sl-tab-library" role="tab" aria-selected="false" aria-controls="sl-library">Libreria <span id="sl-library-count" class="sl-count"></span></button></nav>
+        <section id="sl-create" role="tabpanel" aria-labelledby="sl-tab-create">
+          <form id="sl-form" novalidate>
+            <div class="sl-panel"><div class="sl-panel-title"><h2>Le tue parole</h2><span class="sl-small">Testo originale</span></div><label for="sl-title">Titolo <strong>*</strong></label><input id="sl-title" maxlength="200" autocomplete="off" required placeholder="Un titolo per la tua canzone"><div class="sl-labelrow"><label for="sl-lyrics">Testo della canzone <strong>*</strong></label><span class="sl-counter" id="sl-lyrics-count">0 / 5000</span></div><textarea id="sl-lyrics" rows="11" maxlength="5000" required placeholder="[Verse 1]&#10;Scrivi o incolla le parole...&#10;&#10;[Chorus]&#10;Il tuo ritornello..."></textarea><p class="sl-hint" id="sl-lyrics-hint">Le lyrics sono obbligatorie. Consigliati almeno 300 caratteri; massimo 5.000.</p><div class="sl-actions sl-actions-left"><button type="button" class="sl-btn sl-ghost" id="sl-insert-structure">Inserisci struttura</button></div></div>
+            <details class="sl-panel sl-disclosure" id="sl-ai-help"><summary><span><strong>Aiutami a scrivere il testo</strong><small>Prepara un prompt da copiare in ChatGPT o un'altra AI</small></span><span class="sl-chevron" aria-hidden="true">⌄</span></summary><div class="sl-details-body"><p class="sl-hint">Questo modulo non chiama servizi AI. Genera istruzioni da copiare, poi incolla il testo ottenuto nel campo qui sopra.</p><div class="sl-fields"><div><label for="sl-ai-topic">Argomento</label><input id="sl-ai-topic" placeholder="Di cosa parla la canzone?"></div><div><label for="sl-ai-story">Storia, immagini e messaggio</label><textarea id="sl-ai-story" rows="3" placeholder="Persone, scene, frasi, cosa vuoi raccontare..."></textarea></div><div><label for="sl-ai-emotion">Emozione</label><input id="sl-ai-emotion" placeholder="Es. nostalgia, speranza, gioia"></div><div><label for="sl-ai-style">Stile del testo</label><input id="sl-ai-style" placeholder="Es. poetico, diretto, narrativo"></div><div><label for="sl-ai-lang">Lingua</label><select id="sl-ai-lang"><option value="italiano">Italiano</option><option value="inglese">Inglese</option><option value="spagnolo">Spagnolo</option><option value="francese">Francese</option><option value="altro">Altra (specifica nella storia)</option></select></div></div><div class="sl-actions sl-actions-left"><button id="sl-copy-ai" type="button" class="sl-btn sl-secondary">Copia prompt per AI</button></div><details class="sl-mini-help"><summary>Guida rapida alla struttura</summary><p>Usa [Verse] per le strofe, [Chorus] per il ritornello, [Bridge] per un cambio e [Outro] per la chiusura. Preferisci frasi cantabili, un ritornello riconoscibile e immagini concrete.</p></details></div></details>
+            <details class="sl-panel sl-disclosure" id="sl-music"><summary><span><strong>Personalizza la musica</strong><small>Genere, atmosfera, ritmo, strumenti, voce e produzione</small></span><span class="sl-chevron" aria-hidden="true">⌄</span></summary><div class="sl-details-body"><div class="sl-fields sl-music-fields"><div><label for="sl-genre">Genere</label><select id="sl-genre" data-music="genre"></select></div><div><label for="sl-mood">Atmosfera</label><select id="sl-mood" data-music="mood"></select></div><div><label for="sl-tempo">Ritmo</label><select id="sl-tempo" data-music="tempo"></select></div><div><label for="sl-energy">Energia</label><select id="sl-energy" data-music="energy"></select></div><div><label for="sl-production">Produzione</label><select id="sl-production" data-music="production"></select></div><div><label for="sl-voice">Voce</label><select id="sl-voice" data-music="voice"></select></div></div><fieldset class="sl-instruments"><legend>Strumenti <span id="sl-instruments-counter" class="sl-hint">0 / 4</span></legend><div id="sl-instruments" class="sl-checks"></div></fieldset><label for="sl-extra">Indicazioni aggiuntive <span class="sl-hint">(facoltative)</span></label><textarea id="sl-extra" data-music="extra" rows="3" maxlength="300" placeholder="Es. un ritornello esplosivo con pianoforte delicato nelle strofe..."></textarea><p class="sl-hint">Le indicazioni extra saranno tradotte in inglese solo quando richiedi l'anteprima.</p></div></details>
+            <div class="sl-panel"><div class="sl-panel-title"><h2>Prompt musicale</h2><span id="sl-prompt-badge" class="sl-tag">Da preparare</span></div><p class="sl-hint">Prima visualizza l'anteprima. Puoi modificare il prompt inglese; se cambi le impostazioni dovrai aggiornarlo.</p><button type="button" id="sl-preview" class="sl-btn sl-secondary">Prepara anteprima</button><div id="sl-prompt-area" hidden><label for="sl-prompt">Prompt finale (inglese)</label><textarea id="sl-prompt" maxlength="1024" rows="4" placeholder="Il prompt musicale apparirà qui"></textarea><p class="sl-hint"><span id="sl-prompt-count">0 / 1024</span> · Le modifiche manuali vengono mantenute finché non aggiorni l'anteprima.</p></div></div>
+            <div class="sl-panel sl-generate"><div class="sl-panel-title"><h2>Generazione</h2><span id="sl-quota" class="sl-tag">Disponibilità: —</span></div><p class="sl-hint">Ogni generazione reale consuma credito Mureka. Una canzone per richiesta; massimo 5 avvii complessivi al giorno, secondo il limite del server.</p><button type="submit" id="sl-generate" class="sl-btn sl-primary" disabled>Genera canzone</button><div id="sl-progress" class="sl-progress" hidden aria-live="polite"><p id="sl-progress-text">Preparazione...</p><p class="sl-hint" id="sl-elapsed"></p><button type="button" id="sl-open-library" class="sl-btn sl-ghost">Apri Libreria</button></div></div>
+          </form>
+        </section>
+        <section id="sl-library" role="tabpanel" aria-labelledby="sl-tab-library" hidden><div class="sl-panel"><div class="sl-panel-title"><h2>Le mie canzoni</h2><button type="button" class="sl-btn sl-ghost sl-smallbtn" id="sl-refresh">Aggiorna</button></div><p class="sl-hint">I brani pronti da salvare appaiono prima di quelli archiviati. Solo i MP3 salvati restano nella libreria permanente.</p><div id="sl-usage" class="sl-usage"></div><div id="sl-tasks"></div><div id="sl-songs"></div><p id="sl-empty" class="sl-empty" hidden>Nessuna canzone ancora archiviata.</p></div></section>
+      </div>
+    </div>
+  </main>
+  <div id="footer-placeholder"></div>
+</body>
+</html>
