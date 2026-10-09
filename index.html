@@ -4,6 +4,23 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <script>
+    /* Preferenza locale: solo la Home principale effettua il redirect. */
+    (function () {
+      if (new URLSearchParams(location.search).get("home") === "original") return;
+      try {
+        const page = localStorage.getItem("atralab-startpage");
+        if (!page || !page.startsWith("/") || page.startsWith("//") || page.includes("\\")) return;
+        const destination = new URL(page, location.origin);
+        if (destination.origin !== location.origin ||
+            destination.pathname === "/" || destination.pathname === "/index.html") return;
+        location.replace(destination.pathname + destination.search + destination.hash);
+      } catch (error) {
+        console.warn("ATRALAB pagina iniziale:", error);
+      }
+    })();
+  </script>
+
   <title>Atralab</title>
 
   <meta

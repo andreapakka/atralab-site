@@ -1,0 +1,32 @@
+/* ATRALAB - solo barra "pagina iniziale" dell'header condiviso. */
+.atralab-startpage-bar[hidden] { display: none !important; }
+.atralab-startpage-bar { border-bottom: 1px solid rgba(244, 241, 234, .09); }
+.atralab-startpage-inner {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  min-height: 34px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+.atralab-startpage-button {
+  appearance: none;
+  border: 1px solid rgba(244, 241, 234, .23);
+  border-radius: 7px;
+  padding: 6px 11px;
+  background: rgba(255, 255, 255, .035);
+  color: #F4F1EA;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.25;
+  cursor: pointer;
+  transition: border-color .15s ease, color .15s ease, background .15s ease;
+}
+.atralab-startpage-button:hover,
+.atralab-startpage-button.is-selected { border-color: #E76F51; color: #E76F51; }
+.atralab-startpage-button:focus-visible { outline: 2px solid #E76F51; outline-offset: 2px; }
+@media (max-width: 700px) {
+  .atralab-startpage-inner { min-height: 32px; }
+  .atralab-startpage-button { font-size: 11px; }
+}

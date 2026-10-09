@@ -379,6 +379,14 @@ function loadCommonHead() {
     head.appendChild(faviconIco);
   }
 
+  // Stile isolato per il pulsante della pagina iniziale.
+  if (!document.querySelector('link[rel="stylesheet"][href="/css/home-preference.css"]')) {
+    const startPageCss = document.createElement("link");
+    startPageCss.rel = "stylesheet";
+    startPageCss.href = "/css/home-preference.css";
+    head.appendChild(startPageCss);
+  }
+
   // Cookie consent CSS
   if (!document.querySelector('link[rel="stylesheet"][href="/css/cookie.css"]')) {
     const cookieCss = document.createElement("link");
@@ -386,6 +394,52 @@ function loadCommonHead() {
     cookieCss.href = "/css/cookie.css";
     head.appendChild(cookieCss);
   }
+}
+
+/* ---------- Pagina iniziale personalizzata (solo questo browser) ---------- */
+const ATRALAB_STARTPAGE_KEY = "atralab-startpage";
+
+function atralabStartPagePath() {
+  const path = window.location.pathname;
+  if (path === "/" || path === "/index.html") return null;
+  // Salviamo solo il percorso: niente token o dati sensibili dalla query string.
+  return path;
+}
+
+function initAtralabStartPageButton(container) {
+  const bar = container.querySelector("[data-atralab-startpage-bar]");
+  const button = container.querySelector("[data-atralab-startpage-button]");
+  const currentPage = atralabStartPagePath();
+  if (!bar || !button || !currentPage) return;
+
+  const render = () => {
+    let selected = false;
+    try {
+      selected = localStorage.getItem(ATRALAB_STARTPAGE_KEY) === currentPage;
+    } catch (error) {
+      console.warn("ATRALAB pagina iniziale:", error);
+    }
+    button.textContent = selected ? "Rimuovi pagina iniziale" : "Usa come pagina iniziale";
+    button.classList.toggle("is-selected", selected);
+    button.setAttribute("aria-pressed", String(selected));
+  };
+
+  button.addEventListener("click", () => {
+    try {
+      if (localStorage.getItem(ATRALAB_STARTPAGE_KEY) === currentPage) {
+        localStorage.removeItem(ATRALAB_STARTPAGE_KEY);
+      } else {
+        localStorage.setItem(ATRALAB_STARTPAGE_KEY, currentPage);
+      }
+      render();
+    } catch (error) {
+      console.warn("ATRALAB: preferenza non salvabile", error);
+      button.title = "Impossibile salvare la preferenza su questo browser";
+    }
+  });
+
+  render();
+  bar.hidden = false;
 }
 
 async function loadIncludes() {
@@ -402,6 +456,9 @@ async function loadIncludes() {
       }
 
       element.innerHTML = await response.text();
+      if (element.querySelector("[data-atralab-startpage-bar]")) {
+        initAtralabStartPageButton(element);
+      }
     } catch (error) {
       console.error(error);
     }
