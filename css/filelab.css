@@ -16,3 +16,19 @@
 .fl-progress{margin-top:7px;min-height:0}
 .fl-progress:empty{display:none}
 @media(max-width:520px){.fl-work{padding:12px}.fl-hero{margin-bottom:12px}.fl-options{margin:7px 0 11px}.fl-drop{min-height:70px;padding:9px}}
+
+/* FileLab V1.2 - respiro laterale su smartphone, senza alterare il layout condiviso */
+@media (max-width: 520px) {
+  .fl-main {
+    box-sizing: border-box;
+    width: calc(100% - 32px);
+    max-width: calc(100% - 32px);
+    margin-inline: 16px;
+  }
+  .fl-main *, .fl-main *::before, .fl-main *::after {
+    box-sizing: border-box;
+  }
+  .fl-work { padding: 16px; min-width: 0; }
+  .fl-drop { width: 100%; min-width: 0; }
+  .fl-options, .fl-swatches, .fl-actions { min-width: 0; }
+}
