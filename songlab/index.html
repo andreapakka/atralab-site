@@ -16,9 +16,11 @@
   <script src="/js/songlab.js" defer></script>
 </head>
 <body>
-  <div id="header-placeholder"></div>
-  <div id="sidebar-placeholder"></div>
-  <main class="sl-main" id="main-content">
+  <div data-include="/components/header.html"></div>
+
+  <div class="internal-layout">
+    <aside data-include="/components/sidebar.html"></aside>
+    <main class="internal-main sl-main" id="main-content">
     <div class="sl-wrap">
       <header class="sl-heading"><div><p class="sl-eyebrow">ATRALAB · LABORATORIO MUSICALE</p><h1>SongLab<span class="sl-dot">.</span></h1><p class="sl-subtitle">Dai voce alle tue parole.</p></div><span class="sl-chip">V1 · Mureka</span></header>
       <div id="sl-notice" class="sl-notice" role="status" aria-live="polite" hidden></div>
@@ -37,7 +39,9 @@
         <section id="sl-library" role="tabpanel" aria-labelledby="sl-tab-library" hidden><div class="sl-panel"><div class="sl-panel-title"><h2>Le mie canzoni</h2><button type="button" class="sl-btn sl-ghost sl-smallbtn" id="sl-refresh">Aggiorna</button></div><p class="sl-hint">I brani pronti da salvare appaiono prima di quelli archiviati. Solo i MP3 salvati restano nella libreria permanente.</p><div id="sl-usage" class="sl-usage"></div><div id="sl-tasks"></div><div id="sl-songs"></div><p id="sl-empty" class="sl-empty" hidden>Nessuna canzone ancora archiviata.</p></div></section>
       </div>
     </div>
-  </main>
-  <div id="footer-placeholder"></div>
+    </main>
+  </div>
+
+  <div data-include="/components/footer.html"></div>
 </body>
 </html>
