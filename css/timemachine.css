@@ -41,3 +41,26 @@
   #tm-map { height: 46vh; min-height: 295px; }
   .tm-bottom-actions .tm-button { width: 100%; }
 }
+
+/* Input chiari: il tema generale ATRALAB usa testo bianco. */
+.tm-main .tm-search-row input,
+.tm-main .tm-radius-control select {
+  background: #ffffff !important;
+  color: #1d2935 !important;
+  -webkit-text-fill-color: #1d2935;
+  color-scheme: light;
+}
+.tm-main .tm-search-row input::placeholder { color: #687480 !important; -webkit-text-fill-color: #687480; opacity: 1; }
+.tm-main .tm-radius-control select option { background: #fff; color: #1d2935; }
+.tm-main .tm-search-row input:focus-visible,
+.tm-main .tm-radius-control select:focus-visible { outline: 2px solid #6092bd; outline-offset: 2px; }
+.tm-monuments { display: grid; gap: .8rem; }
+.tm-monuments[hidden] { display: none; }
+.tm-monument-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: .7rem; }
+.tm-monument { display: flex; align-items: center; gap: .7rem; text-align: left; padding: .85rem; color: inherit; background: rgba(125,147,168,.10); border: 1px solid rgba(150,165,180,.5); border-radius: 10px; cursor: pointer; font: inherit; }
+.tm-monument:hover, .tm-monument:focus-visible { outline: 2px solid #6c9bbc; }
+.tm-monument-number { flex: 0 0 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; color: #fff; background: #284e70; font-weight: 700; }
+.tm-monument-copy { display: grid; gap: .2rem; min-width: 0; }
+.tm-monument-copy small { opacity: .75; }
+.tm-monument-marker { display:grid; place-items:center; width:26px; height:26px; background:#284e70; color:#fff; border-radius:50%; border:2px solid white; font-weight:700; box-shadow:0 1px 5px #3338; }
+.tm-search-progress { font-size: .93rem; color: inherit; }

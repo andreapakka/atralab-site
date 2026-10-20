@@ -8,6 +8,8 @@ let radiusCircle;
 let currentPosition = null;
 let lastGeocodeTime = 0;
 let addressBusy = false;
+let monumentsBusy = false;
+let monumentMarkers;
 
 function feedback(message, error = false) {
   status.textContent = message;
@@ -65,6 +67,7 @@ function initMap() {
     radius: getRadius(), color: '#426c91', weight: 2,
     fillColor: '#426c91', fillOpacity: 0.08, interactive: false
   }).addTo(map);
+  monumentMarkers = L.layerGroup().addTo(map);
   map.on('move', updateCircle);
   map.whenReady(() => setTimeout(() => map.invalidateSize(), 0));
 }
@@ -154,17 +157,143 @@ async function searchAddress(event) {
   }
 }
 
+
+// Fase 2: Wikipedia GeoSearch (punti) + Wikidata (tipologia).
+const MONUMENT_TERMS = /fontana|piazza|chiesa|basilica|cattedrale|duomo|obelisco|monumento|palazzo|castello|ponte|teatro|museo|villa|torre|arco|tempio|abbazia|convento|scalinata|santuario|anfiteatro|archaeological|church|fountain|square|palace|bridge|cathedral|museum|monument|castle/i;
+const LOW_PRIORITY = /metropolitana|stazione|fermata|ferrovia|ristorante|scuola|discoteca|quartiere|municipio|comune|citta metropolitana|provincia/i;
+const HISTORIC_TYPES = /fontana|piazza|chiesa|basilica|cattedrale|obelisco|monumento|palazzo|castello|ponte|teatro|museo|villa|torre|arco|tempio|abbazia|convento|scalinata|santuario|amphitheatre|fountain|square|church|palace|bridge|monument|museum|castle/i;
+const ADMIN_TYPES = /comune|provincia|quartiere|municipio|regione|distretto|citta metropolitana|city|municipality|administrative|borough|province|region/i;
+
+function haversineMeters(lat1, lon1, lat2, lon2) {
+  const rad = Math.PI / 180, a1 = lat1 * rad, a2 = lat2 * rad;
+  const dlat = (lat2 - lat1) * rad, dlon = (lon2 - lon1) * rad;
+  const a = Math.sin(dlat / 2) ** 2 + Math.cos(a1) * Math.cos(a2) * Math.sin(dlon / 2) ** 2;
+  return Math.round(6371000 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
+}
+
+async function wikiJSON(params, base='https://it.wikipedia.org/w/api.php') {
+  const u = new URL(base);
+  u.search = new URLSearchParams({...params, format:'json', origin:'*'});
+  const response = await fetch(u);
+  if (!response.ok) throw new Error(`Wikipedia/Wikidata HTTP ${response.status}`);
+  const data = await response.json();
+  if (data.error) throw new Error(data.error.info || 'Errore API');
+  return data;
+}
+
+async function findMonuments(center, radius, maxCount) {
+  const [lat, lon] = center;
+  const geo = await wikiJSON({
+    action:'query', generator:'geosearch', ggscoord:`${lat}|${lon}`,
+    ggsradius:String(radius), ggslimit:'100',
+    prop:'pageprops|coordinates', ppprop:'wikibase_item', colimit:'max'
+  });
+  const places = Object.values(geo.query?.pages || {}).flatMap(page => {
+    const pos = page.coordinates?.[0];
+    if (!pos || !page.pageprops?.wikibase_item) return [];
+    const meters = haversineMeters(lat,lon,pos.lat,pos.lon);
+    if (meters > radius) return [];
+    return [{ id:page.pageprops.wikibase_item, name:page.title, lat:pos.lat, lon:pos.lon, meters }];
+  });
+  if (!places.length) return [];
+  const ids = [...new Set(places.map(p => p.id))];
+  const types = new Map();
+  for (let i=0; i<ids.length; i+=40) {
+    const wd = await wikiJSON({
+      action:'wbgetentities', ids:ids.slice(i,i+40).join('|'),
+      props:'claims|labels', languages:'it|en'
+    },'https://www.wikidata.org/w/api.php');
+    Object.entries(wd.entities || {}).forEach(([id,e]) => {
+      types.set(id, (e.claims?.P31 || []).map(c=>c.mainsnak?.datavalue?.value?.id).filter(Boolean));
+    });
+  }
+  const typeIds = [...new Set([...types.values()].flat())];
+  const labels = new Map();
+  for(let i=0;i<typeIds.length;i+=40) {
+    const wd = await wikiJSON({action:'wbgetentities',ids:typeIds.slice(i,i+40).join('|'),props:'labels',languages:'it|en'},'https://www.wikidata.org/w/api.php');
+    Object.entries(wd.entities||{}).forEach(([id,e])=>labels.set(id,e.labels?.it?.value || e.labels?.en?.value || ''));
+  }
+  return places.map(p=>{
+    const typeNames=(types.get(p.id)||[]).map(id=>labels.get(id)||'').join(' ');
+    const isAdmin=ADMIN_TYPES.test(typeNames);
+    const named=MONUMENT_TERMS.test(p.name);
+    const typed=HISTORIC_TYPES.test(typeNames);
+    const poor=LOW_PRIORITY.test(p.name);
+    return {...p, typeNames, score:(typed?5:0)+(named?3:0)-(isAdmin?9:0)-(poor?5:0)};
+  }).filter(p=>p.score>0)
+    .sort((a,b)=>b.score-a.score || a.meters-b.meters)
+    .slice(0,maxCount);
+}
+
+function renderMonuments(items, radius) {
+  const section=$('tm-monuments'), grid=$('tm-monument-grid');
+  grid.replaceChildren();
+  monumentMarkers?.clearLayers();
+  section.hidden=false;
+  $('tm-monuments-summary').textContent=items.length
+    ? `${items.length} luoghi selezionati nel raggio di ${radius} m. Clicca su un luogo per individuarlo sulla mappa.`
+    : `Nessun monumento catalogato trovato entro ${radius} m. Prova a spostare la mappa oppure aumenta il raggio.`;
+  items.forEach((item,i)=>{
+    const number=i+1;
+    const marker=L.marker([item.lat,item.lon], {icon:L.divIcon({
+      className:'', html:`<span class="tm-monument-marker">${number}</span>`,
+      iconSize:[26,26], iconAnchor:[13,13]
+    })}).addTo(monumentMarkers);
+    marker.bindPopup(document.createTextNode(`${item.name} (${item.meters} m)`));
+    const button=document.createElement('button');
+    button.type='button'; button.className='tm-monument';
+    const numberEl=document.createElement('span'); numberEl.className='tm-monument-number'; numberEl.textContent=number;
+    const copy=document.createElement('span'); copy.className='tm-monument-copy';
+    const name=document.createElement('strong'); name.textContent=item.name;
+    const sub=document.createElement('small'); sub.textContent=`${item.meters} m dal centro della ricerca`;
+    copy.append(name,sub); button.append(numberEl,copy);
+    button.addEventListener('click',()=>{
+      // Non ricalcoliamo il centro del cerchio durante la selezione.
+      marker.openPopup();
+      $('tm-map').scrollIntoView({behavior:'smooth',block:'center'});
+    });
+    grid.append(button);
+  });
+}
+
+async function searchMonuments() {
+  if (monumentsBusy || !map) return;
+  monumentsBusy=true;
+  const button=$('tm-search-photos'), note=$('tm-stage-note');
+  const center=map.getCenter(), radius=Number($('tm-radius').value);
+  const limit=CFG.maxMonumenti[radius] ?? 3;
+  button.disabled=true;
+  button.textContent='Ricerca in corso...';
+  note.textContent='Stiamo individuando i luoghi storici nella zona...';
+  $('tm-monuments').hidden=true;
+  monumentMarkers?.clearLayers();
+  try {
+    const items=await findMonuments([center.lat,center.lng],radius,limit);
+    renderMonuments(items,radius);
+    note.textContent=items.length
+      ? 'Luoghi trovati. Le fotografie verranno collegate nella fase successiva.'
+      : 'Nessun monumento trovato: puoi riprovare scegliendo un altro punto o un raggio più ampio.';
+  } catch(e) {
+    console.warn('TimeMachine: ricerca monumenti',e);
+    note.textContent='La ricerca dei luoghi non è disponibile al momento. Riprova tra poco.';
+  } finally {
+    monumentsBusy=false; button.disabled=false;
+    button.textContent='Cerca fotografie storiche';
+  }
+}
+
 function boot() {
   initRadius();
   initMap();
   $('tm-address-form').addEventListener('submit', searchAddress);
+  $('tm-search-photos').addEventListener('click', searchMonuments);
   $('tm-locate').addEventListener('click', locate);
   $('tm-retry-location').addEventListener('click', locate);
   $('tm-location-help').addEventListener('click', () => {
     const help = $('tm-help-text');
     help.hidden = !help.hidden;
   });
-  // Nessuna interrogazione automatica degli archivi in questa prima versione.
+  // Nessuna interrogazione agli archivi fotografici in questa fase.
   locate();
 }
 

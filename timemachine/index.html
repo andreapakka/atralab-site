@@ -52,9 +52,14 @@
         </div>
         <p class="tm-map-note">Sposta la mappa per posizionare il mirino sul luogo da esplorare. Il cerchio indica il raggio scelto.</p>
         <div class="tm-bottom-actions">
-          <button type="button" id="tm-search-photos" class="tm-button tm-button-primary" disabled aria-describedby="tm-stage-note">Cerca fotografie storiche</button>
-          <p id="tm-stage-note" class="tm-feedback">La ricerca delle fotografie sarà attivata nella fase successiva.</p>
+          <button type="button" id="tm-search-photos" class="tm-button tm-button-primary" aria-describedby="tm-stage-note">Cerca fotografie storiche</button>
+          <p id="tm-stage-note" class="tm-feedback">In questa fase cerchiamo soltanto i luoghi storici; le fotografie arriveranno nella prossima fase.</p>
         </div>
+        <section id="tm-monuments" class="tm-monuments" aria-label="Luoghi storici trovati" hidden>
+          <h2>Luoghi storici nelle vicinanze</h2>
+          <p id="tm-monuments-summary" class="tm-feedback" role="status" aria-live="polite"></p>
+          <div id="tm-monument-grid" class="tm-monument-grid"></div>
+        </section>
       </section>
       <p class="tm-attribution">Le fotografie, quando disponibili, proverranno da archivi e collezioni digitali esterni. Le condizioni di utilizzo saranno indicate nelle schede delle immagini.</p>
     </main>
