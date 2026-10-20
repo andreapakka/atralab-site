@@ -8,8 +8,9 @@ export const TIMEMACHINE_CONFIG = Object.freeze({
   annoMassimo: 1960,
   timeoutFonteMs: 12000,
   risultatiPerFonteLuogo: 15,
-  fonti: { commons: true, iccd: true, gallica: true, europeana: true, harvard: true },
+  fonti: { commons: true, iccd: true, gallica: true, europeana: false, harvard: true },
   statistiche: false, // da abilitare solo dopo protezione effettiva dell'endpoint
+  europeanaProxyUrl: '', // imposta solo dopo aver creato una Edge Function con chiave protetta
   risultatiProgressivi: true,
   geolocationTimeoutMs: 10000,
   nominatumMinIntervalMs: 1100, // limite conservativo per richieste manuali Nominatim

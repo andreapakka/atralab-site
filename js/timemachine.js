@@ -1,4 +1,10 @@
 import { TIMEMACHINE_CONFIG as CFG } from './timemachine/config.js';
+import { searchCommons } from './timemachine/commons.js';
+import { searchICCD } from './timemachine/iccd.js';
+import { searchGallica } from './timemachine/gallica.js';
+import { searchEuropeana } from './timemachine/europeana.js';
+import { searchHarvard } from './timemachine/harvard.js';
+
 
 // La prima fase gestisce soltanto mappa, ricerca indirizzi e geolocalizzazione.
 const $ = id => document.getElementById(id);
@@ -10,6 +16,12 @@ let lastGeocodeTime = 0;
 let addressBusy = false;
 let monumentsBusy = false;
 let monumentMarkers;
+let activeItems=[];
+let photosByPlace=new Map();
+let selectedPlace=null;
+let searchId=0;
+const SOURCE_RUNNERS={commons:searchCommons,iccd:searchICCD,gallica:searchGallica,europeana:searchEuropeana,harvard:searchHarvard};
+
 
 function feedback(message, error = false) {
   status.textContent = message;
@@ -233,6 +245,7 @@ function renderMonuments(items, radius) {
   $('tm-monuments-summary').textContent=items.length
     ? `${items.length} luoghi selezionati nel raggio di ${radius} m. Clicca su un luogo per individuarlo sulla mappa.`
     : `Nessun monumento catalogato trovato entro ${radius} m. Prova a spostare la mappa oppure aumenta il raggio.`;
+  activeItems=items;
   items.forEach((item,i)=>{
     const number=i+1;
     const marker=L.marker([item.lat,item.lon], {icon:L.divIcon({
@@ -247,39 +260,144 @@ function renderMonuments(items, radius) {
     const name=document.createElement('strong'); name.textContent=item.name;
     const sub=document.createElement('small'); sub.textContent=`${item.meters} m dal centro della ricerca`;
     copy.append(name,sub); button.append(numberEl,copy);
-    button.addEventListener('click',()=>{
-      // Non ricalcoliamo il centro del cerchio durante la selezione.
-      marker.openPopup();
-      $('tm-map').scrollIntoView({behavior:'smooth',block:'center'});
-    });
+    button.addEventListener('click',()=>{ marker.openPopup(); selectPhotoPlace(item.id); });
     grid.append(button);
   });
 }
 
-async function searchMonuments() {
-  if (monumentsBusy || !map) return;
-  monumentsBusy=true;
-  const button=$('tm-search-photos'), note=$('tm-stage-note');
-  const center=map.getCenter(), radius=Number($('tm-radius').value);
-  const limit=CFG.maxMonumenti[radius] ?? 3;
-  button.disabled=true;
-  button.textContent='Ricerca in corso...';
-  note.textContent='Stiamo individuando i luoghi storici nella zona...';
-  $('tm-monuments').hidden=true;
-  monumentMarkers?.clearLayers();
-  try {
+function showExplorer() {
+  $('tm-workspace').hidden=false;
+  $('tm-results').hidden=true;
+  setTimeout(()=>map?.invalidateSize(),60);
+  $('tm-workspace').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function showResults(){
+  $('tm-results').hidden=false;
+  $('tm-workspace').hidden=true;
+  $('tm-results').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function uniquePhotos(items) {
+  const seen=new Set();
+  return items.filter(x=>{
+    const key=(x.imageUrl||x.thumbnailUrl||x.sourceId).toLowerCase();
+    if(seen.has(key))return false;seen.add(key);return true;
+  }).sort((a,b)=>{
+    const yr=x=>Number(x.date.match(/\d{4}/)?.[0]||9999);
+    return yr(a)-yr(b);
+  });
+}
+function makeEl(tag,cls,textValue){const el=document.createElement(tag);if(cls)el.className=cls;if(textValue!==undefined)el.textContent=textValue;return el;}
+function renderPhotoCards(placeId,all=false){
+  const host=$('tm-photo-grid');host.replaceChildren();
+  const items=photosByPlace.get(placeId)||[];
+  const visible=all?items:items.slice(0,CFG.fotoPerMonumento);
+  $('tm-photo-count').textContent=items.length?`${items.length} fotografie recuperate`:'Nessuna fotografia confermata per questo luogo.';
+  for(const item of visible){
+    const card=makeEl('button','tm-photo-card');card.type='button';
+    const img=makeEl('img');img.src=item.thumbnailUrl;img.loading='lazy';img.alt=item.title;
+    img.onerror=()=>{img.hidden=true;card.classList.add('tm-image-missing');};
+    const title=makeEl('strong','',item.title);const date=makeEl('small','',item.date);
+    card.append(img,title,date);card.addEventListener('click',()=>openLightbox(placeId,item));host.append(card);
+  }
+  const more=$('tm-show-more');more.hidden=all||items.length<=CFG.fotoPerMonumento;
+  more.onclick=()=>renderPhotoCards(placeId,true);
+}
+function selectPhotoPlace(id){
+  selectedPlace=id;
+  const place=activeItems.find(p=>p.id===id);if(!place)return;
+  $('tm-selected-name').textContent=place.name;
+  for(const b of $('tm-place-tabs').querySelectorAll('button'))b.classList.toggle('tm-active',b.dataset.id===id);
+  renderPhotoCards(id);
+}
+function renderPlaceTabs(){
+  const host=$('tm-place-tabs');host.replaceChildren();
+  const valid=activeItems.filter(p=>(photosByPlace.get(p.id)||[]).length);
+  for(const place of valid){
+    const button=makeEl('button','tm-place-tab',place.name);
+    button.type='button';button.dataset.id=place.id;
+    button.addEventListener('click',()=>selectPhotoPlace(place.id));host.append(button);
+  }
+  $('tm-no-results').hidden=valid.length>0;
+  $('tm-photo-view').hidden=!valid.length;
+  if(valid.length && !valid.some(p=>p.id===selectedPlace))selectedPlace=valid[0].id;
+  if(selectedPlace && valid.length)selectPhotoPlace(selectedPlace);
+}
+function openLightbox(placeId,item){
+  const lightbox=$('tm-lightbox');
+  const list=photosByPlace.get(placeId)||[];
+  let index=list.indexOf(item);
+  const draw=()=>{
+    const x=list[index];$('tm-lightbox-image').src=x.imageUrl||x.thumbnailUrl;
+    $('tm-lightbox-image').alt=x.title;
+    $('tm-lightbox-title').textContent=x.title;
+    $('tm-lightbox-meta').textContent=[x.date,x.author].filter(Boolean).join(' · ');
+    $('tm-lightbox-credit').textContent=`Archivio: ${x.source} · ${x.rights}`;
+    $('tm-lightbox-original').href=x.sourceUrl;
+  };
+  const prev=()=>{index=(index+list.length-1)%list.length;draw();};
+  const next=()=>{index=(index+1)%list.length;draw();};
+  const close=()=>{lightbox.hidden=true;document.removeEventListener('keydown',onKey);};
+  const onKey=e=>{if(e.key==='Escape')close();if(e.key==='ArrowRight')next();if(e.key==='ArrowLeft')prev();};
+  $('tm-lightbox-close').onclick=close;
+  $('tm-lightbox-prev').onclick=prev;$('tm-lightbox-next').onclick=next;
+  lightbox.onclick=e=>{if(e.target===lightbox)close();};
+  document.addEventListener('keydown',onKey);
+  lightbox.hidden=false;draw();
+}
+async function runOneSource(source,runner,items,token){
+  const started=performance.now();const controller=new AbortController();
+  const timeout=setTimeout(()=>controller.abort(),CFG.timeoutFonteMs);
+  let found=0,valid=0,status='success';
+  try{
+    // Interrogazioni sequenziali per luogo all'interno della singola fonte.
+    for(const place of items){
+      if(controller.signal.aborted||token!==searchId)break;
+      try{
+        const photos=await runner({...place,city:''},{signal:controller.signal,limit:CFG.risultatiPerFonteLuogo,yearMax:CFG.annoMassimo,proxyUrl:CFG.europeanaProxyUrl});
+        found+=photos.length;valid+=photos.length;
+        const prior=photosByPlace.get(place.id)||[];
+        photosByPlace.set(place.id,uniquePhotos(prior.concat(photos)));
+        if(token===searchId){renderPlaceTabs();if(valid>0)showResults();}
+      }catch(err){if(controller.signal.aborted)throw err;console.warn('TimeMachine fonte',source,err.message);status='error';}
+    }
+    if(!valid&&status==='success')status='empty';
+  }catch(e){status=controller.signal.aborted?'timeout':'error';console.warn('TimeMachine fonte',source,e.message);}
+  finally{clearTimeout(timeout);}
+  const elapsed=Math.round(performance.now()-started);
+  console.info(`TimeMachine: ${source}: ${status}, immagini ${valid}, ${elapsed} ms`);
+  return {source,status,duration_ms:elapsed,results_found:found,results_valid:valid};
+}
+async function searchMonuments(){
+  if(monumentsBusy||!map)return;
+  monumentsBusy=true;const token=++searchId;
+  const button=$('tm-search-photos'),note=$('tm-stage-note');
+  const center=map.getCenter(),radius=Number($('tm-radius').value);
+  const limit=CFG.maxMonumenti[radius]??3;
+  button.disabled=true;button.textContent='Ricerca in corso...';
+  $('tm-loading').hidden=false;$('tm-progress').textContent='Individuiamo i luoghi storici...';
+  $('tm-monuments').hidden=true;monumentMarkers?.clearLayers();
+  photosByPlace=new Map();selectedPlace=null;
+  try{
     const items=await findMonuments([center.lat,center.lng],radius,limit);
     renderMonuments(items,radius);
-    note.textContent=items.length
-      ? 'Luoghi trovati. Le fotografie verranno collegate nella fase successiva.'
-      : 'Nessun monumento trovato: puoi riprovare scegliendo un altro punto o un raggio più ampio.';
-  } catch(e) {
-    console.warn('TimeMachine: ricerca monumenti',e);
-    note.textContent='La ricerca dei luoghi non è disponibile al momento. Riprova tra poco.';
-  } finally {
-    monumentsBusy=false; button.disabled=false;
-    button.textContent='Cerca fotografie storiche';
-  }
+    if(!items.length){note.textContent='Nessun luogo storico nel raggio scelto. Prova a spostare la mappa o ampliare il raggio.';return;}
+    for(const p of items)photosByPlace.set(p.id,[]);
+    $('tm-results-location').textContent=`${radius} metri · ${items.length} luoghi individuati`;
+    $('tm-progress').textContent='Cerchiamo fotografie negli archivi...'; $('tm-results-state').textContent='Ricerca in corso: le fotografie arriveranno progressivamente.'; $('tm-results-state').textContent='Ricerca in corso: le fotografie arriveranno progressivamente.';
+    const enabled=Object.entries(CFG.fonti).filter(([key,enabled])=>enabled&&SOURCE_RUNNERS[key]);
+    let done=0;
+    await Promise.allSettled(enabled.map(async ([key])=>{
+      const r=await runOneSource(key,SOURCE_RUNNERS[key],items,token);
+      done++;$('tm-progress').textContent=`Ricerca in corso · ${done} di ${enabled.length} raccolte completate`; $('tm-results-state').textContent=$('tm-progress').textContent;
+      return r;
+    }));
+    renderPlaceTabs();showResults();
+    const all=[...photosByPlace.values()].reduce((a,b)=>a+b.length,0);
+    $('tm-progress').textContent=all?`Ricerca completata · ${all} fotografie recuperate`:'Ricerca completata · Nessuna fotografia verificata';
+    $('tm-results-state').textContent=$('tm-progress').textContent;
+    note.textContent='Ricerca completata. Puoi esplorare i risultati o modificarne l’area.';
+  }catch(e){console.warn('TimeMachine monumenti',e);note.textContent='Ricerca temporaneamente non disponibile. Riprova.';$('tm-progress').textContent='Errore nella ricerca dei luoghi.';}
+  finally{monumentsBusy=false;button.disabled=false;button.textContent='Cerca fotografie storiche';$('tm-loading').hidden=true;}
 }
 
 function boot() {
@@ -287,6 +405,7 @@ function boot() {
   initMap();
   $('tm-address-form').addEventListener('submit', searchAddress);
   $('tm-search-photos').addEventListener('click', searchMonuments);
+  $('tm-modify-search').addEventListener('click',showExplorer);
   $('tm-locate').addEventListener('click', locate);
   $('tm-retry-location').addEventListener('click', locate);
   $('tm-location-help').addEventListener('click', () => {

@@ -20,7 +20,7 @@
         <h1>TimeMachine</h1>
         <p>Esplora il passato dei luoghi intorno a te. Sposta la mappa e scegli dove cercare.</p>
       </section>
-      <section class="tm-workspace" aria-label="Esplora la mappa">
+      <section class="tm-workspace" id="tm-workspace" aria-label="Esplora la mappa">
         <div id="tm-location-alert" class="tm-alert" role="status" hidden>
           <strong id="tm-alert-title">Posizione non disponibile</strong>
           <p id="tm-alert-text">Puoi comunque cercare un luogo manualmente.</p>
@@ -53,7 +53,10 @@
         <p class="tm-map-note">Sposta la mappa per posizionare il mirino sul luogo da esplorare. Il cerchio indica il raggio scelto.</p>
         <div class="tm-bottom-actions">
           <button type="button" id="tm-search-photos" class="tm-button tm-button-primary" aria-describedby="tm-stage-note">Cerca fotografie storiche</button>
-          <p id="tm-stage-note" class="tm-feedback">In questa fase cerchiamo soltanto i luoghi storici; le fotografie arriveranno nella prossima fase.</p>
+          <p id="tm-stage-note" class="tm-feedback">Scegli il punto sulla mappa e avvia la ricerca.</p>
+        </div>
+        <div id="tm-loading" class="tm-loading" role="status" aria-live="polite" hidden>
+          <span class="tm-spinner" aria-hidden="true"></span><span id="tm-progress">Ricerca in corso...</span>
         </div>
         <section id="tm-monuments" class="tm-monuments" aria-label="Luoghi storici trovati" hidden>
           <h2>Luoghi storici nelle vicinanze</h2>
@@ -61,7 +64,15 @@
           <div id="tm-monument-grid" class="tm-monument-grid"></div>
         </section>
       </section>
-      <p class="tm-attribution">Le fotografie, quando disponibili, proverranno da archivi e collezioni digitali esterni. Le condizioni di utilizzo saranno indicate nelle schede delle immagini.</p>
+      <section id="tm-results" class="tm-results" hidden>
+        <div class="tm-result-head"><div><h2>Fotografie storiche</h2><p id="tm-results-location" class="tm-feedback"></p></div><button type="button" id="tm-modify-search" class="tm-button tm-button-secondary">← Modifica ricerca</button></div>
+        <p id="tm-results-state" class="tm-feedback" role="status">Le immagini vengono recuperate progressivamente.</p>
+        <div id="tm-place-tabs" class="tm-place-tabs" aria-label="Monumenti con fotografie"></div>
+        <p id="tm-no-results" class="tm-feedback" hidden>Nessuna fotografia verificata disponibile. Puoi tornare alla mappa e provare un altro punto.</p>
+        <div id="tm-photo-view" hidden><h3 id="tm-selected-name"></h3><p id="tm-photo-count" class="tm-feedback"></p><div id="tm-photo-grid" class="tm-photo-grid"></div><button type="button" id="tm-show-more" class="tm-link-button" hidden>Mostra altre fotografie</button></div>
+      </section>
+      <div id="tm-lightbox" class="tm-lightbox" role="dialog" aria-modal="true" aria-label="Fotografia ingrandita" hidden><div class="tm-lightbox-inner"><button type="button" id="tm-lightbox-close" class="tm-lightbox-close" aria-label="Chiudi">×</button><div class="tm-lightbox-stage"><button type="button" id="tm-lightbox-prev" aria-label="Foto precedente">‹</button><img id="tm-lightbox-image" alt=""><button type="button" id="tm-lightbox-next" aria-label="Foto successiva">›</button></div><strong id="tm-lightbox-title"></strong><div id="tm-lightbox-meta"></div><small id="tm-lightbox-credit"></small> · <a id="tm-lightbox-original" target="_blank" rel="noopener noreferrer">Vedi originale ↗</a></div></div>
+      <p class="tm-attribution">Le fotografie provengono da archivi e collezioni digitali esterni. Le condizioni di utilizzo saranno indicate nelle schede delle immagini.</p>
     </main>
   </div>
   <footer data-include="/components/footer.html"></footer>
