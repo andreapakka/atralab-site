@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="TimeMachine: esplora i luoghi e scopri come apparivano nel passato.">
+  <title>TimeMachine | ATRALAB</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/internal.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzx33N6tF/9E6v80VGPEYgIN3w=" crossorigin="">
+  <link rel="stylesheet" href="/css/timemachine.css">
+</head>
+<body>
+  <header data-include="/components/header.html"></header>
+  <div class="internal-layout">
+    <aside data-include="/components/sidebar.html"></aside>
+    <main class="internal-main tm-main" id="main-content">
+      <section class="tm-intro">
+        <p class="tm-eyebrow">ATRALAB / LABORATORIO</p>
+        <h1>TimeMachine</h1>
+        <p>Esplora il passato dei luoghi intorno a te. Sposta la mappa e scegli dove cercare.</p>
+      </section>
+      <section class="tm-workspace" aria-label="Esplora la mappa">
+        <div id="tm-location-alert" class="tm-alert" role="status" hidden>
+          <strong id="tm-alert-title">Posizione non disponibile</strong>
+          <p id="tm-alert-text">Puoi comunque cercare un luogo manualmente.</p>
+          <div class="tm-actions">
+            <button type="button" id="tm-retry-location" class="tm-button tm-button-secondary">Riprova posizione</button>
+            <button type="button" id="tm-location-help" class="tm-link-button">Come attivarla</button>
+          </div>
+          <div id="tm-help-text" class="tm-help" hidden>Apri le impostazioni del sito nel browser (icona accanto all'indirizzo), consenti l'accesso alla posizione e riprova. Su alcuni dispositivi occorre anche attivare la localizzazione nelle impostazioni di sistema. In alternativa usa la ricerca qui sotto.</div>
+        </div>
+        <form class="tm-search-form" id="tm-address-form" autocomplete="off">
+          <label for="tm-address">Cerca una città, una piazza o un indirizzo</label>
+          <div class="tm-search-row">
+            <input id="tm-address" name="address" type="search" placeholder="Es. Piazza del Duomo, Milano" minlength="3" maxlength="160" required>
+            <button type="submit" class="tm-button tm-button-secondary" id="tm-address-button">Trova luogo</button>
+          </div>
+          <p id="tm-address-feedback" class="tm-feedback" role="status" aria-live="polite"></p>
+          <div id="tm-address-results" class="tm-address-results" hidden aria-label="Risultati ricerca indirizzo"></div>
+        </form>
+        <div class="tm-settings">
+          <div class="tm-radius-control">
+            <label for="tm-radius">Raggio di esplorazione</label>
+            <select id="tm-radius" aria-label="Raggio di ricerca"></select>
+          </div>
+          <button type="button" class="tm-button tm-button-secondary" id="tm-locate">Torna alla mia posizione</button>
+        </div>
+        <div class="tm-map-wrap">
+          <div id="tm-map" aria-label="Mappa interattiva. Il mirino indica il centro della futura ricerca"></div>
+          <div class="tm-crosshair" aria-hidden="true"><span></span></div>
+        </div>
+        <p class="tm-map-note">Sposta la mappa per posizionare il mirino sul luogo da esplorare. Il cerchio indica il raggio scelto.</p>
+        <div class="tm-bottom-actions">
+          <button type="button" id="tm-search-photos" class="tm-button tm-button-primary" disabled aria-describedby="tm-stage-note">Cerca fotografie storiche</button>
+          <p id="tm-stage-note" class="tm-feedback">La ricerca delle fotografie sarà attivata nella fase successiva.</p>
+        </div>
+      </section>
+      <p class="tm-attribution">Le fotografie, quando disponibili, proverranno da archivi e collezioni digitali esterni. Le condizioni di utilizzo saranno indicate nelle schede delle immagini.</p>
+    </main>
+  </div>
+  <footer data-include="/components/footer.html"></footer>
+  <script src="/js/include.js" defer></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="" defer></script>
+  <script type="module" src="/js/timemachine.js"></script>
+</body>
+</html>
