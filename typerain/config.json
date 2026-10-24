@@ -1,0 +1,16 @@
+{
+  "versione": 1,
+  "difficolta": [
+    {"id":"facile","nome":"Facile","minLettere":3,"maxLettere":4,"punti":10},
+    {"id":"media","nome":"Media","minLettere":5,"maxLettere":6,"punti":20},
+    {"id":"difficile","nome":"Difficile","minLettere":7,"maxLettere":8,"punti":30},
+    {"id":"esperto","nome":"Esperto","minLettere":9,"maxLettere":10,"punti":50}
+  ],
+  "numeroParole": [10,20,30,50,100],
+  "paroleContemporanee": [1,2,3],
+  "velocita": {"secondiAttraversamento": 16, "incrementoOgniParole": 5, "incrementoPercentuale": 7, "moltiplicatoreMassimo": 2.2},
+  "bonus": {"ogniConsecutive":5,"puntiPerBlocco":25},
+  "animazioni": {"esplosioneMs":320,"sparizioneMs":250,"particelle":7},
+  "suoni": {"attiviDefault":true,"tastoAttivo":true},
+  "conteggioInizialeSecondi":3
+}
