@@ -17,7 +17,7 @@
   <div class="internal-layout">
     <aside data-include="/components/sidebar.html"></aside>
     <main class="internal-main tr-main" id="tr-main">
-      <section class="tr-intro"><p class="tr-kicker">ATRALAB / GIOCHI</p><h1>TypeRain</h1><p>Le parole scendono. Tu scrivile prima che tocchino terra!</p></section>
+      <section class="tr-intro"><div class="tr-intro-title"><p class="tr-kicker">ATRALAB / GIOCHI</p><h1>TypeRain</h1></div><p>Digita le parole prima che tocchino terra!</p></section>
       <section class="tr-panel" aria-labelledby="tr-settings-title">
         <h2 id="tr-settings-title">Prepara la manche</h2>
         <p id="tr-load-state" role="status">Caricamento del dizionario…</p>
@@ -26,10 +26,9 @@
           <label>Difficoltà <select id="tr-level" required></select></label>
           <label>Numero di parole <select id="tr-count" required></select></label>
           <label>Parole contemporanee <select id="tr-simultaneous" required></select></label>
-          <label class="tr-check"><input type="checkbox" id="tr-hide-progress"> Nascondi lettere già digitate</label>
-          <label class="tr-check"><input type="checkbox" id="tr-sounds" checked> Effetti sonori</label>
-          <p id="tr-available" class="tr-muted" role="status"></p>
-          <p id="tr-record" class="tr-record"></p>
+          <div class="tr-options"><label class="tr-check"><input type="checkbox" id="tr-hide-progress"> Nascondi lettere digitate</label>
+          <label class="tr-check"><input type="checkbox" id="tr-sounds" checked> Effetti sonori</label></div>
+          <div class="tr-info"><p id="tr-available" class="tr-muted" role="status"></p><p id="tr-record" class="tr-record"></p></div>
           <button class="tr-primary" type="submit">GIOCA →</button>
         </form>
       </section>
