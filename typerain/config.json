@@ -8,7 +8,7 @@
   ],
   "numeroParole": [10,20,30,50,100],
   "paroleContemporanee": [1,2,3],
-  "velocita": {"secondiAttraversamento": 16, "incrementoOgniParole": 5, "incrementoPercentuale": 7, "moltiplicatoreMassimo": 2.2},
+  "velocita": {"secondiAttraversamento": 20, "incrementoOgniParole": 5, "incrementoPercentuale": 5, "moltiplicatoreMassimo": 2.2},
   "bonus": {"ogniConsecutive":5,"puntiPerBlocco":25},
   "animazioni": {"esplosioneMs":320,"sparizioneMs":250,"particelle":7},
   "suoni": {"attiviDefault":true,"tastoAttivo":true},
