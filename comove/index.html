@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="it"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow"><title>CoMove · ATRALAB</title>
+<link rel="stylesheet" href="/css/style.css"><link rel="stylesheet" href="/css/internal.css"><link rel="stylesheet" href="/comove/style.css">
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script defer src="/js/include.js"></script><script defer src="/comove/config.js"></script><script defer src="/comove/audio.js"></script><script defer src="/comove/comove.js"></script>
+</head><body>
+<header data-include="/components/header.html"></header>
+<div class="internal-layout"><aside data-include="/components/sidebar.html"></aside>
+<main class="internal-main cm-main">
+  <div class="cm-heading"><div><span class="cm-eyebrow">ATRALAB / GIOCHI COOPERATIVI</span><h1>CoMove</h1></div><div class="cm-actions"><span id="cm-user"></span><button type="button" id="cm-audio" class="cm-quiet" aria-label="Attiva o disattiva audio">🔊 Audio</button></div></div>
+  <p class="cm-notice" id="cm-notice" role="status" aria-live="polite"></p>
+  <section id="cm-lobby" class="cm-section">
+    <div class="cm-line"><h2>Partite disponibili</h2><button id="cm-reload" class="cm-quiet" type="button">↻ Aggiorna</button></div>
+    <div id="cm-lobby-list" class="cm-lobby-list"><p class="cm-muted">Caricamento…</p></div>
+    <form id="cm-create" class="cm-create" hidden>
+      <div class="cm-line"><h2>Nuova partita</h2><span class="cm-muted">2–4 giocatori · una mossa per turno</span></div>
+      <div class="cm-fields">
+        <label>Difficoltà <select id="cm-level"><option value="easy">Facile</option><option value="medium" selected>Medio</option><option value="hard">Difficile</option><option value="custom">Personalizzata</option></select></label>
+        <label>Personaggio <select id="cm-emoji"></select></label>
+        <div id="cm-custom" class="cm-custom" hidden>
+          <label>Griglia <input id="cm-size" type="number" min="6" max="16" value="10"></label>
+          <label>Turno (s) <input id="cm-turn" type="number" min="2" max="10" value="3"></label>
+          <label>Muri <input id="cm-walls" type="number" min="0" max="90" value="17"></label>
+          <label>Buchi neri <input id="cm-holes" type="number" min="0" max="60" value="5"></label>
+          <label>Percorso minimo <input id="cm-path" type="number" min="1" max="255" value="15"></label>
+        </div>
+        <button type="submit" class="cm-primary" id="cm-create-button">Crea partita</button>
+      </div>
+    </form>
+  </section>
+  <section id="cm-match" class="cm-section" hidden>
+    <div class="cm-matchbar"><button type="button" class="cm-quiet" id="cm-back">← Sala d'attesa</button><span id="cm-match-id"></span><button type="button" id="cm-leave" class="cm-danger" hidden>Abbandona</button></div>
+    <div id="cm-wait" class="cm-wait" hidden><strong id="cm-wait-title"></strong><span id="cm-wait-sub"></span><div id="cm-wait-players" class="cm-players"></div></div>
+    <div id="cm-play" hidden>
+      <div class="cm-hud"><span id="cm-status"></span><strong id="cm-clock" class="cm-clock">00:00</strong><span id="cm-steps"></span></div>
+      <div id="cm-players" class="cm-players"></div>
+      <div class="cm-playlayout"><div class="cm-board-wrap" id="cm-board-wrap"><canvas id="cm-board" aria-label="Griglia condivisa del gioco" role="img"></canvas></div>
+      <div class="cm-controls"><strong id="cm-turn-label">Attendi il tuo turno</strong><div id="cm-turn-time" class="cm-turn-time"></div><div id="cm-arrows" class="cm-arrows"><button data-dir="up" aria-label="Su" type="button">↑</button><button data-dir="left" aria-label="Sinistra" type="button">←</button><button data-dir="down" aria-label="Giù" type="button">↓</button><button data-dir="right" aria-label="Destra" type="button">→</button></div><button id="cm-pass" class="cm-pass" type="button">PASSA <small>(spazio)</small></button><span class="cm-muted cm-hint">Frecce della tastiera o pulsanti</span></div></div>
+    </div>
+    <div id="cm-finished" class="cm-result" hidden><h2 id="cm-result-title"></h2><p id="cm-result-sub"></p><button id="cm-home" class="cm-primary" type="button">Torna alle partite</button></div>
+  </section>
+</main></div>
+<footer data-include="/components/footer.html"></footer>
+</body></html>
