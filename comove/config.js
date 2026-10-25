@@ -9,16 +9,16 @@ window.COMOVE_CONFIG = Object.freeze({
   playerMax: 4,
   emojis: ['🚗','🚀','🐱','🐶','🐸','🐢','🐝','🦊','🤖','👾'],
   defaultEmoji: '🚗',
-   levels: {
-     easy:   { label:'Facile', size:8,  turn:5, walls:8,  holes:2, minPath:8 },
-     medium: { label:'Medio',  size:10, turn:5, walls:17, holes:5, minPath:15 },
-     hard:   { label:'Difficile',size:12,turn:5,walls:30,holes:9,minPath:25 }
-   },
-   custom: {size:10,turn:5,walls:17,holes:5,minPath:15},
+  levels: {
+    easy:   { label:'Facile', size:8,  turn:5, walls:8,  holes:2, minPath:8 },
+    medium: { label:'Medio',  size:10, turn:5, walls:17, holes:5, minPath:15 },
+    hard:   { label:'Difficile',size:12,turn:5,walls:30,holes:9,minPath:25 }
+  },
+  custom: {size:10,turn:5,walls:17,holes:5,minPath:15},
   limits: { minSize:6, maxSize:16, minTurn:2,maxTurn:10 },
   boardAttempts: 2000,
   refreshLobbyMs: 12000,
-  refreshGameMs: 3500,
-  tickEveryMs: 3000,
+  refreshGameMs: 1600,
+  tickEveryMs: 1500,
   soundKey: 'comove-audio-enabled'
 });

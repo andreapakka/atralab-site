@@ -6,6 +6,7 @@ const DB_KEY='sb_publishable_IRKqtPwpSGWd-YbnyvXqsg_DFKZSotn';
 const ACTIVE=['waiting','countdown','playing'], DIRS={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]};
 let db,user,canCreate=false,game=null,players=[],channel=null,lobbyChannel=null,busy=false,lastTurn='',lastPosition='',lastStatus='',noticeTimer=0,previousSecond=-1,loadBusy=false;
 let clockOffset=0,refreshTimer,uiTimer,heartbeatTimer,liveToken=0,lastRemoteChange=Date.now(),presenceMissingSince=0;
+let refreshSerial=0,heartbeatBusy=false,turnExpirySyncKey="",lastSyncAt=0;
 const notice=(text,error=false)=>{const e=$('cm-notice');e.textContent=text||'';e.style.color=error?'#ffaaa2':'';clearTimeout(noticeTimer);if(text)noticeTimer=setTimeout(()=>e.textContent='',7000);};
 const timeNow=()=>Date.now()+clockOffset;
 const since=s=>s?new Date(s).getTime():0;
@@ -40,13 +41,23 @@ async function createGame(evt){evt.preventDefault();if(busy)return;busy=true;but
  }catch(e){notice('Creazione: '+e.message,true);}finally{busy=false;buttonLoading('cm-create-button',false);}}
 async function joinGame(id){if(busy)return;busy=true;try{A.unlock();await rpc('join',{p_game_id:id});await openGame(id);}catch(e){notice('Ingresso: '+e.message,true);await loadLobby();}finally{busy=false;}}
 async function detachChannel(){if(channel){await db.removeChannel(channel);channel=null;}presenceMissingSince=0;}
-async function openGame(id){liveToken++;const token=liveToken;await detachChannel();game=await fetchGame(id);if(!game){game=null;notice('Partita non trovata',true);return;}players=await fetchPlayers(id);setView('game');window.history.replaceState(null,'',`/comove/?game=${encodeURIComponent(id)}`);lastTurn='';lastPosition='';lastStatus='';render();
+async function openGame(id){liveToken++;const token=liveToken;await detachChannel();game=await fetchGame(id);if(!game){game=null;notice('Partita non trovata',true);return;}players=await fetchPlayers(id);setView('game');window.history.replaceState(null,'',`/comove/?game=${encodeURIComponent(id)}`);lastTurn='';lastPosition='';lastStatus='';turnExpirySyncKey='';render();
  channel=db.channel('comove-match-'+id,{config:{presence:{key:user.id}}});channel.on('postgres_changes',{event:'UPDATE',schema:'public',table:'comove_games',filter:`id=eq.${id}`},()=>refreshMatch(token));channel.on('postgres_changes',{event:'INSERT',schema:'public',table:'comove_players',filter:`game_id=eq.${id}`},()=>refreshMatch(token));
  channel.on('presence',{event:'sync'},()=>{if(token!==liveToken)return;const present=Object.keys(channel.presenceState());if(game?.status==='playing'&&own()&&present.length<players.length){presenceMissingSince ||= Date.now();}else presenceMissingSince=0;});
  channel.subscribe(async status=>{if(status==='SUBSCRIBED'&&token===liveToken){try{await channel.track({at:Date.now()});}catch(e){console.warn('Presence',e);}}});
  await rpc('tick', {p_game_id:id}).catch(console.warn);await refreshMatch(token);
 }
-async function refreshMatch(token=liveToken){if(token!==liveToken||!game)return;try{const id=game.id;const [g,ps]=await Promise.all([fetchGame(id),fetchPlayers(id)]);if(token!==liveToken)return;if(!g){await returnLobby();return;}game=g;players=ps;lastRemoteChange=Date.now();render();}catch(e){notice('Aggiornamento: '+e.message,true);}}
+async function refreshMatch(token=liveToken){
+ if(token!==liveToken||!game)return;
+ const serial=++refreshSerial,id=game.id;
+ try{
+  const [g,ps]=await Promise.all([fetchGame(id),fetchPlayers(id)]);
+  // Risposte fuori ordine non devono ripristinare vecchi turni sullo schermo.
+  if(token!==liveToken||serial!==refreshSerial||game?.id!==id)return;
+  if(!g){await returnLobby();return;}
+  game=g;players=ps;lastRemoteChange=Date.now();render();
+ }catch(e){if(token===liveToken&&serial===refreshSerial)notice('Aggiornamento: '+e.message,true);}
+}
 async function returnLobby(){liveToken++;await detachChannel();game=null;players=[];window.history.replaceState(null,'','/comove/');setView('lobby');await loadLobby();}
 async function leaveGame(){if(!game)return;const id=game.id;if(own()&&statusActive(game)){if(!confirm('Abbandonare? La partita terminerà per tutti.'))return;try{await rpc('leave',{p_game_id:id});}catch(e){notice(e.message,true);return;}}await returnLobby();}
 async function goBack(){if(game?.status==='playing'&&own()){notice('Per lasciare una partita in corso usa Abbandona.');return;}if(game&&statusActive(game)&&own()){notice('Sei ancora in questa partita. Usa Abbandona per terminarla.');return;}await returnLobby();}
@@ -61,7 +72,7 @@ async function tryStart(){if(!game||game.status!=='countdown'||busy||remaining(g
  // Il primo giocatore ancora connesso prova ad avviare; la RPC garantisce unicità.
  if(!own())return;busy=true;try{const board=randomBoard(game);await rpc('start',{p_game_id:game.id,p_board:board});await refreshMatch();}catch(e){if(!/Countdown non terminato|partita non|playing|non terminato/i.test(e.message))notice('Avvio: '+e.message,true);}finally{busy=false;}}
 async function action(dir){if(busy||!canMove()||(dir!=='pass'&&!myPlayer()?.directions?.includes(dir)))return;
- busy=true;updateControls();try{A.unlock();const before=JSON.stringify(game.position);const result=await rpc('move',{p_game_id:game.id,p_action:dir});await refreshMatch();if(result?.status==='won')A.play('win');else if(result?.status==='lost')A.play('hole');else if(dir!=='pass')A.play(JSON.stringify(result?.position)===before?'wall':'move');}catch(e){notice('Mossa: '+e.message,true);await refreshMatch();}finally{busy=false;updateControls();}}
+ busy=true;updateControls();try{A.unlock();const before=JSON.stringify(game.position);const result=await rpc('move',{p_game_id:game.id,p_action:dir});await refreshMatch();if(result?.status==='won')A.play('win');else if(result?.status==='lost')A.play('hole');else if(dir!=='pass')A.play(JSON.stringify(result?.position)===before?'wall':'move');}catch(e){console.warn('CoMove: mossa rifiutata',dir,e);notice('Mossa non accettata: '+e.message,true);await refreshMatch();}finally{busy=false;updateControls();}}
 function canMove(){return !!(game?.status==='playing'&&own()&&myPlayer()?.seat===game.current_turn&&remaining(game.turn_started_at,game.turn_seconds)>0&&!busy);}
 function updateControls(){if(!game)return;const turn=canMove(),dirs=myPlayer()?.directions||[];document.querySelectorAll('#cm-arrows button').forEach(b=>{const active=turn&&dirs.includes(b.dataset.dir);b.disabled=!active;b.classList.toggle('available',active);});$('cm-pass').disabled=!turn;$('cm-pass').classList.toggle('available',turn);$('cm-board-wrap').classList.toggle('my-turn',turn);}
 function finishTitle(status){return {won:'Obiettivo raggiunto!',lost:'Buco nero!',expired:'Tempo scaduto',cancelled:'Partita annullata'}[status]||'Partita terminata';}
@@ -83,8 +94,20 @@ function drawBoard(){if(!game?.board)return;const canvas=$('cm-board'),wrap=$('c
  const [x,y]=game.position||b.start;ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=`${Math.round(c*.70)}px system-ui,Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji`;ctx.fillText(game.emoji,(x+.5)*c,(y+.52)*c);}
 function updateClock(){if(!game)return;const g=game;if(g.status==='waiting'){$('cm-wait-sub').textContent=`Scadenza tra ${mmss(remaining(g.created_at,g.waiting_seconds))}. In 2 parte il countdown di ${g.countdown_seconds}s.`;}
  if(g.status==='countdown'){$('cm-wait-title').textContent=`Si parte tra ${remaining(g.countdown_at,g.countdown_seconds)} s`;if(!remaining(g.countdown_at,g.countdown_seconds))tryStart();}
- if(g.status==='playing'){const left=g.first_move_at?remaining(g.first_move_at,g.duration_seconds):remaining(g.started_at,C.preFirstMoveSeconds);$('cm-clock').textContent=mmss(left);$('cm-turn-time').textContent=`${remaining(g.turn_started_at,g.turn_seconds)} s`;const r=remaining(g.turn_started_at,g.turn_seconds);if(canMove()&&r===2&&previousSecond!==2)A.play('warning');previousSecond=r;updateControls();}}
-async function heartbeat(){if(!game)return;try{await rpc('tick',{p_game_id:game.id});await refreshMatch();}catch(e){console.warn('CoMove tick:',e);}}
+ if(g.status==='playing'){const left=g.first_move_at?remaining(g.first_move_at,g.duration_seconds):remaining(g.started_at,C.preFirstMoveSeconds);$('cm-clock').textContent=mmss(left);$('cm-turn-time').textContent=`${remaining(g.turn_started_at,g.turn_seconds)} s`;const r=remaining(g.turn_started_at,g.turn_seconds);if(canMove()&&r===2&&previousSecond!==2)A.play('warning');previousSecond=r;updateControls();
+ // Quando il timer locale raggiunge zero, chiediamo al server il turno vero.
+ // Il controllo per chiave evita chiamate ripetute ogni 200 ms.
+ const key=`${g.id}:${g.current_turn}:${g.turn_started_at}`;
+ if(r===0&&turnExpirySyncKey!==key){turnExpirySyncKey=key;heartbeat();}
+ }}
+async function heartbeat(){
+ if(!game||heartbeatBusy||busy)return;
+ heartbeatBusy=true;const token=liveToken,id=game.id;
+ try{
+  await rpc('tick',{p_game_id:id});
+  if(token===liveToken&&game?.id===id){lastSyncAt=Date.now();await refreshMatch(token);}
+ }catch(e){console.warn('CoMove tick:',e);}finally{heartbeatBusy=false;}
+}
 async function init(){try{if(!window.supabase?.createClient)throw Error('Libreria Supabase non caricata');buildChoices();syncAudioButton();$('cm-audio').onclick=()=>{A.toggle();syncAudioButton();};$('cm-create').addEventListener('submit',createGame);$('cm-reload').onclick=loadLobby;$('cm-back').onclick=goBack;$('cm-home').onclick=returnLobby;$('cm-leave').onclick=leaveGame;$('cm-pass').onclick=()=>action('pass');document.querySelectorAll('#cm-arrows button').forEach(b=>b.onclick=()=>action(b.dataset.dir));
  document.addEventListener('keydown',e=>{if(e.target.closest('input,select,textarea')||e.altKey||e.ctrlKey||e.metaKey||e.repeat)return;const dir={ArrowUp:'up',ArrowDown:'down',ArrowLeft:'left',ArrowRight:'right',Space:'pass'}[e.code];if(dir&&game?.status==='playing'){e.preventDefault();action(dir);}});
  document.addEventListener('pointerdown',()=>A.unlock(),{once:true});window.addEventListener('resize',()=>{if(game?.status==='playing')drawBoard();});document.addEventListener('visibilitychange',()=>{if(!document.hidden){if(game)heartbeat();else loadLobby();}});
