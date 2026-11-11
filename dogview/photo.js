@@ -1,5 +1,4 @@
-/* DogView Foto: caricamento locale o URL CORS, confronto, zoom e download.
-   Non salva dati e non invia immagini ad ATRALAB. */
+/* DogView Foto: elaborazione, confronto, zoom e download; upload opzionale delegato a cloud.js. */
 (function () {
   'use strict';
   const CFG = window.DOGVIEW_CONFIG;
@@ -101,6 +100,13 @@
     ui.dimensions.textContent = `${image.naturalWidth} × ${image.naturalHeight} px`;
     zoom = 1; panX = 0; panY = 0; applyZoom(); setSplit(Number(ui.split.value));
     status('Foto pronta. Confronta e scarica quando vuoi.');
+    // Una sola operazione automatica per la nuova fotografia; mai per zoom/download/cambio sfocatura.
+    if (CFG.autoSaveSupabase && navigator.onLine) {
+      const currentImage = image, withBlur = ui.blur.checked;
+      setTimeout(() => {
+        if (token === revision) window.DogViewCloud?.save(currentImage, withBlur);
+      }, 150);
+    }
   }
   function setSplit(value) {
     const n = Math.max(0, Math.min(100, value));

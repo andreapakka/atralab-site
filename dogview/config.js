@@ -8,5 +8,8 @@ window.DOGVIEW_CONFIG = Object.freeze({
   referenceBlurPx: 0.73,
   referenceWidthPx: 1200,
   maxZoom: 5,
-  initialSplit: 50
+  initialSplit: 50,
+  autoSaveSupabase: true, // CAMBIA QUI: true = salva online, false = nessun upload
+  turnstileSiteKey: "0x4AAAAAAF8nNBc2hif9NrVl",
+  uploadEndpoint: "https://pcpsbrnhfhzkjlnstgfr.supabase.co/functions/v1/dogview-upload"
 });

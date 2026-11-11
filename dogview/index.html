@@ -13,20 +13,15 @@
   <script defer src="/dogview/config.js"></script>
   <script defer src="/dogview/vision.js"></script>
   <script defer src="/dogview/photo.js"></script>
-  <script defer src="/dogview/explore.js"></script>
-  <script defer src="/dogview/dogview.js"></script>
+  <script defer src="/dogview/cloud.js"></script>
 </head>
 <body>
   <header data-include="/components/header.html"></header>
   <div class="internal-layout">
     <aside data-include="/components/sidebar.html"></aside>
     <main class="internal-main dv-main">
-      <div class="dv-intro"><span class="dv-kicker">ATRALAB / ESPERIMENTI</span><h1>DogView</h1><p>Il mondo attraverso gli occhi di un cane. Una simulazione scientificamente motivata, non una riproduzione esatta.</p></div>
-      <div class="dv-tabs" role="tablist" aria-label="Modalità DogView">
-        <button id="dv-tab-photo" class="dv-tab active" role="tab" aria-selected="true" aria-controls="dv-photo" type="button">Foto</button>
-        <button id="dv-tab-explore" class="dv-tab" role="tab" aria-selected="false" aria-controls="dv-explore" type="button">Esplora</button>
-      </div>
-      <section id="dv-photo" role="tabpanel" aria-labelledby="dv-tab-photo" class="dv-panel">
+      <div class="dv-intro"><span class="dv-kicker">ATRALAB / ESPERIMENTI</span><h1>DogView</h1><p>DogView propone una simulazione indicativa della visione canina, ispirata alle attuali conoscenze scientifiche.</p></div>
+      <section id="dv-photo" class="dv-panel">
         <div class="dv-upload-row">
           <label class="dv-primary dv-file-button" for="dv-file">Carica foto</label>
           <input id="dv-file" type="file" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" aria-label="Seleziona una fotografia">
@@ -55,13 +50,17 @@
           <div class="dv-toolbar dv-bottom"><button id="dv-download" class="dv-primary" type="button">Scarica foto canina</button><button id="dv-new" class="dv-secondary" type="button">Nuova foto</button></div>
           <p class="dv-muted dv-small">Trascina il divisore per confrontare. Su smartphone usa due dita per zoomare; con lo zoom attivo trascina la foto. Il download contiene solo la simulazione.</p>
         </div>
-        <p class="dv-privacy">Nessun file viene inviato ad ATRALAB o salvato in database. Le foto restano solo nella memoria della pagina.</p>
-      </section>
-      <section id="dv-explore" role="tabpanel" aria-labelledby="dv-tab-explore" class="dv-panel dv-soon" hidden>
-        <h2>Esplora</h2><p>La modalità stradale a 360° arriverà nella seconda fase. La scheda Foto funziona già in autonomia.</p>
+        <p id="dv-privacy" class="dv-privacy">L’immagine viene elaborata nel browser. Se il salvataggio automatico è attivo, online la sola foto elaborata viene inviata all’archivio privato ATRALAB.</p>
       </section>
     </main>
   </div>
   <footer data-include="/components/footer.html"></footer>
+  <script>
+    // Service Worker isolato nel percorso /dogview/: non modifica gli altri progetti.
+    if ('serviceWorker' in navigator && location.protocol === 'https:') {
+      window.addEventListener('load', () => navigator.serviceWorker.register('/dogview/sw.js', {scope:'/dogview/'})
+        .catch(error => console.warn('DogView: cache offline non disponibile', error)));
+    }
+  </script>
 </body>
 </html>
