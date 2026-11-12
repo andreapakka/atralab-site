@@ -105,26 +105,39 @@
     connected(false);
     status(fromRemote ? 'L’altro dispositivo ha terminato la sessione.' : 'Sessione terminata. Per ricominciare crea un nuovo codice.');
   }
-  async function startViewer() {
+  async function startSender() {
     if (session || joining) return;
-    joining = true; ui.chooseViewer.disabled = true;
+    joining = true; ui.chooseSender.disabled = true;
+    let newStream = null;
     try {
+      // Il dispositivo MOSTRA avvia volontariamente la fotocamera prima di creare il codice.
+      newStream = await openCamera(false);
       const out = await api({ action: 'create' });
-      role = 'viewer'; ended = false; session = { id: out.id, secret: out.secret, code: out.code, expires: out.code_expires_at };
-      ui.start.hidden = true; ui.session.hidden = false;
-      text(ui.roleLabel, 'GUARDA'); text(ui.title, 'Attendi il dispositivo che mostra');
-      ui.codeBox.hidden = false; text(ui.displayCode, out.code.replace(/(\d{3})(\d{3})/, '$1 $2'));
+      stream = newStream; newStream = null;
+      role = 'sender'; ended = false;
+      session = { id: out.id, secret: out.secret, code: out.code, expires: out.code_expires_at };
+      ui.video.srcObject = stream; ui.video.muted = true;
+      ui.video.play().catch(() => {});
+      ui.start.hidden = true; ui.join.hidden = true; ui.session.hidden = false;
+      text(ui.roleLabel, 'MOSTRA'); text(ui.title, 'Fotocamera pronta');
+      ui.codeBox.hidden = false;
+      text(ui.displayCode, out.code.replace(/(\d{3})(\d{3})/, '$1 $2'));
       const expiry = new Date(out.code_expires_at);
       text(ui.codeExpiry, Number.isNaN(expiry.valueOf()) ? '' : `Il codice scade alle ${expiry.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})} se nessuno si collega.`);
-      ui.galleryBox.hidden = false; ui.note.textContent = 'Le foto vengono salvate su Supabase. L’audio parte spento.';
-      ui.video.muted = true; ui.video.autoplay = true; ui.video.playsInline = true;
-      connected(false); overlay('In attesa dell’altro dispositivo…');
-      status('Comunica il codice a sei cifre al dispositivo che deve MOSTRARE.');
-      setButtons(); startPolling();
-    } catch (e) { handleError(e, 'Impossibile creare il codice. Controlla il login ATRALAB e Supabase.'); }
-    finally { joining = false; ui.chooseViewer.disabled = false; }
+      ui.galleryBox.hidden = true;
+      text(ui.note, 'Tieni questa pagina aperta e il dispositivo attivo. Il microfono è spento per impostazione iniziale.');
+      connected(false); overlay('In attesa di chi guarda…');
+      status('Comunica questo codice a sei cifre al dispositivo che deve GUARDARE.');
+      await acquireWake(); setButtons(); startPolling();
+    } catch (e) {
+      if (newStream) newStream.getTracks().forEach(track => track.stop());
+      handleError(e, 'Impossibile attivare la fotocamera o creare il codice. Controlla i permessi e Supabase.');
+    } finally { joining = false; ui.chooseSender.disabled = false; }
   }
-  function showSenderForm() { ui.join.hidden = false; ui.codeInput.focus(); status('Inserisci il codice mostrato sul dispositivo GUARDA.'); }
+  function showViewerForm() {
+    ui.join.hidden = false; ui.codeInput.focus();
+    status('Inserisci il codice mostrato sul dispositivo MOSTRA.');
+  }
   async function openCamera(withAudio = false) {
     if (!navigator.mediaDevices?.getUserMedia) throw new Error('fotocamera_non_supportata');
     const requestConstraints = {
@@ -139,28 +152,25 @@
       throw error;
     }
   }
-  async function joinSender() {
+  async function joinViewer() {
     if (session || joining) return;
     const code = ui.codeInput.value.replace(/\D/g, '');
     if (!/^\d{6}$/.test(code)) { status('Il codice deve contenere esattamente sei cifre.', true); return; }
     joining = true; ui.joinBtn.disabled = true;
     try {
-      // L'autorizzazione della fotocamera nasce da un gesto volontario (Collega).
-      const newStream = await openCamera(false);
-      let result;
-      try { result = await api({ action: 'join', code }); }
-      catch (e) { newStream.getTracks().forEach(track => track.stop()); throw e; }
-      stream = newStream; role = 'sender'; ended = false;
-      session = {id:result.id, secret:result.secret};
-      ui.video.srcObject = stream; ui.video.muted = true; ui.video.play().catch(() => {});
-      ui.start.hidden = true; ui.session.hidden = false; ui.codeBox.hidden = true;
-      text(ui.roleLabel, 'MOSTRA'); text(ui.title, 'Fotocamera condivisa');
-      text(ui.note, 'Tieni questa pagina aperta e il dispositivo attivo. Il microfono è spento per impostazione iniziale.');
-      ui.galleryBox.hidden = true; connected(false); overlay('Collegamento in corso…');
-      status('Dispositivo collegato al codice. Avvio della trasmissione…');
-      await acquireWake(); setButtons(); startPolling();
-      await sendOffer();
-    } catch (e) { handleError(e, 'Collegamento non riuscito. Controlla il codice, la fotocamera e i permessi del browser.'); }
+      const result = await api({ action: 'join', code });
+      role = 'viewer'; ended = false;
+      session = { id: result.id, secret: result.secret };
+      ui.start.hidden = true; ui.session.hidden = false; ui.join.hidden = true;
+      ui.codeBox.hidden = true;
+      text(ui.roleLabel, 'GUARDA'); text(ui.title, 'Visione in diretta');
+      ui.galleryBox.hidden = false;
+      text(ui.note, 'Le foto vengono salvate su Supabase. L’audio parte spento.');
+      ui.video.muted = true; ui.video.autoplay = true; ui.video.playsInline = true;
+      connected(false); overlay('Collegamento in corso…');
+      status('Codice riconosciuto. Attendo il video…');
+      setButtons(); startPolling();
+    } catch (e) { handleError(e, 'Collegamento non riuscito. Controlla il codice e la connessione.'); }
     finally { joining = false; ui.joinBtn.disabled = false; }
   }
   function createPeer() {
@@ -273,12 +283,15 @@
         return;
       }
       if (state.state !== 'joined') return;
-      if (role === 'viewer') {
+      if (role === 'sender') {
         ui.codeBox.hidden = true;
+        if (!pc && !makingOffer) await sendOffer();
+        else if (pc && state.answer && state.negotiation_id === currentNegId && pc.signalingState === 'have-local-offer') {
+          try { await pc.setRemoteDescription(state.answer); }
+          catch (e) { handleError(e, 'Errore nella risposta WebRTC.'); scheduleReconnect(); }
+        }
+      } else if (role === 'viewer') {
         if (!pc || state.negotiation_id !== negotiationSeen) await acceptOffer(state);
-      } else if (role === 'sender' && pc && state.answer && state.negotiation_id === currentNegId && pc.signalingState === 'have-local-offer') {
-        try { await pc.setRemoteDescription(state.answer); }
-        catch (e) { handleError(e, 'Errore nella risposta WebRTC.'); scheduleReconnect(); }
       }
     } catch (e) {
       if (e.code === 'session_access_denied' || e.code === 'auth_required') { handleError(e, 'Sessione ATRALAB non più valida. Ricarica e accedi nuovamente.'); clearInterval(pollTimer); }
@@ -401,11 +414,11 @@
       status('Questo browser non supporta tutte le funzioni necessarie a CoView.', true);
       ui.chooseViewer.disabled = true; ui.chooseSender.disabled = true; return;
     }
-    ui.chooseViewer.addEventListener('click',startViewer);
-    ui.chooseSender.addEventListener('click',showSenderForm);
+    ui.chooseViewer.addEventListener('click',showViewerForm);
+    ui.chooseSender.addEventListener('click',startSender);
     ui.back.addEventListener('click',()=>{ui.join.hidden=true;status('Scegli come usare CoView.');});
-    ui.joinBtn.addEventListener('click',joinSender);
-    ui.codeInput.addEventListener('keydown',event=>{if(event.key==='Enter')joinSender();});
+    ui.joinBtn.addEventListener('click',joinViewer);
+    ui.codeInput.addEventListener('keydown',event=>{if(event.key==='Enter')joinViewer();});
     ui.codeInput.addEventListener('input',()=>{ui.codeInput.value=ui.codeInput.value.replace(/\D/g,'').slice(0,6);});
     ui.copyCode.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(session?.code||'');status('Codice copiato.');}catch(_){status('Non è stato possibile copiare il codice.');}});
     ui.pause.addEventListener('click',togglePause);
@@ -418,7 +431,7 @@
     document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')acquireWake();});
     window.addEventListener('online',()=>{if(session&&!ended){status('Rete disponibile. Verifico il collegamento…');pollOnce();if(role==='sender'&&pc?.connectionState==='failed')scheduleReconnect();}});
     ui.video.addEventListener('loadedmetadata',setButtons);
-    status('Scegli GUARDA per generare un codice, oppure MOSTRA per collegarti.');
+    status('Scegli MOSTRA per generare un codice, oppure GUARDA per collegarti.');
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded',init,{once:true});
   else init();

@@ -27,8 +27,8 @@
 
       <section id="cv-start" class="cv-panel" aria-label="Inizia una sessione">
         <div class="cv-roles">
-          <button type="button" class="cv-role" id="cv-choose-viewer"><span class="cv-role-icon" aria-hidden="true">◉</span><strong>GUARDA</strong><small>Crea il codice per ricevere il video.</small></button>
-          <button type="button" class="cv-role" id="cv-choose-sender"><span class="cv-role-icon" aria-hidden="true">▣</span><strong>MOSTRA</strong><small>Inserisci il codice e usa la fotocamera.</small></button>
+          <button type="button" class="cv-role" id="cv-choose-viewer"><span class="cv-role-icon" aria-hidden="true">◉</span><strong>GUARDA</strong><small>Inserisci il codice per ricevere il video.</small></button>
+          <button type="button" class="cv-role" id="cv-choose-sender"><span class="cv-role-icon" aria-hidden="true">▣</span><strong>MOSTRA</strong><small>Avvia la fotocamera e genera il codice.</small></button>
         </div>
         <div id="cv-join" class="cv-join" hidden>
           <label for="cv-code-input">Codice di collegamento</label>
@@ -36,7 +36,7 @@
             <input id="cv-code-input" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" placeholder="000000" aria-describedby="cv-code-help">
             <button id="cv-join-btn" type="button" class="cv-primary">Collega</button>
           </div>
-          <p id="cv-code-help" class="cv-hint">Inserisci le sei cifre che vedi sul dispositivo GUARDA.</p>
+          <p id="cv-code-help" class="cv-hint">Inserisci le sei cifre che vedi sul dispositivo MOSTRA.</p>
           <button type="button" id="cv-back" class="cv-link">← Indietro</button>
         </div>
       </section>
@@ -47,7 +47,7 @@
           <span id="cv-live" class="cv-live">IN ATTESA</span>
         </div>
         <div id="cv-code-box" class="cv-code-box" hidden>
-          <p>Comunica questo codice a chi deve mostrare:</p>
+          <p>Comunica questo codice a chi deve guardare:</p>
           <div class="cv-code-row"><strong id="cv-display-code" class="cv-code"></strong><button type="button" id="cv-copy-code" class="cv-secondary">Copia</button></div>
           <small id="cv-code-expiry" class="cv-hint"></small>
         </div>
