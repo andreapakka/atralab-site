@@ -1,50 +1,80 @@
-// PaddleOCR in un Worker separato: Annulla interrompe davvero il task.
-// La versione e i modelli rimangono quelli gia testati (PP-OCRv6 / 0.4.2).
-const MAX_PADDLE_MS = 150_000; // limite di sicurezza per singola fotografia
+// Una sessione PaddleOCR per l'intero lotto di fotografie.
+// Il Worker e i modelli restano in memoria fra le pagine; Annulla termina il Worker.
+const MAX_PADDLE_MS = 600_000; // limite per ogni richiesta (inizializzazione inclusa)
 
-export function recognizePaddle(file, language, {
+export function createPaddleSession({
   onProgress = () => {}, isCancelled = () => false, setCancel = () => {}
 } = {}) {
-  const started = performance.now();
-  return new Promise((resolve, reject) => {
-    if (isCancelled()) { reject(new Error('Elaborazione annullata')); return; }
+  let worker = null;
+  let pending = null;
+  let closed = false;
+  let failure = null;
+  let sequence = 0;
 
-    let worker;
-    let timer;
-    let settled = false;
-    const finish = (error, result) => {
-      if (settled) return;
-      settled = true;
-      clearTimeout(timer);
-      setCancel(null);
-      if (worker) {
-        worker.onmessage = null;
-        worker.onerror = null;
-        worker.onmessageerror = null;
-        worker.terminate();
+  function close(reason = new Error('Elaborazione annullata')) {
+    if (closed) return;
+    closed = true;
+    failure = reason;
+    const current = pending;
+    pending = null;
+    if (current) {
+      clearTimeout(current.timer);
+      current.reject(reason);
+    }
+    if (worker) {
+      worker.onmessage = null;
+      worker.onerror = null;
+      worker.onmessageerror = null;
+      worker.terminate();
+      worker = null;
+    }
+    setCancel(null);
+  }
+
+  function fail(error) {
+    close(error instanceof Error ? error : new Error(String(error)));
+  }
+
+  try {
+    worker = new Worker(new URL('./paddle-worker.js', import.meta.url), {type: 'module'});
+    worker.onmessage = ({data}) => {
+      const current = pending;
+      if (!current || data?.id !== current.id) return;
+      if (isCancelled()) return close();
+      if (data.type === 'progress') { onProgress(data.message); return; }
+      clearTimeout(current.timer);
+      pending = null;
+      if (data.type === 'success') {
+        current.resolve({text: data.text, lines: data.lines,
+          seconds: (performance.now() - current.started) / 1000});
+      } else if (data.type === 'error') {
+        const error = new Error(`PaddleOCR: ${data.message}`);
+        current.reject(error);
+        fail(error); // non ripetere un'inizializzazione fallita nelle pagine successive
       }
-      if (error) reject(error);
-      else resolve({ ...result, seconds: (performance.now() - started) / 1000 });
     };
+    worker.onerror = event => {
+      event.preventDefault();
+      fail(new Error(`Worker PaddleOCR: ${event.message || 'errore sconosciuto'}`));
+    };
+    worker.onmessageerror = () => fail(new Error('Messaggio PaddleOCR non leggibile'));
+    setCancel(() => close());
+  } catch (error) { fail(error); }
 
-    try {
-      worker = new Worker(new URL('./paddle-worker.js', import.meta.url), { type: 'module' });
-      setCancel(() => finish(new Error('Elaborazione annullata')));
-      worker.onmessage = ({ data }) => {
-        if (settled) return;
-        if (isCancelled()) return finish(new Error('Elaborazione annullata'));
-        if (data?.type === 'progress') onProgress(data.message);
-        else if (data?.type === 'success') finish(null, { text: data.text, lines: data.lines });
-        else if (data?.type === 'error') finish(new Error(`PaddleOCR: ${data.message}`));
-      };
-      worker.onerror = event => {
-        event.preventDefault();
-        finish(new Error(`Worker PaddleOCR non avviato: ${event.message || 'errore sconosciuto'}`));
-      };
-      worker.onmessageerror = () => finish(new Error('Messaggio PaddleOCR non leggibile'));
-      timer = setTimeout(() => finish(new Error('PaddleOCR: tempo massimo di 150 secondi superato')), MAX_PADDLE_MS);
-      onProgress('PaddleOCR: avvio motore isolato… può richiedere diversi minuti.');
-      worker.postMessage({ type: 'run', file, language });
-    } catch (error) { finish(error); }
-  });
+  function recognize(file, language) {
+    if (closed) return Promise.reject(failure || new Error('Sessione PaddleOCR chiusa'));
+    if (pending) return Promise.reject(new Error('PaddleOCR: è già in corso una fotografia'));
+    if (isCancelled()) { close(); return Promise.reject(failure); }
+    return new Promise((resolve, reject) => {
+      const id = ++sequence;
+      const started = performance.now();
+      const timer = setTimeout(() => fail(new Error('PaddleOCR: tempo massimo di 10 minuti superato')), MAX_PADDLE_MS);
+      pending = {id, resolve, reject, timer, started};
+      try {
+        worker.postMessage({type: 'run', id, file, language});
+      } catch (error) { fail(error); }
+    });
+  }
+
+  return {recognize, close};
 }

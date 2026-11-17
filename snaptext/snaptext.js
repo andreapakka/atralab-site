@@ -1,6 +1,6 @@
 // SnapText V1 - solo coordinamento. Gli altri moduli restano indipendenti.
 import {recognizeTesseract} from './ocr-tesseract.js';
-import {recognizePaddle} from './ocr-paddle.js';
+import {createPaddleSession} from './ocr-paddle.js';
 import {mergeWords} from './bestmerge.js';
 import {SnapEditor} from './editor.js';
 import {getCurrentUser,isAdmin,listDocuments,loadDocument,createDocument,saveRevision,softDelete} from './storage.js';
@@ -176,14 +176,19 @@ async function run(){
   if(app.dirty&&!confirm('Hai una Revisione non salvata. Vuoi iniziare un nuovo lavoro?'))return;
   setBusy(true);app.cancel=false;overlay('Preparazione fotografie…');
   const pages=[];
+  const paddleSession=createPaddleSession({
+    onProgress:x=>stage(`Pagina ${app.currentPaddlePage}/${app.photos.length}: ${x}`),
+    isCancelled:cancelled,
+    setCancel:fn=>app.stopPaddle=fn
+  });
   try{
     for(const [index,item] of app.photos.entries()){
       checkCancel();stage(`Pagina ${index+1}/${app.photos.length}: Tesseract…`);
       let tess='',paddle='',err1=null,err2=null;
       try{tess=(await recognizeTesseract(item.file,language,{onProgress:x=>stage(`Pagina ${index+1}: ${x}`),isCancelled:cancelled,setCancel:fn=>app.stopTess=fn})).text;}
       catch(e){err1=e;if(app.cancel)throw e;console.warn('SnapText Tesseract:',e);}
-      checkCancel();stage(`Pagina ${index+1}/${app.photos.length}: PaddleOCR…`);
-      try{paddle=(await recognizePaddle(item.file,language,{onProgress:x=>stage(`Pagina ${index+1}: ${x}`),isCancelled:cancelled,setCancel:fn=>app.stopPaddle=fn})).text;}
+      checkCancel();app.currentPaddlePage=index+1;stage(`Pagina ${index+1}/${app.photos.length}: PaddleOCR…`);
+      try{paddle=(await paddleSession.recognize(item.file,language)).text;}
       catch(e){err2=e;if(app.cancel)throw e;console.warn('SnapText Paddle:',e);}
       checkCancel();
       if(!tess.trim()&&!paddle.trim())throw Error(`Pagina ${index+1}: nessun OCR utilizzabile (${err1?.message||''} ${err2?.message||''}). Nessun documento salvato.`);
@@ -214,7 +219,7 @@ async function run(){
     const doc=await createDocument({title,language,pageCount:app.photos.length,original,revision});
     app.document=doc;app.dirty=false;app.editor.load(doc.revision_json);
     renderOriginal(doc.original_json);updateDocInfo();clearPhotos();setView('revision',true);message('Documento creato. La Revisione è pronta.');
-  }catch(e){message(e.message,true);}finally{app.stopTess=null;app.stopPaddle=null;setBusy(false);closeOverlay();}
+  }catch(e){message(e.message,true);}finally{paddleSession.close();app.stopTess=null;app.stopPaddle=null;setBusy(false);closeOverlay();}
 }
 function renderOriginal(original){
   const panel=$('st-original');panel.replaceChildren();
@@ -291,7 +296,7 @@ async function init(){
   setup();app.editor=new SnapEditor(()=>{if(!app.document)return;app.dirty=true;$('st-unsaved').hidden=false;});
   try{
     app.user=getCurrentUser();app.admin=await isAdmin();app.authorized=true;photoButtons();$('st-admin-filter').hidden=!app.admin;
-    message(`Accesso OTP verificato. ${app.admin?'Modalità amministratore.':'I tuoi documenti sono privati.'}`);
+    message('');
   }catch(e){message(`${e.message} SnapText richiede una sessione OTP; l'accesso legacy non basta per il database.`,true);$('st-start').disabled=true;}
 }
 init().catch(e=>message(e.message,true));
