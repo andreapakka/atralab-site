@@ -6,7 +6,7 @@ import {SnapEditor} from './editor.js';
 import {getCurrentUser,isAdmin,listDocuments,loadDocument,createDocument,saveRevision,softDelete} from './storage.js';
 import {exportPDF} from './pdf-export.js';
 const $=id=>document.getElementById(id),cfg=window.SNAPTEXT_CONFIG;
-const app={photos:[],sort:null,editor:null,document:null,currentView:'new',dirty:false,busy:false,cancel:false,stopTess:null,admin:false,user:null,timer:null,started:0,authorized:false};
+const app={photos:[],sort:null,editor:null,document:null,currentView:'new',dirty:false,busy:false,cancel:false,stopTess:null,stopPaddle:null,admin:false,user:null,timer:null,started:0,authorized:false};
 const escapeHTML=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function message(text,error=false){$('st-status').textContent=text;$('st-status').classList.toggle('error',error);}
 function setView(name,force=false){
@@ -183,7 +183,7 @@ async function run(){
       try{tess=(await recognizeTesseract(item.file,language,{onProgress:x=>stage(`Pagina ${index+1}: ${x}`),isCancelled:cancelled,setCancel:fn=>app.stopTess=fn})).text;}
       catch(e){err1=e;if(app.cancel)throw e;console.warn('SnapText Tesseract:',e);}
       checkCancel();stage(`Pagina ${index+1}/${app.photos.length}: PaddleOCR…`);
-      try{paddle=(await recognizePaddle(item.file,language,{onProgress:x=>stage(`Pagina ${index+1}: ${x}`),isCancelled:cancelled})).text;}
+      try{paddle=(await recognizePaddle(item.file,language,{onProgress:x=>stage(`Pagina ${index+1}: ${x}`),isCancelled:cancelled,setCancel:fn=>app.stopPaddle=fn})).text;}
       catch(e){err2=e;if(app.cancel)throw e;console.warn('SnapText Paddle:',e);}
       checkCancel();
       if(!tess.trim()&&!paddle.trim())throw Error(`Pagina ${index+1}: nessun OCR utilizzabile (${err1?.message||''} ${err2?.message||''}). Nessun documento salvato.`);
@@ -214,7 +214,7 @@ async function run(){
     const doc=await createDocument({title,language,pageCount:app.photos.length,original,revision});
     app.document=doc;app.dirty=false;app.editor.load(doc.revision_json);
     renderOriginal(doc.original_json);updateDocInfo();clearPhotos();setView('revision',true);message('Documento creato. La Revisione è pronta.');
-  }catch(e){message(e.message,true);}finally{app.stopTess=null;setBusy(false);closeOverlay();}
+  }catch(e){message(e.message,true);}finally{app.stopTess=null;app.stopPaddle=null;setBusy(false);closeOverlay();}
 }
 function renderOriginal(original){
   const panel=$('st-original');panel.replaceChildren();
@@ -278,14 +278,14 @@ function setup(){
   for(const name of ['dragleave','drop'])$('st-drop').addEventListener(name,e=>{e.preventDefault();$('st-drop').classList.remove('dragging');});
   $('st-drop').addEventListener('drop',e=>addPhotos(e.dataTransfer.files));
   $('st-start').addEventListener('click',run);$('st-clear').addEventListener('click',clearPhotos);
-  $('st-cancel').addEventListener('click',()=>{app.cancel=true;$('st-cancel').disabled=true;stage('Annullamento richiesto…');try{app.stopTess?.();}catch{}});
+  $('st-cancel').addEventListener('click',()=>{app.cancel=true;$('st-cancel').disabled=true;stage('Annullamento richiesto…');try{app.stopTess?.();}catch{}try{app.stopPaddle?.();}catch{}});
   $('st-save').addEventListener('click',save);
   $('st-refresh').addEventListener('click',()=>refreshLibrary().catch(e=>message(e.message,true)));
   $('st-mine').addEventListener('change',()=>refreshLibrary().catch(e=>message(e.message,true)));
   $('st-pdf-revision').addEventListener('click',()=>pdf('Revisione'));
   $('st-pdf-original').addEventListener('click',()=>pdf('Originale'));
   window.addEventListener('beforeunload',e=>{if(app.dirty){e.preventDefault();e.returnValue='';}});
-  window.addEventListener('pagehide',()=>{for(const item of app.photos)URL.revokeObjectURL(item.url);try{app.stopTess?.();}catch{}});
+  window.addEventListener('pagehide',()=>{for(const item of app.photos)URL.revokeObjectURL(item.url);try{app.stopTess?.();}catch{}try{app.stopPaddle?.();}catch{}});
 }
 async function init(){
   setup();app.editor=new SnapEditor(()=>{if(!app.document)return;app.dirty=true;$('st-unsaved').hidden=false;});
