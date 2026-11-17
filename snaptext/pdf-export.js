@@ -13,12 +13,16 @@ function filename(title,kind){
   const now=new Date(),stamp=[now.getFullYear(),String(now.getMonth()+1).padStart(2,'0'),String(now.getDate()).padStart(2,'0'),String(now.getHours()).padStart(2,'0'),String(now.getMinutes()).padStart(2,'0'),String(now.getSeconds()).padStart(2,'0')].join('');
   return `${String(title).normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9_-]+/g,'_').replace(/^_+|_+$/g,'').slice(0,70)||'Documento'}_SnapText_${kind}_ATRALAB_${stamp}.pdf`;
 }
-function flattenRevision(delta){
+function flattenRevision(revision){
+  // Supabase salva {delta:{ops}, alternatives, language}; Quill da' {ops}.
+  const delta=revision?.delta?.ops ? revision.delta : revision;
+  if(!Array.isArray(delta?.ops))throw Error('Revisione senza contenuto Delta valido.');
   const runs=[];
-  for(const op of delta?.ops||[]){
+  for(const op of delta.ops){
     if(typeof op.insert==='string')runs.push({text:op.insert,attr:op.attributes||{}});
     else if(op.insert?.snapNote){const n=op.insert.snapNote;runs.push({text:`Nota personale — ${n.quote||''}: ${n.body||''}\n`,attr:{note:true}});}
   }
+  if(!runs.some(run=>run.text.trim()))throw Error('La Revisione non contiene testo da esportare.');
   return runs;
 }
 function flattenOriginal(original){

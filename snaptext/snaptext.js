@@ -58,6 +58,24 @@ function closeOverlay(){clearInterval(app.timer);app.timer=null;$('st-overlay').
 function cancelled(){return app.cancel;}
 function checkCancel(){if(app.cancel)throw Error('Elaborazione annullata. Nessun documento salvato.');}
 function cleanInput(text){return String(text||'').replace(/\r\n?/g,'\n');}
+// La Revisione ricompone le righe tipografiche senza alterare le parole OCR.
+// I paragrafi vuoti, titoli e numeri pagina restano separati.
+function revisionSeparator(current,next,index,lines){
+  const a=current.content,b=next?.content||'';
+  if(!next)return '';
+  if(!a.trim()||!b.trim())return '\n';
+  if(current.line.joinNext)return '';
+  // Non unire una sillabazione non risolta: l'utente deve poterla verificare.
+  if(/[-‐‑]\s*$/u.test(a))return '\n';
+  const nonEmpty=lines.filter(item=>item.content.trim());
+  const order=nonEmpty.indexOf(current),last=nonEmpty.length-1;
+  // Intestazioni e numero stampato a fondo pagina: non unirli al corpo.
+  if(order<2 || (order===last-1 && /^\s*\d{1,4}\s*$/u.test(nonEmpty[last].content)))return '\n';
+  // Una riga vuota del libro delimita un paragrafo reale.
+  // Frasi concluse + riga successiva con iniziale maiuscola sono indizi,
+  // ma NON bastano da sole: il libro puo' spezzare una frase a fine riga.
+  return /\s$/u.test(a)?'':' ';
+}
 // Il testo BestMerge è la fonte unica per la Revisione. L'editor evidenzia
 // soltanto intervalli piccoli ANCORA dubbi, mai un'intera riga non abbinata.
 // Una riga assente in Paddle non è automaticamente una riga sbagliata.
@@ -136,7 +154,7 @@ function pageToDelta(page,pageIndex){
       cursor=mark.end;
     }
     add(content.slice(cursor));
-    if(i<prepared.length-1 && !line.joinNext)add('\n');
+    if(i<prepared.length-1)add(revisionSeparator(prepared[i],prepared[i+1],i,prepared));
   }
   add('\n\n');return {ops,alternatives};
 }
@@ -178,19 +196,20 @@ async function run(){
     }
     checkCancel();stage('Salvataggio Originale e Revisione…');$('st-cancel').disabled=true;
     const original=makeOriginal(pages,language),revision=assemblePages(pages,language);
-    // Diagnostica: il passaggio BestMerge -> Delta non deve perdere né
-    // aggiungere alcun carattere al testo ricostruito (eccetto separatori pagine).
-    const expectedText=pages.map(p=>p.text+'\n\n').join('');
+    // La Revisione normalizza le sole interruzioni delle righe stampate.
+    // Verifichiamo che nessun carattere non-bianco venga perso.
+    const expectedText=pages.map(p=>p.text).join('');
     const actualText=revision.delta.ops.map(op=>typeof op.insert==='string'?op.insert:'').join('');
+    const sameContent=expectedText.replace(/\s+/gu,'')===actualText.replace(/\s+/gu,'');
     console.groupCollapsed('SnapText: confronto testo BestMerge / Revisione (prima di Quill)');
     pages.forEach((page,i)=>{
       console.info(`Pagina ${i+1}: BestMerge`,page.text);
       console.info(`Pagina ${i+1}: ${page.merge?.changes||0} correzioni, ${page.merge?.joinedWords||0} parole ricomposte; righe senza abbinamento: ${page.merge?.unmatchedTesseractCount??'fallback'}`);
     });
     console.info('Punti arancioni NON risolti:',Object.keys(revision.alternatives).length);
-    console.info('Testo mantenuto identico:',expectedText===actualText);
+    console.info('Contenuto senza perdite (esclusi spazi e a capo):',sameContent);
     console.groupEnd();
-    if(expectedText!==actualText)throw Error('Errore nel passaggio BestMerge → Revisione: testo non identico. Nessun documento salvato.');
+    if(!sameContent)throw Error('Errore nel passaggio BestMerge → Revisione: caratteri persi o alterati. Nessun documento salvato.');
     // Un unico INSERT atomico: Originale e Revisione sono sempre creati insieme.
     const doc=await createDocument({title,language,pageCount:app.photos.length,original,revision});
     app.document=doc;app.dirty=false;app.editor.load(doc.revision_json);
