@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="it"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow"><title>SnapText · ATRALAB</title>
+<link rel="stylesheet" href="/css/style.css"><link rel="stylesheet" href="/css/internal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css"><link rel="stylesheet" href="/snaptext/style.css">
+<script defer src="https://cdn.jsdelivr.net/npm/tesseract.js@7.0.0/dist/tesseract.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.6/Sortable.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/@pdf-lib/fontkit@1.1.1/dist/fontkit.umd.min.js"></script>
+<script defer src="/js/include.js"></script><script defer src="/snaptext/config.js"></script>
+<script type="module" src="/snaptext/snaptext.js"></script>
+</head><body>
+<header data-include="/components/header.html"></header>
+<div class="internal-layout"><aside data-include="/components/sidebar.html"></aside><main class="internal-main st-main">
+<header class="st-heading"><p class="st-kicker">ATRALAB / STRUMENTI</p><h1>SnapText</h1><p>Dalle fotografie di pagine al testo modificabile. Riconoscimento locale, revisione e PDF testuale.</p></header>
+<div class="st-notice" role="status" aria-live="polite" id="st-status">Verifica della sessione ATRALAB…</div>
+<nav class="st-tabs" aria-label="Sezioni SnapText"><button type="button" data-view="new" class="active">Nuovo lavoro</button><button type="button" data-view="revision">Revisione</button><button type="button" data-view="original">Originale</button><button type="button" data-view="library">I miei lavori</button></nav>
+<section class="st-panel" id="st-view-new"><h2>Nuovo lavoro</h2>
+<div class="st-fields"><label>Nome documento <input id="st-title" type="text" maxlength="80" placeholder="Es. Capitolo 4" required></label><label>Lingua <select id="st-language"><option value="it">Italiano</option><option value="en">English</option></select></label></div>
+<div id="st-drop" class="st-drop" role="button" tabindex="0"><strong>Trascina qui le fotografie</strong><span>oppure</span><button id="st-browse" type="button" class="st-secondary">Seleziona o scatta foto</button><input id="st-photo-input" type="file" accept="image/jpeg,image/png,image/webp" multiple hidden></div>
+<p class="st-hint">Fino a 10 foto da 5 MB. Scatta pagine dritte; le miniature si riordinano con la maniglia. Le foto non vengono caricate su Supabase.</p>
+<div class="st-photos" id="st-photos" aria-live="polite"></div>
+<div class="st-actions"><button id="st-start" type="button" class="st-primary" disabled>Avvia OCR</button><button id="st-clear" type="button" class="st-secondary">Svuota</button></div>
+</section>
+<section class="st-panel" id="st-view-revision" hidden>
+<div class="st-section-head"><div><h2>Revisione</h2><p id="st-document-info" class="st-hint"></p></div><strong id="st-doubt-count" class="st-count">0 punti da verificare</strong></div>
+<p class="st-hint">Solo i punti OCR ancora incerti sono arancioni. Tocca per leggere le alternative; quando li modifichi, la segnalazione scompare.</p>
+<div id="st-toolbar" class="st-toolbar"><span class="ql-formats"><button class="ql-bold" title="Grassetto"></button><button class="ql-italic" title="Corsivo"></button><button class="ql-underline" title="Sottolineato"></button><button class="ql-strike" title="Barrato"></button></span><span class="ql-formats"><select class="ql-header" title="Titolo"><option selected value=""></option><option value="1">Titolo</option><option value="2">Sottotitolo</option></select><select class="ql-background" title="Evidenziazione"><option selected value=""></option><option value="#ffe4a5"></option></select></span></div>
+<div id="st-editor" aria-label="Editor della Revisione"></div>
+<div class="st-actions"><button type="button" id="st-add-note" class="st-secondary">Aggiungi nota</button><button type="button" id="st-save" class="st-primary">Salva Revisione</button><button type="button" id="st-pdf-revision" class="st-secondary">Scarica PDF Revisione</button></div>
+<p id="st-unsaved" class="st-hint" hidden>Ci sono modifiche non salvate.</p>
+<div id="st-alternatives" class="st-inline-box" hidden><div class="st-section-head"><h3 id="st-alt-title">Punto da verificare</h3><button type="button" id="st-doubt-close" class="st-mini">Chiudi</button></div><p><b>Tesseract:</b> <span id="st-alt-tess"></span></p><p><b>PaddleOCR:</b> <span id="st-alt-paddle"></span></p><p id="st-alt-reason" class="st-hint"></p></div>
+<form id="st-note-form" class="st-inline-box" hidden><h3 id="st-note-form-title">Nota</h3><p id="st-note-quote" class="st-hint"></p><textarea id="st-note-text" rows="3" maxlength="3000" placeholder="Scrivi la tua nota" required></textarea><div class="st-actions"><button type="submit" class="st-primary">Conferma nota</button><button type="button" id="st-note-cancel" class="st-secondary">Annulla</button></div></form>
+</section>
+<section class="st-panel" id="st-view-original" hidden><div class="st-section-head"><h2>Originale</h2><button type="button" id="st-pdf-original" class="st-secondary">Scarica PDF Originale</button></div><p class="st-hint">Trascrizione iniziale immutabile. Le parti da verificare sono evidenziate; le fotografie non sono archiviate.</p><div id="st-original" class="st-original"></div></section>
+<section class="st-panel" id="st-view-library" hidden><div class="st-section-head"><h2>I miei lavori</h2><button type="button" id="st-refresh" class="st-secondary">Aggiorna</button></div><label id="st-admin-filter" hidden><input type="checkbox" id="st-mine"> Solo i miei</label><div id="st-library" class="st-library"></div></section>
+</main></div><footer data-include="/components/footer.html"></footer>
+<div id="st-overlay" class="st-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="st-loading-title"><div class="st-loading"><div class="st-spinner" aria-hidden="true"></div><h2 id="st-loading-title">Elaborazione in corso</h2><p id="st-stage" role="status" aria-live="polite">Preparazione…</p><p id="st-elapsed">0 s</p><button type="button" id="st-cancel" class="st-secondary">Annulla elaborazione</button><small>L'annullamento durante PaddleOCR potrebbe non essere immediato.</small></div></div>
+</body></html>
