@@ -58,22 +58,85 @@ function closeOverlay(){clearInterval(app.timer);app.timer=null;$('st-overlay').
 function cancelled(){return app.cancel;}
 function checkCancel(){if(app.cancel)throw Error('Elaborazione annullata. Nessun documento salvato.');}
 function cleanInput(text){return String(text||'').replace(/\r\n?/g,'\n');}
-// BestMerge mantiene testo e provenance, questa funzione prepara il Delta della Revisione.
-// Non evidenziamo automaticamente le correzioni già risolte, soltanto dubbi residui.
+// Il testo BestMerge è la fonte unica per la Revisione. L'editor evidenzia
+// soltanto intervalli piccoli ANCORA dubbi, mai un'intera riga non abbinata.
+// Una riga assente in Paddle non è automaticamente una riga sbagliata.
 function pageToDelta(page,pageIndex){
   const ops=[],alternatives={};let serial=0;
-  const add=(text,id=null)=>{if(!text)return;const last=ops.at(-1);if(!id && last && !last.attributes && typeof last.insert==='string')last.insert+=text;else ops.push(id?{insert:text,attributes:{ocrDoubt:id}}:{insert:text});};
+  const add=(text,id=null)=>{
+    if(!text)return;
+    const last=ops.at(-1);
+    if(!id && last && !last.attributes && typeof last.insert==='string')last.insert+=text;
+    else ops.push(id?{insert:text,attributes:{ocrDoubt:id}}:{insert:text});
+  };
   const lines=page.merge?.lines||[];
-  const suspected=lines.length?lines:cleanInput(page.text).split('\n').map(text=>({text,status:'unmatched',segments:[{text}]}));
-  for(let i=0;i<suspected.length;i++){
-    const line=suspected[i];const content=(line.segments||[{text:line.text}]).map(s=>s.text).join('');
-    const shouldMark= (line.status==='suspect' || (line.status==='unmatched' && content.trim().length>0) || (line.suggestions?.length||0)>0 || (line.variants?.length||0)>0);
-    if(shouldMark){
+  if(!lines.length){add(cleanInput(page.text));add('\n\n');return {ops,alternatives};}
+  // I suggerimenti contengono posizioni sul testo OCR di partenza; per le
+  // marcature usiamo invece il testo ricostruito, dopo le correzioni BestMerge.
+  const prepared=lines.map(line=>({
+    line,
+    content:(line.segments||[{text:line.text}]).map(s=>s.text).join('')
+  }));
+  const makeMark=(marks,text,start,end,reason,paddle)=>{
+    if(start<0||end>text.length||end<=start)return;
+    const phrase=text.slice(start,end);
+    if(!phrase.trim() || phrase.length>32)return; // mai evidenziare frasi intere
+    if(marks.some(m=>start<m.end && end>m.start))return;
+    marks.push({start,end,reason,paddle});
+  };
+  for(let i=0;i<prepared.length;i++){
+    const {line,content}=prepared[i],marks=[];
+    // Le parti "changed" sono state già risolte da BestMerge: NON arancioni.
+    const previous=prepared[i-1]?.line;
+    const firstInMissingBlock=line.status==='unmatched' && previous?.status!=='unmatched';
+    if(firstInMissingBlock){
+      // L'altro OCR può avere omesso un blocco: segnaliamo soltanto il primo
+      // termine del blocco, non tutto il contenuto recuperato da Tesseract.
+      const token=/^\s*([\p{L}\p{M}]{3,})/u.exec(content);
+      if(token){const start=content.indexOf(token[1]);makeMark(marks,content,start,start+token[1].length,
+        'Inizio di un passaggio assente in PaddleOCR: verifica la parola sulla fotografia.',null);}
+    }
+    if(line.status==='suspect'){
+      // Frammento breve isolato, es. "E |" oppure un segno spurio.
+      const match=/\S(?:[\s\S]*\S)?/u.exec(content);
+      if(match && match[0].length<=12)makeMark(marks,content,match.index,match.index+match[0].length,
+        'Frammento isolato: potrebbe essere un errore OCR.',line.paddle||null);
+    }
+    // Un segno OCR isolato nella frase non va lasciato confuso con il testo.
+    const stray=/\s([|\]\[{}])(?=\s|$)|\s([jJ])\s*$/gu;
+    for(const m of content.matchAll(stray)){
+      const glyph=m[1]||m[2],start=m.index+m[0].indexOf(glyph);
+      makeMark(marks,content,start,start+glyph.length,
+        'Carattere isolato sospetto, non corretto da BestMerge.',line.paddle||null);
+    }
+    // Sillabazioni rimaste dubbie: evidenziamo solo la porzione finale.
+    const trailing=/(?:^|\s)([\p{L}\p{M}]{2,}-)\s*$/u.exec(content);
+    if(trailing && !line.joinNext){const start=content.lastIndexOf(trailing[1]);
+      makeMark(marks,content,start,start+trailing[1].length,
+        'Parola ancora spezzata a fine riga: verifica se ricomporla.',line.paddle||null);}
+    // Eventuali varianti BestMerge sono ancorate a parole precise, non a righe.
+    for(const suggestion of [...(line.suggestions||[]),...(line.variants||[])]){
+      if(!suggestion.token && !suggestion.from)continue;
+      const term=String(suggestion.token||suggestion.from).trim();
+      if(!term||term.length>32)continue;
+      // Evita falsi riferimenti se BestMerge ha già cambiato il token.
+      const at=content.indexOf(term);
+      if(at>=0 && content.indexOf(term,at+term.length)<0)
+        makeMark(marks,content,at,at+term.length,
+          suggestion.reason||'Variante OCR non risolta: verifica sulla fotografia.',line.paddle||null);
+    }
+    marks.sort((a,b)=>a.start-b.start);
+    let cursor=0;
+    for(const mark of marks){
+      if(mark.start<cursor)continue;
+      add(content.slice(cursor,mark.start));
       const id=`p${pageIndex}-d${++serial}`;
-      alternatives[id]={tesseract:line.text,paddle:line.paddle||'Riga non riconosciuta dal secondo OCR',reason:'Confronta il testo con la fotografia; il punto non è stato corretto automaticamente.'};
-      add(content,id);
-    }else add(content);
-    if(i<suspected.length-1){if(line.joinNext)continue;add('\n');}
+      alternatives[id]={tesseract:line.text,paddle:mark.paddle||line.paddle||'Passaggio non riconosciuto dal secondo OCR',reason:mark.reason};
+      add(content.slice(mark.start,mark.end),id);
+      cursor=mark.end;
+    }
+    add(content.slice(cursor));
+    if(i<prepared.length-1 && !line.joinNext)add('\n');
   }
   add('\n\n');return {ops,alternatives};
 }
@@ -115,6 +178,19 @@ async function run(){
     }
     checkCancel();stage('Salvataggio Originale e Revisione…');$('st-cancel').disabled=true;
     const original=makeOriginal(pages,language),revision=assemblePages(pages,language);
+    // Diagnostica: il passaggio BestMerge -> Delta non deve perdere né
+    // aggiungere alcun carattere al testo ricostruito (eccetto separatori pagine).
+    const expectedText=pages.map(p=>p.text+'\n\n').join('');
+    const actualText=revision.delta.ops.map(op=>typeof op.insert==='string'?op.insert:'').join('');
+    console.groupCollapsed('SnapText: confronto testo BestMerge / Revisione (prima di Quill)');
+    pages.forEach((page,i)=>{
+      console.info(`Pagina ${i+1}: BestMerge`,page.text);
+      console.info(`Pagina ${i+1}: ${page.merge?.changes||0} correzioni, ${page.merge?.joinedWords||0} parole ricomposte; righe senza abbinamento: ${page.merge?.unmatchedTesseractCount??'fallback'}`);
+    });
+    console.info('Punti arancioni NON risolti:',Object.keys(revision.alternatives).length);
+    console.info('Testo mantenuto identico:',expectedText===actualText);
+    console.groupEnd();
+    if(expectedText!==actualText)throw Error('Errore nel passaggio BestMerge → Revisione: testo non identico. Nessun documento salvato.');
     // Un unico INSERT atomico: Originale e Revisione sono sempre creati insieme.
     const doc=await createDocument({title,language,pageCount:app.photos.length,original,revision});
     app.document=doc;app.dirty=false;app.editor.load(doc.revision_json);
