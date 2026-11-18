@@ -1,4 +1,4 @@
-/* WhereIsIt · V3 · gioco client-side. Nessun salvataggio o accesso al database. */
+/* WhereIsIt · V5 · gioco client-side. Nessun salvataggio o accesso al database. */
 (() => {
   'use strict';
   const CFG = window.WHEREISIT_CONFIG;
@@ -426,6 +426,28 @@
     else {drag=null;preventedTap=true;}
     if(eligible)hitTarget(p.x,p.y,e.pointerType==='touch');
   }
+  // Il wrapper fullscreen contiene sia il Canvas sia la barra dei personaggi.
+  // Il resize conserva la posizione e lo zoom correnti.
+  function syncFullscreenButton() {
+    const active = document.fullscreenElement === $('wi-play-area');
+    const button = $('wi-fullscreen');
+    button.setAttribute('aria-pressed', String(active));
+    button.setAttribute('aria-label', active ? 'Esci dallo schermo intero' : 'Attiva schermo intero');
+    button.title = active ? 'Esci dallo schermo intero' : 'Schermo intero';
+    $('wi-fullscreen-icon').textContent = active ? '⤢' : '⛶';
+    $('wi-fullscreen-label').textContent = active ? 'Esci' : 'Schermo intero';
+  }
+  async function toggleFullscreen() {
+    const area = $('wi-play-area');
+    try {
+      if (document.fullscreenElement === area) await document.exitFullscreen();
+      else if (!document.fullscreenElement && area.requestFullscreen) await area.requestFullscreen();
+      else if (!area.requestFullscreen) msg('Schermo intero non disponibile in questo browser.');
+    } catch (_) {
+      msg('Il browser non consente lo schermo intero.');
+    }
+  }
+
   function init() {
     if(!targets.length||!catalogIds.length){overlay('Catalogo Twemoji non valido.');return;}
     for(const s of CFG.scenarios){const opt=document.createElement('option');opt.value=s.id;opt.textContent=s.name;$('wi-scenario').append(opt);}
@@ -436,6 +458,8 @@
     $('wi-reveal').addEventListener('click',reveal);
     $('wi-again').addEventListener('click',()=>{$('wi-finish').close();startGame();});
     $('wi-finish-close').addEventListener('click',()=>$('wi-finish').close());
+    $('wi-fullscreen').addEventListener('click',toggleFullscreen);
+    document.addEventListener('fullscreenchange',()=>{syncFullscreenButton();resize();});
     $('wi-zoom-in').addEventListener('click',()=>zoomAt(1.35));
     $('wi-zoom-out').addEventListener('click',()=>zoomAt(1/1.35));
     $('wi-zoom-reset').addEventListener('click',resetCamera);
@@ -448,7 +472,7 @@
     canvas.addEventListener('wheel',e=>{if(!game)return;e.preventDefault();const p=localPoint(e);zoomAt(e.deltaY<0?1.15:1/1.15,p.x,p.y);},{passive:false});
     board.addEventListener('keydown',e=>{if(!game)return;const step=50;if(e.key==='+'){zoomAt(1.3);e.preventDefault();}else if(e.key==='-'){zoomAt(1/1.3);e.preventDefault();}else if(e.key==='ArrowLeft'){view.x+=step;limitPan();drawSoon();e.preventDefault();}else if(e.key==='ArrowRight'){view.x-=step;limitPan();drawSoon();e.preventDefault();}else if(e.key==='ArrowUp'){view.y+=step;limitPan();drawSoon();e.preventDefault();}else if(e.key==='ArrowDown'){view.y-=step;limitPan();drawSoon();e.preventDefault();}});
     if(window.ResizeObserver)new ResizeObserver(resize).observe(board);else window.addEventListener('resize',resize);
-    resize();updateTargets();
+    syncFullscreenButton();resize();updateTargets();
   }
   init();
 })();

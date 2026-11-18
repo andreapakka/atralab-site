@@ -17,7 +17,7 @@ window.WHEREISIT_CONFIG = {
   },
   targets: { min: 1, max: 10, initial: 4 },
   camera: { maxZoom: 4, initialZoom: 1.08, mobileInitialZoom: 1.22 },
-  placement: { margin: 52, gridCell: 90, attempts: 90, rotateDegrees: 175, crowdedZoneVariation: 0.20 },
+  placement: { margin: 52, gridCell: 90, attempts: 90, rotateDegrees: 15, crowdedZoneVariation: 0.20 },
   // Contorno sulla sagoma trasparente dell'SVG, NON sul suo rettangolo.
   emojiOutline: { enabled: true, color: '#111111', thicknessPx: 5, assetSize: 128 },
   interaction: { dragThresholdPx: 9, touchTolerancePx: 13, mouseTolerancePx: 5, revealMilliseconds: 2200 },

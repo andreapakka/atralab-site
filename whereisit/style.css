@@ -13,7 +13,7 @@
 .wi-main button:disabled{cursor:not-allowed;opacity:.45}
 .wi-primary{border:1px solid transparent;background:var(--accent,#e76f51);color:#1b1920;border-radius:8px;font-weight:750;padding:9px 15px}
 .wi-outline{border:1px solid rgba(255,255,255,.28);background:#282c34;color:#fff;border-radius:8px;padding:8px 14px;font-weight:650}
-.wi-primary:focus-visible,.wi-outline:focus-visible,.wi-main select:focus-visible,.wi-zoom button:focus-visible,.wi-target:focus-visible{outline:3px solid #f7ca73;outline-offset:2px}
+.wi-primary:focus-visible,.wi-outline:focus-visible,.wi-main select:focus-visible,.wi-zoom button:focus-visible,.wi-target:focus-visible,.wi-fullscreen-button:focus-visible{outline:3px solid #f7ca73;outline-offset:2px}
 .wi-target-panel{border:1px solid rgba(255,255,255,.1);border-radius:10px 10px 0 0;background:#1e2229;padding:8px 11px}
 .wi-target-heading{display:flex;align-items:center;gap:14px;margin-bottom:6px;font-size:.86rem}
 #wi-clock{margin-left:auto;font-variant-numeric:tabular-nums;font-weight:800;font-size:.94rem;color:#f1cf92}
@@ -46,3 +46,15 @@
 .wi-dialog p{line-height:1.55;margin:0 0 17px}
 .wi-dialog-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px}
 @media(max-width:720px){.wi-head{align-items:start}.wi-head p{max-width:140px;text-align:right;font-size:.73rem}.wi-settings{gap:7px}.wi-settings label{flex:1 1 110px}.wi-settings label:first-child{flex:1 1 145px}.wi-settings select,.wi-settings label:first-child select{min-width:0;width:100%}.wi-settings button{flex:1 0 86px}.wi-board{height:clamp(430px,62svh,720px)}.wi-zoom{right:8px;bottom:8px}.wi-zoom button{width:43px;height:43px}.wi-bottom{font-size:.72rem}}
+
+/* V5 · il fullscreen comprende la barra obiettivi e la scena. */
+.wi-play-area{min-width:0}
+.wi-fullscreen-button{position:absolute;right:12px;top:12px;z-index:6;display:flex;align-items:center;gap:7px;min-height:42px;padding:0 12px;border:1px solid rgba(255,255,255,.65);border-radius:9px;background:rgba(20,24,31,.92);color:white;font:inherit;font-weight:700;font-size:.83rem;cursor:pointer;box-shadow:0 2px 7px #0007;touch-action:manipulation}
+#wi-fullscreen-icon{font-size:1.45rem;line-height:1}
+.wi-fullscreen-button:disabled{opacity:.6;cursor:not-allowed}
+.wi-play-area:fullscreen{display:flex;flex-direction:column;box-sizing:border-box;width:100vw;height:100dvh;background:#15191f;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+.wi-play-area:fullscreen .wi-target-panel{flex:0 0 auto;border-radius:0;padding:5px 11px}
+.wi-play-area:fullscreen .wi-target-heading{margin-bottom:2px}
+.wi-play-area:fullscreen .wi-target-list{padding-bottom:2px}
+.wi-play-area:fullscreen .wi-board{flex:1 1 auto;min-height:0;height:auto;border-radius:0;border-bottom:0}
+@media(max-width:720px){.wi-fullscreen-button{right:8px;top:8px;min-height:43px;padding:0 9px}.wi-fullscreen-button #wi-fullscreen-label{display:none}.wi-play-area:fullscreen .wi-target-panel{padding:4px 7px}.wi-play-area:fullscreen .wi-target{width:42px;height:42px;flex-basis:42px}.wi-play-area:fullscreen .wi-target img{max-width:30px;max-height:30px}}

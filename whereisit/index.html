@@ -26,6 +26,7 @@
         <label>Da trovare <select id="wi-count"></select></label>
         <button class="wi-primary" type="button" id="wi-play">Gioca</button>
       </section>
+      <div id="wi-play-area" class="wi-play-area">
       <section class="wi-target-panel" aria-label="Personaggi da trovare">
         <div class="wi-target-heading"><strong id="wi-progress">Da trovare</strong><span id="wi-clock">00:00</span><button type="button" id="wi-sound" class="wi-icon-button" aria-label="Attiva suoni" title="Attiva suoni">♪̸</button></div>
         <div class="wi-target-toolbar"><div id="wi-targets" class="wi-target-list" role="group" aria-label="Seleziona un personaggio da svelare"></div><button type="button" class="wi-outline" id="wi-reveal" disabled>Svela</button></div>
@@ -33,7 +34,9 @@
       <div id="wi-board" class="wi-board" aria-label="Scena da esplorare" tabindex="0">
         <canvas id="wi-canvas" aria-label="Scena con personaggi nascosti"></canvas>
         <div id="wi-overlay" class="wi-overlay" role="status" aria-live="polite">Premi Gioca per iniziare.</div>
+        <button type="button" class="wi-fullscreen-button" id="wi-fullscreen" aria-label="Attiva schermo intero" title="Schermo intero" aria-pressed="false"><span id="wi-fullscreen-icon" aria-hidden="true">⛶</span><span id="wi-fullscreen-label">Schermo intero</span></button>
         <div class="wi-zoom" aria-label="Controlli zoom"><button type="button" id="wi-zoom-in" title="Ingrandisci" aria-label="Ingrandisci">+</button><button type="button" id="wi-zoom-out" title="Riduci" aria-label="Riduci">−</button><button type="button" id="wi-zoom-reset" title="Ripristina vista" aria-label="Ripristina vista">⤢</button></div>
+      </div>
       </div>
       <div class="wi-bottom"><p id="wi-status" role="status" aria-live="polite">Trascina per esplorare · rotellina o due dita per zoom · tocca un personaggio per trovarlo.</p><span id="wi-scenario-name"></span></div>
       <p class="wi-credit">Emoji: <a href="https://github.com/jdecked/twemoji" target="_blank" rel="noopener noreferrer">Twemoji</a> · grafica con licenza <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>.</p>
