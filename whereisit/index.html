@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="description" content="WhereIsIt: cerca i personaggi nelle scene illustrate di ATRALAB.">
+  <title>WhereIsIt · ATRALAB</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/internal.css">
+  <link rel="stylesheet" href="/whereisit/style.css">
+  <script defer src="/js/include.js"></script>
+  <script defer src="/whereisit/config.js"></script>
+  <script defer src="/whereisit/emoji-catalog.js"></script>
+  <script defer src="/whereisit/whereisit.js"></script>
+</head>
+<body>
+  <header data-include="/components/header.html"></header>
+  <div class="internal-layout">
+    <aside data-include="/components/sidebar.html"></aside>
+    <main class="internal-main wi-main">
+      <header class="wi-head"><div><span class="wi-kicker">ATRALAB / GIOCHI</span><h1>WhereIsIt</h1></div><p>Trovali tutti! Esplora, ingrandisci e cerca.</p></header>
+      <section class="wi-settings" aria-label="Impostazioni partita">
+        <label>Scenario <select id="wi-scenario"><option value="random">Casuale</option></select></label>
+        <label>Difficoltà <select id="wi-difficulty"><option value="easy">Facile</option><option value="medium" selected>Medio</option><option value="hard">Difficile</option></select></label>
+        <label>Da trovare <select id="wi-count"></select></label>
+        <button class="wi-primary" type="button" id="wi-play">Gioca</button>
+      </section>
+      <section class="wi-target-panel" aria-label="Personaggi da trovare">
+        <div class="wi-target-heading"><strong id="wi-progress">Da trovare</strong><span id="wi-clock">00:00</span><button type="button" id="wi-sound" class="wi-icon-button" aria-label="Attiva suoni" title="Attiva suoni">♪̸</button></div>
+        <div class="wi-target-toolbar"><div id="wi-targets" class="wi-target-list" role="group" aria-label="Seleziona un personaggio da svelare"></div><button type="button" class="wi-outline" id="wi-reveal" disabled>Svela</button></div>
+      </section>
+      <div id="wi-board" class="wi-board" aria-label="Scena da esplorare" tabindex="0">
+        <canvas id="wi-canvas" aria-label="Scena con personaggi nascosti"></canvas>
+        <div id="wi-overlay" class="wi-overlay" role="status" aria-live="polite">Premi Gioca per iniziare.</div>
+        <div class="wi-zoom" aria-label="Controlli zoom"><button type="button" id="wi-zoom-in" title="Ingrandisci" aria-label="Ingrandisci">+</button><button type="button" id="wi-zoom-out" title="Riduci" aria-label="Riduci">−</button><button type="button" id="wi-zoom-reset" title="Ripristina vista" aria-label="Ripristina vista">⤢</button></div>
+      </div>
+      <div class="wi-bottom"><p id="wi-status" role="status" aria-live="polite">Trascina per esplorare · rotellina o due dita per zoom · tocca un personaggio per trovarlo.</p><span id="wi-scenario-name"></span></div>
+      <p class="wi-credit">Emoji: <a href="https://github.com/jdecked/twemoji" target="_blank" rel="noopener noreferrer">Twemoji</a> · grafica con licenza <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>.</p>
+    </main>
+  </div>
+  <footer data-include="/components/footer.html"></footer>
+  <dialog id="wi-finish" class="wi-dialog"><h2 id="wi-finish-title">Partita completata!</h2><p id="wi-finish-summary"></p><div class="wi-dialog-actions"><button id="wi-finish-close" type="button" class="wi-outline">Chiudi</button><button id="wi-again" type="button" class="wi-primary">Gioca ancora</button></div></dialog>
+  <dialog id="wi-confirm" class="wi-dialog"><h2>Nuova partita?</h2><p>La partita attuale verrà interrotta.</p><div class="wi-dialog-actions"><button id="wi-confirm-no" type="button" class="wi-outline">Continua</button><button id="wi-confirm-yes" type="button" class="wi-primary">Nuova partita</button></div></dialog>
+</body>
+</html>

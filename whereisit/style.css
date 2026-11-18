@@ -1,0 +1,48 @@
+/* WhereIsIt · Stili isolati, nessun intervento sul CSS condiviso. */
+.wi-main{min-width:0;width:100%;max-width:100%;color:var(--cream,#f6f1e8)}
+.wi-head{display:flex;justify-content:space-between;align-items:end;gap:12px;margin:0 0 12px}
+.wi-head h1{font-size:clamp(1.8rem,3vw,2.65rem);line-height:1.06;margin:2px 0 0;letter-spacing:-.055em}
+.wi-head p{font-size:.83rem;margin:0 0 3px;color:var(--muted,#b8bbc4)}
+.wi-kicker{font-size:.67rem;letter-spacing:.16em;font-weight:750;color:var(--accent,#e76f51)}
+.wi-settings{display:flex;flex-wrap:wrap;gap:9px;align-items:end;margin-bottom:10px}
+.wi-settings label{display:flex;flex-direction:column;gap:3px;font-size:.72rem;font-weight:650;color:var(--muted,#c6c6c6);min-width:0}
+.wi-settings select{height:37px;min-width:110px;max-width:100%;border:1px solid rgba(255,255,255,.22);border-radius:8px;background:#242831;color:#fff;padding:0 9px;font-size:.87rem;font-family:inherit}
+.wi-settings label:first-child select{min-width:170px}
+.wi-settings button{height:37px;padding:0 21px}
+.wi-main button{font:inherit;cursor:pointer}
+.wi-main button:disabled{cursor:not-allowed;opacity:.45}
+.wi-primary{border:1px solid transparent;background:var(--accent,#e76f51);color:#1b1920;border-radius:8px;font-weight:750;padding:9px 15px}
+.wi-outline{border:1px solid rgba(255,255,255,.28);background:#282c34;color:#fff;border-radius:8px;padding:8px 14px;font-weight:650}
+.wi-primary:focus-visible,.wi-outline:focus-visible,.wi-main select:focus-visible,.wi-zoom button:focus-visible,.wi-target:focus-visible{outline:3px solid #f7ca73;outline-offset:2px}
+.wi-target-panel{border:1px solid rgba(255,255,255,.1);border-radius:10px 10px 0 0;background:#1e2229;padding:8px 11px}
+.wi-target-heading{display:flex;align-items:center;gap:14px;margin-bottom:6px;font-size:.86rem}
+#wi-clock{margin-left:auto;font-variant-numeric:tabular-nums;font-weight:800;font-size:.94rem;color:#f1cf92}
+.wi-icon-button{border:1px solid rgba(255,255,255,.25);border-radius:7px;background:#30343c;color:white;min-height:28px;min-width:30px}
+.wi-target-toolbar{display:flex;align-items:center;gap:8px;min-width:0}
+.wi-target-list{display:flex;gap:6px;overflow-x:auto;overflow-y:hidden;flex:1;min-width:0;padding:2px 1px 5px;scrollbar-width:thin}
+.wi-target{position:relative;flex:0 0 47px;width:47px;height:48px;border:2px solid transparent;border-radius:8px;background:#343840;display:grid;place-items:center;padding:4px}
+.wi-target img{max-width:34px;max-height:34px;width:100%;height:100%;object-fit:contain}
+.wi-target.selected{border-color:#f2b973;background:#48403b}
+.wi-target.done{opacity:.58}
+.wi-target.done:after{content:'✓';position:absolute;right:0;bottom:0;background:#237a55;color:white;border-radius:50%;font-size:.75rem;width:18px;height:18px;line-height:18px}
+.wi-target.revealed:after{content:'◉';background:#9a5b25}
+#wi-reveal{flex:0 0 auto;min-width:75px;min-height:40px}
+.wi-board{position:relative;width:100%;height:clamp(390px,57vh,670px);overflow:hidden;background:#17202a;border:1px solid rgba(255,255,255,.16);border-top:0;border-radius:0 0 10px 10px;touch-action:none;overscroll-behavior:contain;cursor:grab;user-select:none;-webkit-user-select:none}
+.wi-board.dragging{cursor:grabbing}
+.wi-board canvas{width:100%;height:100%;display:block;touch-action:none}
+.wi-overlay{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:4;max-width:min(92%,440px);padding:15px 20px;border-radius:12px;background:rgba(18,21,28,.86);text-align:center;line-height:1.4;font-size:.93rem;pointer-events:none}
+.wi-overlay[hidden]{display:none}
+.wi-zoom{position:absolute;right:12px;bottom:12px;display:flex;flex-direction:column;gap:5px;z-index:5}
+.wi-zoom button{width:42px;height:42px;display:grid;place-items:center;background:rgba(20,24,31,.88);border:1px solid rgba(255,255,255,.42);border-radius:9px;color:white;font-size:1.4rem;font-weight:750;touch-action:manipulation;box-shadow:0 2px 5px #0005}
+.wi-zoom button:last-child{font-size:1.1rem}
+.wi-bottom{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:8px 0 0;color:var(--muted,#bbb);font-size:.75rem}
+.wi-bottom p{margin:0;line-height:1.4}
+#wi-scenario-name{flex:none;white-space:nowrap;color:#f3c7ae}
+.wi-credit{margin:12px 0 0;font-size:.68rem;color:var(--muted,#aaa)}
+.wi-credit a{color:inherit;text-decoration:underline}
+.wi-dialog{width:min(92vw,390px);border:1px solid #6f6762;border-radius:14px;background:#24262c;color:#f7f3ed;padding:22px;box-shadow:0 20px 80px #000a}
+.wi-dialog::backdrop{background:#000a}
+.wi-dialog h2{margin:0 0 9px;font-size:1.35rem}
+.wi-dialog p{line-height:1.55;margin:0 0 17px}
+.wi-dialog-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px}
+@media(max-width:720px){.wi-head{align-items:start}.wi-head p{max-width:140px;text-align:right;font-size:.73rem}.wi-settings{gap:7px}.wi-settings label{flex:1 1 110px}.wi-settings label:first-child{flex:1 1 145px}.wi-settings select,.wi-settings label:first-child select{min-width:0;width:100%}.wi-settings button{flex:1 0 86px}.wi-board{height:clamp(430px,62svh,720px)}.wi-zoom{right:8px;bottom:8px}.wi-zoom button{width:43px;height:43px}.wi-bottom{font-size:.72rem}}
