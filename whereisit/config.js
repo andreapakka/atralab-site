@@ -8,15 +8,18 @@ window.WHEREISIT_CONFIG = {
     { id: 'luna-park', name: 'Luna park', image: '/whereisit/scenari/luna-park.webp' },
     { id: 'castello', name: 'Castello fantastico', image: '/whereisit/scenari/castello.webp' }
   ],
+  // Dimensioni progressive: "top" nella parte alta, "bottom" nella parte bassa.
+  // Anche i protagonisti seguono questi stessi valori, senza essere ingranditi a parte.
   difficulty: {
-    easy: { name: 'Facile', count: 200, size: [42, 66], targetSize: [68, 82], distractorsPerTarget: 2, overlap: 0.12 },
-    medium: { name: 'Medio', count: 350, size: [34, 56], targetSize: [57, 70], distractorsPerTarget: 4, overlap: 0.16 },
-    hard: { name: 'Difficile', count: 500, size: [29, 47], targetSize: [49, 60], distractorsPerTarget: 6, overlap: 0.20 }
+    easy: { name: 'Facile', count: 200, sizeTop: [48, 60], sizeBottom: [65, 85], distractorsPerTarget: 2, overlap: 0.12 },
+    medium: { name: 'Medio', count: 350, sizeTop: [40, 52], sizeBottom: [55, 75], distractorsPerTarget: 4, overlap: 0.16 },
+    hard: { name: 'Difficile', count: 500, sizeTop: [34, 45], sizeBottom: [48, 65], distractorsPerTarget: 6, overlap: 0.20 }
   },
   targets: { min: 1, max: 10, initial: 4 },
   camera: { maxZoom: 4, initialZoom: 1.08, mobileInitialZoom: 1.22 },
   placement: { margin: 52, gridCell: 90, attempts: 90, rotateDegrees: 175, crowdedZoneVariation: 0.20 },
-  emojiOutline: { enabled: true, color: '#ffffff', thicknessPx: 2.6, assetSize: 128 },
+  // Contorno sulla sagoma trasparente dell'SVG, NON sul suo rettangolo.
+  emojiOutline: { enabled: true, color: '#111111', thicknessPx: 5, assetSize: 128 },
   interaction: { dragThresholdPx: 9, touchTolerancePx: 13, mouseTolerancePx: 5, revealMilliseconds: 2200 },
   sound: { enabledInitially: false, volume: 0.16 }
 };

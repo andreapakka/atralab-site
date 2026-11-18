@@ -1,4 +1,4 @@
-/* WhereIsIt · V1 · gioco client-side. Nessun salvataggio o accesso al database. */
+/* WhereIsIt · V3 · gioco client-side. Nessun salvataggio o accesso al database. */
 (() => {
   'use strict';
   const CFG = window.WHEREISIT_CONFIG;
@@ -218,12 +218,21 @@
         y:rand(Math.max(inset,row*zoneHeight),Math.min(H-inset,(row+1)*zoneHeight))
       };
     }
+    // Le emoji seguono la prospettiva dello scenario: piccole in alto,
+    // più grandi verso il basso. La variazione casuale resta in ogni fascia.
+    // Si applica allo stesso modo alle emoji normali e ai protagonisti.
+    function sizeAt(y) {
+      const t=clamp(y/H,0,1);
+      const low=level.sizeTop[0]+(level.sizeBottom[0]-level.sizeTop[0])*t;
+      const high=level.sizeTop[1]+(level.sizeBottom[1]-level.sizeTop[1])*t;
+      return rand(low,high);
+    }
     function place(id, isTarget) {
-      const range=isTarget?level.targetSize:level.size;
-      const size=rand(...range), z=zone();
-      let best=null, bestPenalty=Infinity;
+      const z=zone();
+      let best=null, bestSize=0, bestPenalty=Infinity;
       for(let attempt=0;attempt<CFG.placement.attempts;attempt++) {
         const spot=position(z);
+        const size=sizeAt(spot.y);
         let penalty=0;
         for (const p of nearby(spot.x,spot.y)) {
           const dist=Math.hypot(spot.x-p.x,spot.y-p.y);
@@ -235,10 +244,10 @@
           // Un target non deve finire addosso a nessun altro target.
           if(isTarget && p.target && dist < radii*1.25) penalty += 100;
         }
-        if(penalty<bestPenalty) {bestPenalty=penalty;best=spot;}
+        if(penalty<bestPenalty) {bestPenalty=penalty;best=spot;bestSize=size;}
         if(penalty===0) break;
       }
-      const item={...sprite(id,best.x,best.y,size,isTarget),zone:z};
+      const item={...sprite(id,best.x,best.y,bestSize,isTarget),zone:z};
       record(item);
       if(!isTarget) placed.push(item);
       return item;
