@@ -101,6 +101,44 @@
     view.x = viewport.width/2 - wx * view.scale;view.y=viewport.height/2-wy*view.scale;
     limitPan();drawSoon();
   }
+  // Contorno sulla silhouette trasparente dell'SVG (non sul suo rettangolo).
+  // Viene preparato una sola volta per ogni emoji scaricata dal CDN.
+  function outlinedSprite(img) {
+    const setting = CFG.emojiOutline;
+    if (!setting?.enabled) return img;
+    const size = setting.assetSize || 128;
+    const thickness = Math.max(0, Math.min(8, setting.thicknessPx || 0));
+    const inset = Math.ceil(thickness + 3);
+    const edge = size + inset * 2;
+    const mask = document.createElement('canvas'); mask.width = mask.height = edge;
+    const mc = mask.getContext('2d');
+    mc.drawImage(img, inset, inset, size, size);
+    mc.globalCompositeOperation = 'source-in';
+    mc.fillStyle = setting.color || '#fff'; mc.fillRect(0, 0, edge, edge);
+    const composite = document.createElement('canvas'); composite.width = composite.height = edge;
+    const cc = composite.getContext('2d');
+    if (thickness > 0) {
+      for (let step=0; step<16; step++) {
+        const angle = step * Math.PI / 8;
+        cc.drawImage(mask, Math.cos(angle)*thickness, Math.sin(angle)*thickness);
+      }
+    }
+    cc.drawImage(img, inset, inset, size, size);
+    return composite;
+  }
+  function drawSprite(entry, id, size) {
+    if (entry?.ok) {
+      const src = entry.sprite || entry.img;
+      // Mantiene il rapporto tra bordo e soggetto, senza contorno quadrato.
+      const pad = entry.sprite && entry.sprite !== entry.img ? (src.width / (CFG.emojiOutline.assetSize || 128)) : 1;
+      const side = size * pad;
+      ctx.drawImage(src, -side/2, -side/2, side, side);
+    } else {
+      ctx.font = `${size*.82}px sans-serif`;
+      ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(glyph(id),0,0);
+    }
+  }
+
   function drawSoon() { if (!animFrame) animFrame = requestAnimationFrame(draw); }
   function draw() {
     animFrame = 0;
@@ -117,11 +155,7 @@
       if (item.x < minX || item.x > maxX || item.y < minY || item.y > maxY) continue;
       const entry = images.get(item.id);
       ctx.save();ctx.translate(item.x,item.y);ctx.rotate(item.rotation);
-      if (entry?.ok) ctx.drawImage(entry.img,-item.size/2,-item.size/2,item.size,item.size);
-      else {
-        ctx.font = `${item.size*.82}px sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';
-        ctx.fillText(glyph(item.id),0,0);
-      }
+      drawSprite(entry, item.id, item.size);
       ctx.restore();
     }
     // Il livello dei protagonisti viene sempre disegnato per ultimo.
@@ -129,8 +163,7 @@
       const item = target.item;
       const entry = images.get(item.id);
       ctx.save();ctx.translate(item.x,item.y);ctx.rotate(item.rotation);
-      if (entry?.ok) ctx.drawImage(entry.img,-item.size/2,-item.size/2,item.size,item.size);
-      else {ctx.font=`${item.size*.82}px sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(glyph(item.id),0,0);}
+      drawSprite(entry, item.id, item.size);
       ctx.restore();
     }
     if (game.highlight) {
@@ -146,47 +179,74 @@
     return { id, x, y, size, target, rotation: rand(-CFG.placement.rotateDegrees,CFG.placement.rotateDegrees)*Math.PI/180 };
   }
   function planItems(ids, level, goalIds) {
-    const maxAttempts=CFG.placement.attempts;
-    const placed=[], cell=CFG.placement.gridCell;
-    const cells=new Map(), key=(x,y)=>`${x},${y}`;
-    const densities=Array.from({length:7*5},()=>rand(1-CFG.placement.crowdedZoneVariation,1+CFG.placement.crowdedZoneVariation));
-    const near=(x,y)=>{
-      const cx=Math.floor(x/cell),cy=Math.floor(y/cell),result=[];
-      for(let i=cx-2;i<=cx+2;i++)for(let j=cy-2;j<=cy+2;j++) for(const item of (cells.get(key(i,j))||[]))result.push(item);
-      return result;
-    };
-    const add=item=>{placed.push(item);const k=key(Math.floor(item.x/cell),Math.floor(item.y/cell));if(!cells.has(k))cells.set(k,[]);cells.get(k).push(item);};
-    function place(id, isTarget, others) {
-      const range = isTarget ? level.targetSize : level.size;
-      const size = rand(...range);
-      let best=null, bestPenalty=Infinity;
-      for (let attempt=0;attempt<maxAttempts;attempt++) {
-        const x=rand(CFG.placement.margin,W-CFG.placement.margin),y=rand(CFG.placement.margin,H-CFG.placement.margin);
-        let penalty=0;
-        const zoneX=Math.min(6,Math.floor(x/W*7)), zoneY=Math.min(4,Math.floor(y/H*5));
-        // Zone più ricche e zone più vuote, senza una griglia visibile.
-        penalty += (1.2-densities[zoneY*7+zoneX])*1.1;
-        for(const p of near(x,y)) {
-          const d=Math.hypot(x-p.x,y-p.y), sum=(size+p.size)/2;
-          const overlap=clamp((sum-d)/sum,0,1);
-          penalty += overlap > level.overlap ? (overlap-level.overlap)*7 : overlap*.3;
-          if (d < sum*.18) penalty += 3;
-        }
-        if (isTarget) for(const t of others) {
-          const d=Math.hypot(x-t.x,y-t.y);
-          if(d < (size+t.size)*.85)penalty+=20;
-        }
-        if (penalty < bestPenalty){bestPenalty=penalty;best={x,y,size};}
-        if (penalty < .1) break;
+    const placed = [], all = [], cell = CFG.placement.gridCell;
+    const cells = new Map(), key = (x,y) => `${x},${y}`;
+    const columns = 8, rows = 6, zoneCount = columns*rows;
+    const counts = new Array(zoneCount).fill(0);
+    const variation = CFG.placement.crowdedZoneVariation;
+    const weights = Array.from({length:zoneCount},()=>rand(1-variation,1+variation));
+    const inset = CFG.placement.margin;
+    const nearby = (x,y) => {
+      const cx=Math.floor(x/cell), cy=Math.floor(y/cell), found=[];
+      for (let i=cx-2;i<=cx+2;i++) for (let j=cy-2;j<=cy+2;j++) {
+        for (const item of cells.get(key(i,j)) || []) found.push(item);
       }
-      const item=sprite(id,best.x,best.y,best.size,isTarget);
-      if (!isTarget)add(item);
+      return found;
+    };
+    const record = item => {
+      all.push(item);
+      counts[item.zone]++;
+      const cellKey = key(Math.floor(item.x/cell),Math.floor(item.y/cell));
+      if (!cells.has(cellKey)) cells.set(cellKey,[]);
+      cells.get(cellKey).push(item);
+    };
+    // Scegliamo prima la zona meno carica rispetto alla sua densità desiderata.
+    // Il rumore evita una griglia rigida, pur coprendo l'intera scena.
+    function zone() {
+      let best = 0, bestScore=Infinity;
+      for (let i=0;i<zoneCount;i++) {
+        const score = (counts[i]+rand(0,1.2))/weights[i];
+        if (score < bestScore) {bestScore=score;best=i;}
+      }
+      return best;
+    }
+    function position(z) {
+      const col=z%columns, row=Math.floor(z/columns);
+      const zoneWidth=W/columns, zoneHeight=H/rows;
+      return {
+        x:rand(Math.max(inset,col*zoneWidth),Math.min(W-inset,(col+1)*zoneWidth)),
+        y:rand(Math.max(inset,row*zoneHeight),Math.min(H-inset,(row+1)*zoneHeight))
+      };
+    }
+    function place(id, isTarget) {
+      const range=isTarget?level.targetSize:level.size;
+      const size=rand(...range), z=zone();
+      let best=null, bestPenalty=Infinity;
+      for(let attempt=0;attempt<CFG.placement.attempts;attempt++) {
+        const spot=position(z);
+        let penalty=0;
+        for (const p of nearby(spot.x,spot.y)) {
+          const dist=Math.hypot(spot.x-p.x,spot.y-p.y);
+          const radii=.49*(size+p.size);
+          // overlap: frazione massima di compenetrazione dei due ingombri.
+          const overlap=Math.max(0,(radii-dist)/radii);
+          if(overlap > level.overlap) penalty += (overlap-level.overlap)*100;
+          penalty += overlap*2;
+          // Un target non deve finire addosso a nessun altro target.
+          if(isTarget && p.target && dist < radii*1.25) penalty += 100;
+        }
+        if(penalty<bestPenalty) {bestPenalty=penalty;best=spot;}
+        if(penalty===0) break;
+      }
+      const item={...sprite(id,best.x,best.y,size,isTarget),zone:z};
+      record(item);
+      if(!isTarget) placed.push(item);
       return item;
     }
-    for(const id of ids)place(id,false,[]);
-    const targetItems=[];
-    for(const id of goalIds) targetItems.push(place(id,true,targetItems));
-    return { items:placed, targetItems };
+    // Riempimento e target condividono gli stessi vincoli di spazio.
+    for(const id of ids)place(id,false);
+    const targetItems=goalIds.map(id=>place(id,true));
+    return {items:placed,targetItems};
   }
 
   async function preload(ids, serial) {
@@ -205,7 +265,7 @@
           img.onerror=()=>{clearTimeout(timer);resolve(false);};
           img.src=uri(id);
         });
-        images.set(id,{img,ok});complete++;
+        images.set(id,{img,ok,sprite:ok ? outlinedSprite(img) : null});complete++;
         if (serial===loadSerial){
           if(complete%7===0)overlay(`Caricamento emoji: ${complete} / ${pending.length}`);
           drawSoon();
