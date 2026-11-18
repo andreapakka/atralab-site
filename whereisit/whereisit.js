@@ -225,7 +225,8 @@
       const t=clamp(y/H,0,1);
       const low=level.sizeTop[0]+(level.sizeBottom[0]-level.sizeTop[0])*t;
       const high=level.sizeTop[1]+(level.sizeBottom[1]-level.sizeTop[1])*t;
-      return rand(low,high);
+      // Variazione casuale contenuta: rende la prospettiva più leggibile.
+      return low + (high-low)*rand(0.15,0.85);
     }
     function place(id, isTarget) {
       const z=zone();

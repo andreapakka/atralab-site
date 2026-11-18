@@ -11,9 +11,9 @@ window.WHEREISIT_CONFIG = {
   // Dimensioni progressive: "top" nella parte alta, "bottom" nella parte bassa.
   // Anche i protagonisti seguono questi stessi valori, senza essere ingranditi a parte.
   difficulty: {
-    easy: { name: 'Facile', count: 200, sizeTop: [48, 60], sizeBottom: [65, 85], distractorsPerTarget: 2, overlap: 0.12 },
-    medium: { name: 'Medio', count: 350, sizeTop: [40, 52], sizeBottom: [55, 75], distractorsPerTarget: 4, overlap: 0.16 },
-    hard: { name: 'Difficile', count: 500, sizeTop: [34, 45], sizeBottom: [48, 65], distractorsPerTarget: 6, overlap: 0.20 }
+    easy: { name: 'Facile', count: 50, sizeTop: [44, 54], sizeBottom: [65, 85], distractorsPerTarget: 2, overlap: 0.12 },
+    medium: { name: 'Medio', count: 100, sizeTop: [36, 46], sizeBottom: [55, 75], distractorsPerTarget: 4, overlap: 0.16 },
+    hard: { name: 'Difficile', count: 150, sizeTop: [30, 39], sizeBottom: [48, 65], distractorsPerTarget: 6, overlap: 0.20 }
   },
   targets: { min: 1, max: 10, initial: 4 },
   camera: { maxZoom: 4, initialZoom: 1.08, mobileInitialZoom: 1.22 },
