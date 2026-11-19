@@ -12,5 +12,6 @@ const groups={
  'Pop e funk':[['Smooth Move','USUAN1100528'],['Your Call','USUAN1500010'],['Life of Riley','USUAN1400054'],['Protofunk','USUAN1100103'],['Style Funk','USUAN1100058']]
 };
 const tracks=Object.entries(groups).flatMap(([category,rows])=>rows.map(([title,isrc])=>{const filename=`${title} (ISRC ${isrc}).mp3`.replace(/ /g,'_');return {id:isrc.toLowerCase(),title,category,url:'https://commons.wikimedia.org/wiki/Special:FilePath/'+encodeURIComponent(filename),source:'https://commons.wikimedia.org/wiki/File:'+encodeURIComponent(filename),author:'Kevin MacLeod (incompetech.com)',license:'CC BY 4.0',licenseUrl:'https://creativecommons.org/licenses/by/4.0/',original:'https://incompetech.com/music/royalty-free/index.html?isrc='+isrc};}));
+tracks.unshift({id:'happy-birthday-traditional',title:'Tanti auguri a te (tradizionale)',category:'Festività',url:'https://upload.wikimedia.org/wikipedia/commons/transcoded/f/f5/Good_Morning_to_All.ogg/Good_Morning_to_All.ogg.mp3',source:'https://commons.wikimedia.org/wiki/File:Good_Morning_to_All.ogg',author:'Eirik1231',license:'Public domain',licenseUrl:'https://commons.wikimedia.org/wiki/File:Good_Morning_to_All.ogg',original:'https://commons.wikimedia.org/wiki/File:Good_Morning_to_All.ogg'});
 return {tracks,async load(){return tracks;},get(id){return tracks.find(t=>t.id===id);}};
 })();
