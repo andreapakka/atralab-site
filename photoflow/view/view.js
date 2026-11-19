@@ -1,0 +1,7 @@
+(()=>{const $=id=>document.getElementById(id),token=new URLSearchParams(location.search).get('s')||'',status=$('pf-public-status'),play=$('pf-public-play');let loading=false;
+ async function api(action,params={}){const r=await fetch(PF.endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,shareToken:token,...params}),cache:'no-store',referrerPolicy:'no-referrer'});const d=await r.json().catch(()=>({}));if(!r.ok||!d.ok)throw Error(d.error==='share_not_found'?'Link non valido o condivisione disattivata.':d.error==='no_enabled_photos'?'Non ci sono fotografie abilitate.':'Slideshow non disponibile. Riprova.');return d;}
+ // Adapter for the unmodified player, only permits refreshing a shared photo URL.
+ window.pfApi=(action,params)=>{if(action!=='photo_url')return Promise.reject(Error('Operazione non consentita'));return api('shared_photo_url',{photoId:params.photoId});};
+ async function check(start){if(loading)return;loading=true;play.disabled=true;status.textContent=start?'Preparazione slideshow…':'Verifica del link…';try{if(!/^[0-9a-f]{64}$/.test(token))throw Error('Link non valido.');const d=await api('shared_play');$('pf-public-title').textContent=d.slideshow.title;status.textContent='';if(start)await PFPlayer.start(d);}catch(e){status.textContent=e.message;await window.PFPlayer?.close();}finally{loading=false;play.disabled=!/^[0-9a-f]{64}$/.test(token);}}
+ play.onclick=()=>check(true);window.addEventListener('DOMContentLoaded',()=>check(false),{once:true});
+})();
