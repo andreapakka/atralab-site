@@ -1,3 +1,4 @@
+import {exportPdf} from './pdf-export.js';
 import * as store from './storage.js';
 import {Editor,prepare,decode} from './editor.js';
 const c=window.PHOTOFIT_CONFIG,$=id=>document.getElementById('pf-'+id);
@@ -12,7 +13,7 @@ function element(tag,text,cls){const el=document.createElement(tag);if(text!==un
 function button(text,action){const b=element('button',text);b.type='button';b.disabled=busy||!ready;b.addEventListener('click',action);return b;}
 function pendingRows(){return rows.filter(r=>r.status==='pending'&&(r.owner_id===me?.id||(admin&&!$('pending-mine').checked)));}
 function completedRows(){return rows.filter(r=>r.status==='completed'&&(!admin||!$('mine').checked||r.owner_id===me?.id));}
-function updateSelection(){const visible=completedRows();$('count').textContent=`${visible.filter(r=>chosen.has(r.id)).length} selezionate`; $('zip').disabled=busy||!ready||!visible.some(r=>chosen.has(r.id));$('all').disabled=busy||!ready||!visible.length;$('none').disabled=busy||!ready||!chosen.size;}
+function updateSelection(){const visible=completedRows();$('count').textContent=`${visible.filter(r=>chosen.has(r.id)).length} selezionate`; $('zip').disabled=busy||!ready||!visible.some(r=>chosen.has(r.id));$('pdf').disabled=$('zip').disabled;$('all').disabled=busy||!ready||!visible.length;$('none').disabled=busy||!ready||!chosen.size;}
 function setBusy(value){busy=value;for(const id of ['refresh','browse','files','pending-tab','completed-tab','mine','pending-mine','close','preview','preview-back','save','fullscreen'])$(id).disabled=busy||!ready; if(!value&&editor.image)$('preview').disabled=editor.invalid;render();}
 async function thumbnail(row,img){try{let cached=urls.get(row.id);if(!cached||cached.until<Date.now()){const url=await store.signedUrl(row);cached={url,until:Date.now()+Math.max(10,c.signedUrlSeconds-30)*1000};urls.set(row.id,cached);}if(img.isConnected)img.src=cached.url;}catch{if(img.isConnected)img.alt='Anteprima non disponibile';}}
 // Le anteprime vengono richieste solo quando si avvicinano alla zona visibile.
@@ -35,6 +36,7 @@ function singleDownload(row){return run(async()=>{downloadBlob(await store.downl
 function deletePhoto(row){if(busy||!confirm('Eliminare definitivamente questa fotografia?'))return;return run(async()=>{await store.remove(row);chosen.delete(row.id);await refresh();status('Fotografia eliminata.');});}
 function zipName(row,used){let name=row.filename;if(used.has(name))name=name.replace(/\.jpg$/i,`_${row.id.slice(0,8)}.jpg`);used.add(name);return name;}
 $('zip').addEventListener('click',()=>run(async()=>{if(!window.JSZip)throw Error('Libreria ZIP non disponibile.');const selected=completedRows().filter(r=>chosen.has(r.id));if(!selected.length)return;const zip=new window.JSZip(),names=new Set();for(let i=0;i<selected.length;i++){status(`Download ${i+1} di ${selected.length}…`);zip.file(zipName(selected[i],names),await store.download(selected[i]));}status('Preparazione ZIP…');const blob=await zip.generateAsync({type:'blob',compression:'STORE'});downloadBlob(blob,`ATRALAB_PhotoFit_${new Date().toISOString().slice(0,10)}.zip`);status('ZIP pronto.');}));
+$('pdf').addEventListener('click',()=>run(async()=>{const selected=completedRows().filter(r=>chosen.has(r.id));if(!selected.length)return;const result=await exportPdf(selected,store.download,message=>status(message));downloadBlob(result.blob,`ATRALAB_PhotoFit_${new Date().toISOString().slice(0,10)}.pdf`);status(`PDF pronto: ${selected.length} foto, ${result.pageCount} ${result.pageCount===1?'pagina':'pagine'} A4.`);},{message:'Calcolo disposizione delle fotografie…'}));
 $('all').addEventListener('click',()=>{for(const row of completedRows())chosen.add(row.id);render();});$('none').addEventListener('click',()=>{chosen.clear();render();});$('mine').addEventListener('change',()=>{chosen.clear();render();});$('pending-mine').addEventListener('change',render);
 for(const name of ['pending','completed'])$(name+'-tab').addEventListener('click',()=>{view=name;render();});
 $('refresh').addEventListener('click',()=>run(async()=>{limit=await store.quota();await refresh();status('');}));
