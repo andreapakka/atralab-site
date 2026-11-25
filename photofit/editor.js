@@ -35,10 +35,28 @@ function preferences(){try{return JSON.parse(localStorage.getItem('photofit-fram
 function remember(v){try{localStorage.setItem('photofit-frame',JSON.stringify(v));}catch{}}
 export class Editor{
  constructor(){this.el=$('canvas');this.ctx=this.el.getContext('2d');this.pointers=new Map();this.view=1;this.grid=c.grid;this.row=null;this.image=null;this.onChange=()=>{};
+  this.bindAdjustments();
   this.resize=new ResizeObserver(()=>this.draw());this.resize.observe($('canvas-wrap'));
   this.el.addEventListener('pointerdown',e=>{if(!this.image||this.invalid)return;this.el.setPointerCapture(e.pointerId);this.pointers.set(e.pointerId,this.point(e));});
   this.el.addEventListener('pointermove',e=>this.move(e));for(const event of ['pointerup','pointercancel','lostpointercapture'])this.el.addEventListener(event,e=>this.pointers.delete(e.pointerId));
   this.el.addEventListener('wheel',e=>{if(!this.image||this.invalid)return;e.preventDefault();const p=this.point(e);if(e.ctrlKey||e.altKey){this.setView(this.view*Math.exp(-e.deltaY*.002));}else this.zoomAt(this.zoom*Math.exp(-e.deltaY*.002),p,p);},{passive:false});
+ }
+ bindAdjustments(){
+  for(const [id,step] of [['photo-zoom',c.photoZoomStep],['view-zoom',c.viewZoomStep],['angle',c.rotationStep]]) $(id).step=step;
+  for(const button of document.querySelectorAll('[data-pf-adjust]')){
+   let delay=null,repeat=null,held=false;
+   const stop=()=>{clearTimeout(delay);clearInterval(repeat);delay=repeat=null;};
+   const adjust=()=>{if(!this.image||this.invalid||$('close').disabled){stop();return;}const d=Number(button.dataset.dir);const round=n=>Number(n.toFixed(8));
+    if(button.dataset.pfAdjust==='photo')this.setZoom(round(this.zoom+d*c.photoZoomStep));
+    else if(button.dataset.pfAdjust==='view')this.setView(round(this.view+d*c.viewZoomStep));
+    else this.setAngle(round(this.angle+d*c.rotationStep));
+   };
+   button.addEventListener('pointerdown',e=>{if(e.button!==0)return;stop();held=false;button.setPointerCapture(e.pointerId);delay=setTimeout(()=>{held=true;adjust();repeat=setInterval(adjust,c.adjustRepeatMs);},c.adjustHoldDelayMs);});
+   for(const event of ['pointerup','pointercancel','lostpointercapture','blur'])button.addEventListener(event,stop);
+   button.addEventListener('click',e=>{if(!held||e.detail===0)adjust();held=false;});
+   $('editor').addEventListener('close',()=>{stop();held=false;});
+   window.addEventListener('blur',stop);
+  }
  }
  open(row,image){this.row=row;this.image=image;const p=preferences();this.unit=p.unit==='px'?'px':c.defaultUnit;this.dpi=Number(p.dpi)||c.defaultDpi;this.width=Number(p.width)||c.defaultWidth;this.height=Number(p.height)||c.defaultHeight;this.angle=0;this.zoom=1;this.view=1;this.x=0;this.y=0;this.invalid=false;this.frame();this.sync();}
  close(){this.row=null;this.image=null;this.pointers.clear();this.draw();}

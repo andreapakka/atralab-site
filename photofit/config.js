@@ -7,6 +7,8 @@ window.PHOTOFIT_CONFIG = Object.freeze({
   jpegQuality: 0.95, defaultDpi: 300, defaultUnit: 'cm', defaultWidth: 8, defaultHeight: 5,
   // Limiti tecnici del canvas di esportazione, non vincoli di proporzione.
   maxOutputSide: 8192, maxOutputPixels: 16000000,
+  photoZoomStep: 0.01, viewZoomStep: 0.01, rotationStep: 0.1,
+  adjustHoldDelayMs: 350, adjustRepeatMs: 80,
   maxPhotoZoom: 30, maxViewZoom: 4, grid: true,
   quotaBytesFallback: 200 * 1024 * 1024, pageSize: 100, signedUrlSeconds: 3600
 });
